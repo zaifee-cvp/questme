@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { --brand: 172 87% 36%; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    @apply text-slate-800 bg-[#f0fdf9] antialiased;
+  }
+  h1, h2, h3, h4, h5 { font-weight: 500; letter-spacing: -0.02em; }
+  input, select, textarea {
+    @apply rounded-lg border border-slate-200 bg-white px-3.5 py-2.5
+      text-sm text-slate-800 placeholder:text-slate-400
+      focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500
+      transition-colors;
+    border-width: 0.5px;
+  }
+  button { @apply transition-all duration-150 ease-out; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+      rounded-[20px] bg-[#0b7b6b] px-6 py-2.5
+      text-sm font-medium text-white
+      hover:bg-[#0a6659] active:scale-[0.98]
+      focus:outline-none focus:ring-2 focus:ring-teal-500/50;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2
+      rounded-[20px] px-6 py-2.5
+      text-sm font-medium text-slate-700
+      hover:bg-slate-100 active:scale-[0.98]
+      focus:outline-none focus:ring-2 focus:ring-teal-400/50;
+    border: 0.5px solid;
+    @apply border-slate-300;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+      rounded-[20px] px-4 py-2
+      text-sm text-slate-600
+      hover:bg-slate-100 active:scale-[0.98];
+  }
+  .card {
+    @apply rounded-xl bg-white p-6;
+    border: 0.5px solid;
+    @apply border-slate-200;
+  }
+}
+
+@layer utilities {
+  .text-brand-gradient {
+    @apply bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent;
+  }
+  .scrollbar-thin { scrollbar-width: thin; }
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
+}
+
+@keyframes fadeIn    { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp   { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes typingDot { 0%, 100% { opacity: 0.3; transform: translateY(0) } 50% { opacity: 1; transform: translateY(-3px) } }
+
+.animate-fadeIn    { animation: fadeIn    0.4s ease-out forwards; }
+.animate-slideUp   { animation: slideUp   0.4s ease-out forwards; }
+.animate-typingDot { animation: typingDot 1.2s ease-in-out infinite; }

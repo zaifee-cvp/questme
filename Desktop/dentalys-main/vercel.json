@@ -1,0 +1,25 @@
+{
+  "crons": [
+    { "path": "/api/cron/reminders", "schedule": "*/30 * * * *" },
+    { "path": "/api/cron/run-monitors", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/process-alerts", "schedule": "*/2 * * * *" },
+    { "path": "/api/cron/check-trials", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/trial-warnings", "schedule": "0 9 * * *" }
+  ],
+  "functions": {
+    "app/api/telegram/webhook/[businessId]/route.ts": {
+      "maxDuration": 60
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}
