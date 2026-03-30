@@ -9,17 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.9.0",
-    "@supabase/supabase-js": "^2.100.1",
-    "cheerio": "^1.2.0",
-    "lucide-react": "^1.7.0",
-    "next": "^14.2.35",
-    "openai": "^6.33.0",
-    "pdf-parse": "^2.4.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "resend": "^6.9.4",
-    "stripe": "^21.0.1"
+    "next": "14.2.35",
+    "react": "^18",
+    "react-dom": "^18",
+    "@supabase/supabase-js": "latest",
+    "@supabase/ssr": "latest",
+    "openai": "latest",
+    "stripe": "latest",
+    "cheerio": "latest",
+    "pdf-parse": "latest",
+    "resend": "latest",
+    "lucide-react": "latest",
+    "clsx": "latest"
   },
   "devDependencies": {
     "@types/node": "^20",
