@@ -47,12 +47,19 @@ export default function ChatPage() {
     setSubmittingLead(false)
   }
 
-  async function sendMessage(e: React.FormEvent) {
-    e.preventDefault(); if (!input.trim() || loading) return
-    const userMsg = input.trim(); setInput('')
+  async function sendMessage(e: React.FormEvent | React.MouseEvent) {
+    e.preventDefault()
+    if (!input.trim() || loading) return
+    const userMsg = input.trim()
+    setInput('')
     const newMessages: Message[] = [...messages, { role: 'user', content: userMsg }]
-    setMessages(newMessages); setLoading(true)
-    const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, sessionId, message: userMsg, messages: newMessages.slice(-10) }) })
+    setMessages(newMessages)
+    setLoading(true)
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ botId, sessionId, message: userMsg, messages: newMessages.slice(-10) }),
+    })
     const data = await res.json()
     setMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'Sorry, I had trouble responding. Please try again.' }])
     setLoading(false)
@@ -60,81 +67,353 @@ export default function ChatPage() {
 
   const accent = bot?.color || '#AAFF00'
 
-  if (botLoading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080A0E', color: '#6B7280' }}>Loading...</div>
-  if (!bot) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080A0E', color: '#f87171' }}>Bot not found</div>
+  if (botLoading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080A0E', color: '#6B7280' }}>Loading...</div>
+  )
+  if (!bot) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080A0E', color: '#f87171' }}>Bot not found</div>
+  )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080A0E', display: 'flex', flexDirection: 'column', maxWidth: '720px', margin: '0 auto', padding: '0 16px' }}>
-      <div style={{ padding: '20px 0 16px', borderBottom: '1px solid #1E2028', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '38px', height: '38px', background: accent, borderRadius: '50%', fontWeight: 900, fontSize: '16px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>{bot.name[0].toUpperCase()}</div>
-        <div>
-          <div style={{ fontWeight: 600, fontSize: '15px' }}>{bot.name}</div>
-          <div style={{ fontSize: '11px', color: accent, display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block' }}></span>
-            {!bot.white_label ? 'Online · Powered by Questme.ai' : 'Online'}
+    <>
+      <style>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #080A0E; overflow: hidden; }
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-6px); }
+        }
+        .chat-page {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          background: #080A0E;
+          font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+        .chat-header {
+          padding: 12px 16px;
+          border-bottom: 1px solid #1E2028;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: #080A0EF0;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          flex-shrink: 0;
+          min-height: 60px;
+        }
+        .chat-avatar {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          font-weight: 900;
+          font-size: 15px;
+          color: #080A0E;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          font-family: 'Outfit', sans-serif;
+        }
+        .chat-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+        }
+        .msg-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+        }
+        .msg-row.user { justify-content: flex-end; }
+        .msg-row.bot { justify-content: flex-start; }
+        .msg-bubble {
+          max-width: min(78%, 340px);
+          padding: 10px 14px;
+          font-size: 14px;
+          line-height: 1.55;
+          word-break: break-word;
+        }
+        .msg-bubble.user {
+          background: var(--accent);
+          color: #080A0E;
+          font-weight: 600;
+          border-radius: 18px 18px 4px 18px;
+        }
+        .msg-bubble.bot {
+          background: #0F1117;
+          color: #F0F0F0;
+          border: 1px solid #1E2028;
+          border-radius: 18px 18px 18px 4px;
+        }
+        .msg-avatar {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          font-size: 11px;
+          font-weight: 900;
+          color: #080A0E;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          font-family: 'Outfit', sans-serif;
+        }
+        .typing-dots {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          padding: 12px 16px;
+        }
+        .dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          animation: bounce 1.4s ease-in-out infinite;
+        }
+        .chat-input-area {
+          padding: 10px 12px;
+          background: #080A0E;
+          border-top: 1px solid #1E2028;
+          flex-shrink: 0;
+          padding-bottom: max(10px, env(safe-area-inset-bottom));
+        }
+        .input-row {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          background: #0F1117;
+          border: 1px solid #1E2028;
+          border-radius: 24px;
+          padding: 6px 6px 6px 14px;
+        }
+        .input-row:focus-within { border-color: var(--accent); }
+        .chat-input {
+          flex: 1;
+          background: transparent;
+          border: none;
+          outline: none;
+          color: #F0F0F0;
+          font-size: 15px;
+          font-family: inherit;
+          line-height: 1.4;
+          padding: 4px 0;
+          min-height: 28px;
+          max-height: 100px;
+          resize: none;
+          -webkit-appearance: none;
+        }
+        .chat-input::placeholder { color: #4B5563; }
+        .send-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: opacity 0.15s, transform 0.1s;
+          flex-shrink: 0;
+        }
+        .send-btn:active { transform: scale(0.92); }
+        .contact-bar {
+          padding: 10px 16px;
+          padding-bottom: max(10px, env(safe-area-inset-bottom));
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          justify-content: center;
+          border-top: 1px solid #1E2028;
+          background: #080A0E;
+          flex-shrink: 0;
+        }
+        .contact-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 12px;
+          text-decoration: none;
+          padding: 7px 14px;
+          border-radius: 20px;
+          font-weight: 500;
+          white-space: nowrap;
+          min-height: 36px;
+        }
+        .lead-card {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px 16px;
+        }
+        .lead-inner {
+          width: 100%;
+          max-width: 360px;
+          background: #0F1117;
+          border: 1px solid #1E2028;
+          border-radius: 16px;
+          padding: 24px 20px;
+        }
+        .lead-input {
+          width: 100%;
+          background: #161820;
+          border: 1px solid #1E2028;
+          border-radius: 10px;
+          padding: 12px 14px;
+          color: #F0F0F0;
+          font-size: 15px;
+          font-family: inherit;
+          outline: none;
+          -webkit-appearance: none;
+          margin-bottom: 10px;
+        }
+        .lead-input:focus { border-color: var(--accent); }
+        .lead-input::placeholder { color: #4B5563; }
+        .lead-btn {
+          width: 100%;
+          padding: 13px;
+          border: none;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 700;
+          cursor: pointer;
+          font-family: inherit;
+          transition: opacity 0.15s;
+        }
+        .lead-btn:disabled { opacity: 0.6; }
+        @media (max-width: 480px) {
+          .msg-bubble { max-width: 85%; font-size: 14px; }
+          .chat-header { padding: 10px 14px; }
+          .chat-messages { padding: 12px; gap: 10px; }
+        }
+      `}</style>
+      <div className="chat-page" style={{ '--accent': accent } as React.CSSProperties}>
+
+        {/* Header */}
+        <div className="chat-header">
+          <div className="chat-avatar" style={{ background: accent }}>
+            {bot.name[0].toUpperCase()}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: '15px', color: '#F0F0F0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bot.name}</div>
+            <div style={{ fontSize: '11px', color: accent, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }}></span>
+              {!(bot as any).white_label ? 'Powered by Questme.ai' : 'Online'}
+            </div>
           </div>
         </div>
-      </div>
 
-      {!leadCaptured ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px', textAlign: 'center' }}>👋</div>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', textAlign: 'center', fontFamily: 'Outfit, sans-serif' }}>{bot.lead_capture_prompt || 'Enter your details to start chatting'}</h2>
-            <form onSubmit={submitLead} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
-              <input className="input" placeholder="Your name (optional)" value={leadName} onChange={e => setLeadName(e.target.value)} />
-              <input className="input" type="email" placeholder="Your email address" value={leadEmail} onChange={e => setLeadEmail(e.target.value)} required />
-              <button className="btn-accent" type="submit" disabled={submittingLead} style={{ width: '100%', justifyContent: 'center', background: accent }}>
+        {/* Lead capture gate */}
+        {!leadCaptured ? (
+          <div className="lead-card">
+            <div className="lead-inner">
+              <div style={{ fontSize: '28px', textAlign: 'center', marginBottom: '10px' }}>👋</div>
+              <h2 style={{ fontSize: '17px', fontWeight: 700, textAlign: 'center', color: '#F0F0F0', marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>
+                {bot.lead_capture_prompt || 'Enter your details to start chatting'}
+              </h2>
+              <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', marginBottom: '20px' }}>Takes less than 10 seconds</p>
+              <input className="lead-input" placeholder="Your name (optional)" value={leadName} onChange={e => setLeadName(e.target.value)} />
+              <input className="lead-input" type="email" inputMode="email" placeholder="Your email address" value={leadEmail} onChange={e => setLeadEmail(e.target.value)} />
+              <button className="lead-btn" onClick={submitLead} disabled={submittingLead || !leadEmail} style={{ background: accent, color: '#080A0E' }}>
                 {submittingLead ? 'Starting...' : 'Start chatting →'}
               </button>
-            </form>
+            </div>
           </div>
-        </div>
-      ) : (
-        <>
-          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {messages.map((m, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                {m.role === 'assistant' && (
-                  <div style={{ width: '28px', height: '28px', background: accent, borderRadius: '50%', fontWeight: 900, fontSize: '12px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '10px', flexShrink: 0, alignSelf: 'flex-end', fontFamily: 'Outfit, sans-serif' }}>{bot.name[0].toUpperCase()}</div>
-                )}
-                <div style={{ maxWidth: '75%', padding: '12px 16px', borderRadius: m.role === 'user' ? '16px 16px 2px 16px' : '16px 16px 16px 2px', background: m.role === 'user' ? accent : '#0F1117', color: m.role === 'user' ? '#080A0E' : '#F0F0F0', fontWeight: m.role === 'user' ? 600 : 400, fontSize: '14px', lineHeight: 1.6, border: m.role === 'assistant' ? '1px solid #1E2028' : 'none' }}>
-                  {m.content}
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                <div style={{ width: '28px', height: '28px', background: accent, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#080A0E', fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}>{bot.name[0].toUpperCase()}</div>
-                <div style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '16px 16px 16px 2px', padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                    {[0, 1, 2].map(n => <div key={n} style={{ width: '7px', height: '7px', borderRadius: '50%', background: accent, animation: `bounce 1.4s ease-in-out ${n * 0.2}s infinite` }} />)}
+        ) : (
+          <>
+            {/* Messages */}
+            <div className="chat-messages">
+              {messages.map((m, i) => (
+                <div key={i} className={`msg-row ${m.role === 'user' ? 'user' : 'bot'}`}>
+                  {m.role === 'assistant' && (
+                    <div className="msg-avatar" style={{ background: accent }}>{bot.name[0].toUpperCase()}</div>
+                  )}
+                  <div className={`msg-bubble ${m.role === 'user' ? 'user' : 'bot'}`}>
+                    {m.content}
                   </div>
                 </div>
+              ))}
+              {loading && (
+                <div className="msg-row bot">
+                  <div className="msg-avatar" style={{ background: accent }}>{bot.name[0].toUpperCase()}</div>
+                  <div className="msg-bubble bot">
+                    <div className="typing-dots" style={{ padding: '2px 0' }}>
+                      {[0, 1, 2].map(n => (
+                        <div key={n} className="dot" style={{ background: accent, animationDelay: `${n * 0.2}s` }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="chat-input-area">
+              <div className="input-row">
+                <textarea
+                  className="chat-input"
+                  placeholder="Ask me anything..."
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      if (input.trim() && !loading) sendMessage(e as any)
+                    }
+                  }}
+                  disabled={loading}
+                  rows={1}
+                />
+                <button
+                  className="send-btn"
+                  onClick={sendMessage}
+                  disabled={loading || !input.trim()}
+                  style={{ background: input.trim() ? accent : '#1E2028' }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5l7 7-7 7M5 12h14" stroke={input.trim() ? '#080A0E' : '#4B5563'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Contact bar */}
+            {(bot.contact_whatsapp || bot.contact_phone || bot.contact_email || bot.contact_website) && (
+              <div className="contact-bar">
+                {bot.contact_whatsapp && (
+                  <a href={`https://wa.me/${bot.contact_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a1f0a', color: '#4ade80', border: '1px solid #166534' }}>
+                    💬 WhatsApp
+                  </a>
+                )}
+                {bot.contact_phone && (
+                  <a href={`tel:${bot.contact_phone}`} className="contact-btn" style={{ background: '#0a1628', color: '#60a5fa', border: '1px solid #1e3a5f' }}>
+                    📞 Call
+                  </a>
+                )}
+                {bot.contact_email && (
+                  <a href={`mailto:${bot.contact_email}`} className="contact-btn" style={{ background: '#150a28', color: '#c084fc', border: '1px solid #4c1d95' }}>
+                    ✉️ Email
+                  </a>
+                )}
+                {bot.contact_website && (
+                  <a href={bot.contact_website} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a1400', color: '#AAFF00', border: '1px solid #365314' }}>
+                    🌐 Website
+                  </a>
+                )}
               </div>
             )}
-            <div ref={messagesEndRef} />
-          </div>
-          <div style={{ padding: '16px 0 24px' }}>
-            <form onSubmit={sendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '12px', padding: '8px 8px 8px 16px' }}>
-              <input className="input" style={{ background: 'transparent', border: 'none', padding: '4px 0', flex: 1 }} placeholder="Ask me anything..." value={input} onChange={e => setInput(e.target.value)} disabled={loading} />
-              <button type="submit" disabled={loading || !input.trim()} style={{ width: '36px', height: '36px', background: input.trim() ? accent : '#1E2028', borderRadius: '8px', border: 'none', cursor: input.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s', flexShrink: 0 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5l7 7-7 7M5 12h14" stroke={input.trim() ? '#080A0E' : '#4B5563'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </button>
-            </form>
-            {(bot.contact_phone || bot.contact_whatsapp || bot.contact_email || bot.contact_website || bot.contact_instagram || bot.contact_facebook) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px', justifyContent: 'center' }}>
-                {bot.contact_phone && <a href={`tel:${bot.contact_phone}`} style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>📞 {bot.contact_phone}</a>}
-                {bot.contact_whatsapp && <a href={`https://wa.me/${bot.contact_whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>💬 WhatsApp</a>}
-                {bot.contact_email && <a href={`mailto:${bot.contact_email}`} style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>✉️ {bot.contact_email}</a>}
-                {bot.contact_website && <a href={bot.contact_website} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>🌐 Website</a>}
-                {bot.contact_instagram && <a href={bot.contact_instagram.startsWith('http') ? bot.contact_instagram : `https://instagram.com/${bot.contact_instagram.replace('@', '')}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>📷 Instagram</a>}
-                {bot.contact_facebook && <a href={bot.contact_facebook} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>👥 Facebook</a>}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   )
 }
