@@ -1,0 +1,25 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
+import { chunkText } from '@/lib/chunker'
+import { indexChunks } from '@/lib/rag'
+
+export async function POST(req: NextRequest) {
+  const authClient = createSupabaseServerClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = createSupabaseServiceClient()
+  const { botId, title, content } = await req.json()
+  if (!botId || !title || !content) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  const { data: bot } = await supabase.from('bots').select('id').eq('id', botId).eq('user_id', user.id).single()
+  if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
+  const { data: source } = await supabase.from('knowledge_sources').insert({ bot_id: botId, user_id: user.id, type: 'text', title, content, status: 'indexing' }).select().single()
+  if (!source) return NextResponse.json({ error: 'Failed' }, { status: 500 })
+  try {
+    const chunks = chunkText(content)
+    await indexChunks(source.id, botId, chunks)
+    await supabase.from('knowledge_sources').update({ status: 'ready', chunk_count: chunks.length }).eq('id', source.id)
+  } catch (err: any) {
+    await supabase.from('knowledge_sources').update({ status: 'failed', error_message: err.message }).eq('id', source.id)
+  }
+  return NextResponse.json({ sourceId: source.id, status: 'ready' })
+}
