@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils/formatters'
 import {
   LayoutDashboard, Users, Settings, FileText, Wrench, QrCode,
-  ClipboardList, BarChart3, ChevronLeft, ChevronRight, LogOut, Menu, X, CreditCard
+  ClipboardList, BarChart3, ChevronLeft, ChevronRight, LogOut, Menu, X, CreditCard, HelpCircle
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/qrcodes', label: 'QR Codes', icon: QrCode },
   { href: '/dashboard/services', label: 'Services', icon: FileText },
   { href: '/dashboard/service-templates', label: 'Templates', icon: Settings },
+  { href: '/dashboard/help', label: 'Help', icon: HelpCircle },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
 ]

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getServerProfile } from '@/lib/supabase/server'
 import { AdminSidebar } from '@/components/admin/sidebar'
+import FeedbackButton from '@/components/FeedbackButton'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await getServerProfile() as any
@@ -22,6 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {children}
         </div>
       </main>
+      <FeedbackButton />
     </div>
   )
 }
