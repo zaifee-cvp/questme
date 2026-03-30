@@ -2,26 +2,22 @@
 import { useState } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-
 export default function SignInPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
     const supabase = createSupabaseBrowserClient()
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
     if (err) { setError(err.message); setLoading(false); return }
-    router.refresh()
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 500)
+    if (data.session) {
+      window.location.href = '/dashboard'
+    }
   }
 
   return (
