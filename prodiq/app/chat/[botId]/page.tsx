@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 
 interface Message { role: 'user' | 'assistant'; content: string }
-interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string }
+interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string; white_label?: boolean }
 
 export default function ChatPage() {
   const { botId } = useParams<{ botId: string }>()
@@ -71,7 +71,7 @@ export default function ChatPage() {
           <div style={{ fontWeight: 600, fontSize: '15px' }}>{bot.name}</div>
           <div style={{ fontSize: '11px', color: accent, display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block' }}></span>
-            Online · Powered by Questme.ai
+            {!bot.white_label ? 'Online · Powered by Questme.ai' : 'Online'}
           </div>
         </div>
       </div>

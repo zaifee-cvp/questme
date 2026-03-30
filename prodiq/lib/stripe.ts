@@ -5,10 +5,10 @@ export function getStripe() {
 }
 
 export const PLAN_LIMITS = {
-  free:    { bot_limit: 1,   chat_limit: 100,   page_limit: 20 },
-  starter: { bot_limit: 1,   chat_limit: 500,   page_limit: 50 },
-  pro:     { bot_limit: 3,   chat_limit: 2000,  page_limit: 200 },
-  scale:   { bot_limit: 999, chat_limit: 10000, page_limit: 9999 },
+  free:    { bot_limit: 1,   chat_limit: 100,   page_limit: 20,   white_label: false, api_access: false },
+  starter: { bot_limit: 1,   chat_limit: 500,   page_limit: 50,   white_label: false, api_access: false },
+  pro:     { bot_limit: 5,   chat_limit: 3000,  page_limit: 300,  white_label: false, api_access: false },
+  scale:   { bot_limit: 999, chat_limit: 10000, page_limit: 9999, white_label: true,  api_access: true },
 }
 
 export function getPlanFromPriceId(priceId: string): string {
