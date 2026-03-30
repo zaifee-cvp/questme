@@ -3,13 +3,14 @@ import Link from 'next/link'
 import FeedbackButton from '@/components/FeedbackButton'
 import { usePathname, useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart3, Mail, CreditCard, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Mail, CreditCard, Settings, HelpCircle, LogOut } from 'lucide-react'
 
 const NAV = [
   { href: '/dashboard', label: 'My Bots', icon: LayoutDashboard },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/leads', label: 'Leads', icon: Mail },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+  { href: '/dashboard/help', label: 'Help', icon: HelpCircle },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 

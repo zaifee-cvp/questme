@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
       from: process.env.RESEND_FROM!,
-      to: 'zaifee@cvidsproductions.net',
+      to: 'support@cvidsproductions.net',
       subject: `[Questme.ai Feedback] ${type?.toUpperCase()} — from ${user?.email || 'anonymous'}`,
       html: `
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;">
