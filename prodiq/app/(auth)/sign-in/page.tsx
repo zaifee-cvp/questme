@@ -33,6 +33,9 @@ export default function SignInPage() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <input className="input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
           <input className="input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+            <div style={{ textAlign: 'right', marginTop: '-8px' }}>
+              <Link href="/forgot-password" style={{ fontSize: '13px', color: '#AAFF00', textDecoration: 'none' }}>Forgot password?</Link>
+            </div>
           {error && <div style={{ fontSize: '13px', color: '#f87171', background: '#1f0a0a', border: '1px solid #3d1515', borderRadius: '8px', padding: '10px 14px' }}>{error}</div>}
           <button className="btn-accent" type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
             {loading ? 'Signing in...' : 'Sign in →'}

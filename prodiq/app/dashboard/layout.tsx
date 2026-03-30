@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import FeedbackButton from '@/components/FeedbackButton'
 import { usePathname, useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { LayoutDashboard, BarChart3, Mail, CreditCard, Settings, LogOut } from 'lucide-react'
@@ -50,6 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main style={{ flex: 1, overflow: 'auto', padding: '32px', maxWidth: '1100px' }}>
         {children}
       </main>
+      <FeedbackButton />
     </div>
   )
 }
