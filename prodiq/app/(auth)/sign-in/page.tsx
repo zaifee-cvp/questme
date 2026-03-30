@@ -13,12 +13,15 @@ export default function SignInPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true); setError('')
+    setLoading(true)
+    setError('')
     const supabase = createSupabaseBrowserClient()
     const { error: err } = await supabase.auth.signInWithPassword({ email, password })
     if (err) { setError(err.message); setLoading(false); return }
-    router.push('/dashboard')
     router.refresh()
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 500)
   }
 
   return (
