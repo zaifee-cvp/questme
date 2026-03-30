@@ -2,7 +2,6 @@ import { Resend } from 'resend'
 import type { Company, WorkOrder } from '@/types'
 import { formatDate, formatTime, interpolateEmailTemplate } from '@/lib/utils/formatters'
 
-const resend = new Resend(process.env.RESEND_API_KEY!)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@example.com'
 const FROM_NAME = process.env.RESEND_FROM_NAME ?? 'FieldService Platform'
 
@@ -30,6 +29,7 @@ export async function sendReportEmail({
   recipientType,
   pdfBuffer,
 }: SendReportEmailOptions): Promise<EmailResult> {
+  const resend = new Resend(process.env.RESEND_API_KEY!)
   try {
     const templateVars = {
       report_no: workOrder.service_report_no,

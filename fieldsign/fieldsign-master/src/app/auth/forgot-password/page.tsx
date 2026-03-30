@@ -1,6 +1,8 @@
 import { Suspense } from 'react'
 import ForgotPasswordInner from './inner'
 
+export const dynamic = 'force-dynamic'
+
 export default function ForgotPasswordPage() {
   return (
     <Suspense fallback={

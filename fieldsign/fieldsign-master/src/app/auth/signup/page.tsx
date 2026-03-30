@@ -1,6 +1,8 @@
 import { Suspense } from 'react'
 import SignupInner from './inner'
 
+export const dynamic = 'force-dynamic'
+
 export default function SignupPage() {
   return (
     <Suspense fallback={
