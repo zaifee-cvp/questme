@@ -73,8 +73,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   // ---- Redirect authenticated users away from auth pages ----
-  // Allow reset-password even when a session exists (reset link establishes a temporary session)
-  if (pathname.startsWith('/auth/') && pathname !== '/auth/reset-password' && user) {
+  if (pathname.startsWith('/auth/') && user &&
+    pathname !== '/auth/forgot-password' && pathname !== '/auth/reset-password') {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
