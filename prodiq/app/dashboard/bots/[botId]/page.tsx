@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check } from 'lucide-react'
 
 interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string }
-interface Bot { id: string; name: string; welcome_message: string; fallback_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; handoff_enabled: boolean; handoff_email: string; restrict_to_knowledge: boolean; color: string }
+interface Bot { id: string; name: string; welcome_message: string; fallback_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; handoff_enabled: boolean; handoff_email: string; restrict_to_knowledge: boolean; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string }
 type Tab = 'knowledge' | 'settings' | 'embed'
 
 export default function BotPage() {
@@ -175,6 +175,24 @@ export default function BotPage() {
           <div><label style={{ fontSize: '13px', color: '#9CA3AF', display: 'block', marginBottom: '6px' }}>Fallback message (when bot cannot answer)</label><textarea className="input" value={bot.fallback_message} onChange={e => setBot({ ...bot, fallback_message: e.target.value })} /></div>
           <div><label style={{ fontSize: '13px', color: '#9CA3AF', display: 'block', marginBottom: '6px' }}>Lead capture prompt</label><input className="input" value={bot.lead_capture_prompt || ''} onChange={e => setBot({ ...bot, lead_capture_prompt: e.target.value })} placeholder="Enter your email to start chatting" /></div>
           <div><label style={{ fontSize: '13px', color: '#9CA3AF', display: 'block', marginBottom: '6px' }}>Accent color</label><input className="input" type="color" value={bot.color} onChange={e => setBot({ ...bot, color: e.target.value })} style={{ height: '44px', cursor: 'pointer', padding: '4px' }} /></div>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Contact Details</h3>
+            <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '-8px' }}>Your bot will automatically answer contact questions using these details.</p>
+            {[
+              { key: 'contact_phone', label: 'Phone number', placeholder: '+65 9123 4567', type: 'tel' },
+              { key: 'contact_whatsapp', label: 'WhatsApp number', placeholder: '+65 9123 4567', type: 'tel' },
+              { key: 'contact_email', label: 'Email address', placeholder: 'hello@yourbusiness.com', type: 'email' },
+              { key: 'contact_website', label: 'Website', placeholder: 'https://yourbusiness.com', type: 'url' },
+              { key: 'contact_address', label: 'Address', placeholder: '123 Orchard Road, Singapore 238858', type: 'text' },
+              { key: 'contact_instagram', label: 'Instagram', placeholder: '@yourbusiness', type: 'text' },
+              { key: 'contact_facebook', label: 'Facebook page', placeholder: 'https://facebook.com/yourbusiness', type: 'text' },
+            ].map(({ key, label, placeholder, type }) => (
+              <div key={key}>
+                <label style={{ fontSize: '13px', color: '#9CA3AF', display: 'block', marginBottom: '6px' }}>{label}</label>
+                <input className="input" type={type} placeholder={placeholder} value={(bot as any)[key] || ''} onChange={e => setBot({ ...bot, [key]: e.target.value })} />
+              </div>
+            ))}
+          </div>
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Features</h3>
             {[

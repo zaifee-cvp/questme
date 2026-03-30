@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 
 interface Message { role: 'user' | 'assistant'; content: string }
-interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string }
+interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string }
 
 export default function ChatPage() {
   const { botId } = useParams<{ botId: string }>()
@@ -122,6 +122,16 @@ export default function ChatPage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5l7 7-7 7M5 12h14" stroke={input.trim() ? '#080A0E' : '#4B5563'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             </form>
+            {(bot.contact_phone || bot.contact_whatsapp || bot.contact_email || bot.contact_website || bot.contact_instagram || bot.contact_facebook) && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px', justifyContent: 'center' }}>
+                {bot.contact_phone && <a href={`tel:${bot.contact_phone}`} style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>📞 {bot.contact_phone}</a>}
+                {bot.contact_whatsapp && <a href={`https://wa.me/${bot.contact_whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>💬 WhatsApp</a>}
+                {bot.contact_email && <a href={`mailto:${bot.contact_email}`} style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>✉️ {bot.contact_email}</a>}
+                {bot.contact_website && <a href={bot.contact_website} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>🌐 Website</a>}
+                {bot.contact_instagram && <a href={bot.contact_instagram.startsWith('http') ? bot.contact_instagram : `https://instagram.com/${bot.contact_instagram.replace('@', '')}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>📷 Instagram</a>}
+                {bot.contact_facebook && <a href={bot.contact_facebook} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#9CA3AF', textDecoration: 'none', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '5px 12px' }}>👥 Facebook</a>}
+              </div>
+            )}
           </div>
         </>
       )}

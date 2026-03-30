@@ -23,7 +23,17 @@ export async function POST(req: NextRequest) {
   }
 
   const chunks = await searchKnowledge(botId, message)
-  const context = chunks.map((c, i) => `[Source ${i + 1}]: ${c.content}`).join('\n\n')
+  const knowledgeContext = chunks.map((c, i) => `[Source ${i + 1}]: ${c.content}`).join('\n\n')
+  const contactParts: string[] = []
+  if (bot.contact_phone) contactParts.push(`Phone: ${bot.contact_phone}`)
+  if (bot.contact_whatsapp) contactParts.push(`WhatsApp: ${bot.contact_whatsapp}`)
+  if (bot.contact_email) contactParts.push(`Email: ${bot.contact_email}`)
+  if (bot.contact_website) contactParts.push(`Website: ${bot.contact_website}`)
+  if (bot.contact_address) contactParts.push(`Address: ${bot.contact_address}`)
+  if (bot.contact_instagram) contactParts.push(`Instagram: ${bot.contact_instagram}`)
+  if (bot.contact_facebook) contactParts.push(`Facebook: ${bot.contact_facebook}`)
+  const contactContext = contactParts.length ? `\n\n[Contact Information]:\n${contactParts.join('\n')}` : ''
+  const context = knowledgeContext + contactContext
   const answer = await generateAnswer({
     botName: bot.name,
     fallbackMessage: bot.fallback_message,
