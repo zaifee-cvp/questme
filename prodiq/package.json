@@ -10,17 +10,17 @@
   },
   "dependencies": {
     "next": "14.2.35",
-    "react": "^18",
-    "react-dom": "^18",
-    "@supabase/supabase-js": "latest",
-    "@supabase/ssr": "latest",
-    "openai": "latest",
-    "stripe": "latest",
-    "cheerio": "latest",
-    "pdf-parse": "latest",
-    "resend": "latest",
-    "lucide-react": "latest",
-    "clsx": "latest"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/ssr": "^0.1.0",
+    "openai": "^4.20.0",
+    "stripe": "^14.0.0",
+    "cheerio": "^1.0.0",
+    "pdf-parse": "^1.1.1",
+    "resend": "^2.0.0",
+    "lucide-react": "^0.363.0",
+    "clsx": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
