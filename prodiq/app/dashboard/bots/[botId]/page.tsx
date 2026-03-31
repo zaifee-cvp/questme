@@ -135,7 +135,7 @@ export default function BotPage() {
 
   async function addImage(e: React.FormEvent) {
     e.preventDefault()
-    if (!imgFile || !imgDesc.trim()) return
+    if (!imgFile) return
     setAddingImg(true); setImgMsg(null)
     const uploadBlob = imgBlob ?? imgFile
     const uploadFile = new File(
@@ -237,11 +237,17 @@ export default function BotPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <input ref={pdfInputRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }}
                   onChange={e => { const f = e.target.files?.[0]; if (f) { setPdfFile(f); uploadPdf(f) } }} />
-                <button className="btn-accent" type="button" disabled={addingPdf}
-                  onClick={() => { setPdfMsg(null); pdfInputRef.current?.click() }}
-                  style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
-                  {addingPdf ? 'Uploading…' : pdfFile ? `📎 ${pdfFile.name}` : '+ Choose & Upload PDF'}
-                </button>
+                <div
+                  onClick={() => { if (!addingPdf) { setPdfMsg(null); pdfInputRef.current?.click() } }}
+                  style={{ border: '1px dashed #374151', borderRadius: '8px', padding: '20px', cursor: addingPdf ? 'default' : 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: addingPdf ? 0.6 : 1, transition: 'border-color 0.15s' }}
+                  onMouseEnter={e => { if (!addingPdf) (e.currentTarget as HTMLDivElement).style.borderColor = '#AAFF00' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#374151' }}
+                >
+                  <span style={{ fontSize: '22px' }}>📄</span>
+                  <span style={{ fontSize: '13px', color: '#6B7280' }}>
+                    {addingPdf ? 'Uploading…' : pdfFile ? `📎 ${pdfFile.name}` : 'Click to choose PDF'}
+                  </span>
+                </div>
                 {pdfMsg && <div style={{ fontSize: '12px', color: pdfMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{pdfMsg.text}</div>}
               </div>
             </div>
@@ -256,17 +262,23 @@ export default function BotPage() {
                     <img src={imgPreview} alt="preview" style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #1E2028', display: 'block' }} />
                     <button type="button" onClick={() => { setImgFile(null); setImgBlob(null); setImgCompressInfo(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(null); if (imgInputRef.current) imgInputRef.current.value = '' }}
                       style={{ position: 'absolute', top: '6px', right: '6px', background: '#080A0ECC', border: '1px solid #1E2028', borderRadius: '50%', width: '22px', height: '22px', color: '#9CA3AF', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>✕</button>
+                    {imgFile && <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{imgFile.name}</div>}
                   </div>
                 ) : (
-                  <button type="button" className="input" onClick={() => { setImgMsg(null); imgInputRef.current?.click() }}
-                    style={{ cursor: 'pointer', color: '#4B5563', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                    🖼️ Choose image…
-                  </button>
+                  <div
+                    onClick={() => { setImgMsg(null); imgInputRef.current?.click() }}
+                    style={{ border: '1px dashed #374151', borderRadius: '8px', padding: '20px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transition: 'border-color 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#AAFF00' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#374151' }}
+                  >
+                    <span style={{ fontSize: '22px' }}>🖼️</span>
+                    <span style={{ fontSize: '13px', color: '#6B7280' }}>Click to choose image</span>
+                  </div>
                 )}
                 {imgCompressInfo && <div style={{ fontSize: '11px', color: '#6B7280' }}>{imgCompressInfo}</div>}
-                <input className="input" placeholder="Describe this image (used by AI)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
+                <input className="input" placeholder="Describe this image for AI (optional)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
                 {imgMsg && <div style={{ fontSize: '12px', color: imgMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{imgMsg.text}</div>}
-                <button className="btn-accent" type="submit" disabled={addingImg || !imgFile || !imgDesc.trim()}
+                <button className="btn-accent" type="submit" disabled={addingImg || !imgFile}
                   style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
                   {addingImg ? 'Uploading…' : '+ Upload Image'}
                 </button>
