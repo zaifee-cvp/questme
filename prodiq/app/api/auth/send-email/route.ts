@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHmac, timingSafeEqual } from 'crypto'
 
 interface EmailData {
   token: string
@@ -65,37 +64,8 @@ function emailTemplate(title: string, heading: string, body: string, ctaHref: st
 </html>`
 }
 
-async function verifySignature(request: NextRequest, rawBody: string): Promise<boolean> {
-  const signature = request.headers.get('x-supabase-signature')
-  if (!signature) return false
-
-  const hookSecret = process.env.SUPABASE_HOOK_SECRET
-  if (!hookSecret) return false
-
-  // Secret format: `v1,whsec_<base64>` — strip prefix and decode
-  const base64Secret = hookSecret.replace(/^v1,whsec_/, '')
-  const secretBytes = Buffer.from(base64Secret, 'base64')
-
-  const hmac = createHmac('sha256', secretBytes)
-  hmac.update(rawBody)
-  const expected = hmac.digest('hex')
-
-  try {
-    return timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
-  } catch {
-    return false
-  }
-}
-
 export async function POST(request: NextRequest) {
-  const rawBody = await request.text()
-
-  const verified = await verifySignature(request, rawBody)
-  if (!verified) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const payload: HookPayload = JSON.parse(rawBody)
+  const payload: HookPayload = await request.json()
   const { user, email_data } = payload
   const confirmLink = buildConfirmLink(email_data)
 
