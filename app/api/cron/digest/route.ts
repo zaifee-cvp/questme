@@ -3,6 +3,7 @@ import { createSupabaseServiceClient } from '@/lib/supabase/server'
 import { sendWeeklyDigest } from '@/lib/resend'
 
 export async function GET(req: NextRequest) {
+  try {
   const authHeader = req.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const supabase = createSupabaseServiceClient()
@@ -27,4 +28,8 @@ export async function GET(req: NextRequest) {
     }
   }
   return NextResponse.json({ sent })
+  } catch (err: any) {
+    console.error('[GET /api/cron/digest] unhandled error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

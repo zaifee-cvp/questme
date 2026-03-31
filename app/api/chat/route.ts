@@ -4,6 +4,7 @@ import { searchKnowledge, generateAnswer } from '@/lib/rag'
 import { sendHandoffEmail } from '@/lib/resend'
 
 export async function POST(req: NextRequest) {
+  try {
   const supabase = createSupabaseServiceClient()
   const { botId, sessionId, message, messages = [] } = await req.json()
   if (!botId || !message) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
@@ -61,6 +62,10 @@ export async function POST(req: NextRequest) {
   const isAnswered = chunks.length > 0 || !bot.restrict_to_knowledge
   if (sessionId) trackMessages(supabase, sessionId, botId, message, answer, isAnswered)
   return NextResponse.json({ answer, isAnswered })
+  } catch (err: any) {
+    console.error('[POST /api/chat] unhandled error:', err)
+    return NextResponse.json({ answer: 'Sorry, something went wrong. Please try again.' }, { status: 500 })
+  }
 }
 
 async function trackMessages(supabase: any, sessionId: string, botId: string, userMsg: string, botMsg: string, isAnswered: boolean) {

@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   try { event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!) }
   catch (err: any) { return NextResponse.json({ error: `Webhook error: ${err.message}` }, { status: 400 }) }
 
+  try {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as any
@@ -38,6 +39,11 @@ export async function POST(req: NextRequest) {
       await supabase.from('subscriptions').update({ plan: 'free', status: 'canceled', stripe_subscription_id: null, ...PLAN_LIMITS.free, updated_at: new Date().toISOString() }).eq('stripe_subscription_id', subscription.id)
       break
     }
+  }
+  } catch (err: any) {
+    console.error('[stripe webhook] unhandled error:', err)
+    // Always return 200 so Stripe doesn't retry
+    return NextResponse.json({ received: true })
   }
   return NextResponse.json({ received: true })
 }
