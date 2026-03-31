@@ -22,6 +22,9 @@ export default function BotPage() {
   const [faqPairs, setFaqPairs] = useState([{ question: '', answer: '' }])
   const [addingFaq, setAddingFaq] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [addingPdf, setAddingPdf] = useState(false)
+  const [pdfMsg, setPdfMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const fetchData = useCallback(async () => {
     const [botRes, sourcesRes] = await Promise.all([fetch(`/api/bots/${botId}`), fetch(`/api/knowledge?botId=${botId}`)])
@@ -61,6 +64,25 @@ export default function BotPage() {
     setAddingFaq(true)
     await fetch('/api/ingest/faq', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, faqs: valid }) })
     setFaqPairs([{ question: '', answer: '' }]); await fetchData(); setAddingFaq(false)
+  }
+
+  async function addPdf(e: React.FormEvent) {
+    e.preventDefault()
+    if (!pdfFile) return
+    setAddingPdf(true); setPdfMsg(null)
+    const fd = new FormData()
+    fd.append('file', pdfFile)
+    fd.append('botId', botId)
+    const res = await fetch('/api/ingest/file', { method: 'POST', body: fd })
+    if (res.ok) {
+      setPdfMsg({ type: 'success', text: `"${pdfFile.name}" is being indexed…` })
+      setPdfFile(null)
+      await fetchData()
+    } else {
+      const err = await res.json().catch(() => ({ error: 'Upload failed' }))
+      setPdfMsg({ type: 'error', text: err.error || 'Upload failed' })
+    }
+    setAddingPdf(false)
   }
 
   async function deleteSource(id: string) {
@@ -133,6 +155,22 @@ export default function BotPage() {
                   <Plus size={13} />Add another Q&A
                 </button>
                 <button className="btn-accent" type="submit" disabled={addingFaq} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>{addingFaq ? 'Adding...' : '+ Save FAQs'}</button>
+              </form>
+            </div>
+            <div className="card">
+              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>📄 Upload PDF</h3>
+              <form onSubmit={addPdf} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '6px', cursor: 'pointer' }}>
+                  <div className="input" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: pdfFile ? '#F0F0F0' : '#4B5563', fontSize: '13px', overflow: 'hidden' }}>
+                    <span style={{ flexShrink: 0 }}>📎</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pdfFile ? pdfFile.name : 'Choose PDF file…'}</span>
+                  </div>
+                  <input type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={e => { setPdfFile(e.target.files?.[0] ?? null); setPdfMsg(null) }} />
+                </label>
+                {pdfMsg && (
+                  <div style={{ fontSize: '12px', color: pdfMsg.type === 'success' ? '#4ade80' : '#f87171', padding: '6px 0' }}>{pdfMsg.text}</div>
+                )}
+                <button className="btn-accent" type="submit" disabled={addingPdf || !pdfFile} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>{addingPdf ? 'Uploading...' : '+ Upload PDF'}</button>
               </form>
             </div>
           </div>
