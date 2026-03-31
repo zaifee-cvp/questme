@@ -1,13 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import { indexChunks } from '@/lib/rag'
 
 export async function POST(req: NextRequest) {
-  const authClient = createSupabaseServerClient()
+  // Auth check using cookie-based client
+  const cookieStore = cookies()
+  const authClient = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) } catch {}
+        },
+      },
+    }
+  )
   const { data: { user } } = await authClient.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const supabase = createSupabaseServiceClient()
+  // Service client for storage — initialized inline with sb_secret_ key support
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
   const formData = await req.formData()
   const file = formData.get('file') as File | null
   const botId = formData.get('botId') as string | null
@@ -23,21 +44,26 @@ export async function POST(req: NextRequest) {
 
   // Upload to Supabase Storage
   const ext = file.name.split('.').pop() ?? 'jpg'
-  const storagePath = `${user.id}/${botId}/${Date.now()}.${ext}`
-  const buffer = Buffer.from(await file.arrayBuffer())
+  const fileName = `${user.id}/${botId}/${Date.now()}.${ext}`
+  const fileBuffer = Buffer.from(await file.arrayBuffer())
 
   const { error: storageError } = await supabase.storage
     .from('knowledge-images')
-    .upload(storagePath, buffer, { contentType: file.type, upsert: false })
+    .upload(fileName, fileBuffer, {
+      contentType: file.type,
+      upsert: true,
+    })
 
   if (storageError) {
     console.error('[ingest/image] storage error:', storageError.message)
     return NextResponse.json({ error: 'Failed to upload image: ' + storageError.message }, { status: 500 })
   }
 
-  const { data: { publicUrl } } = supabase.storage.from('knowledge-images').getPublicUrl(storagePath)
+  const { data: { publicUrl } } = supabase.storage
+    .from('knowledge-images')
+    .getPublicUrl(fileName)
 
-  // Content that the AI will retrieve
+  // Content the AI will retrieve
   const content = `Image: ${file.name}\nDescription: ${description}\nURL: ${publicUrl}`
 
   const { data: source, error: insertError } = await supabase
@@ -46,9 +72,17 @@ export async function POST(req: NextRequest) {
     .select()
     .single()
 
-  if (!source || insertError) return NextResponse.json({ error: 'Failed to save source' }, { status: 500 })
+  if (!source || insertError) {
+    console.error('[ingest/image] insert error:', insertError?.message)
+    return NextResponse.json({ error: 'Failed to save source' }, { status: 500 })
+  }
 
-  await indexChunks(source.id, botId, [content])
+  try {
+    await indexChunks(source.id, botId, [content])
+  } catch (err) {
+    console.error('[ingest/image] indexChunks error:', err)
+    // Source was saved, image uploaded — don't fail the whole request
+  }
 
   return NextResponse.json({ success: true, sourceId: source.id, publicUrl })
 }
