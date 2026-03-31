@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
-import { indexChunks } from '@/lib/rag'
+import { embedText } from '@/lib/rag'
 
 export async function POST(req: NextRequest) {
   // Auth check using cookie-based client
@@ -62,25 +62,55 @@ export async function POST(req: NextRequest) {
     .from('knowledge-images')
     .getPublicUrl(fileName)
 
-  // Content the AI will retrieve
-  const content = `Image: ${file.name}\nDescription: ${description}\nURL: ${publicUrl}`
+  // Content the AI will retrieve via vector search
+  const content = [
+    `Image: ${file.name}`,
+    description ? `Description: ${description}` : null,
+    `Image URL: ${publicUrl}`,
+  ].filter(Boolean).join('\n')
 
+  // Insert knowledge_source with status='indexing' until chunk is saved
   const { data: source, error: insertError } = await supabase
     .from('knowledge_sources')
-    .insert({ bot_id: botId, user_id: user.id, type: 'image', title: file.name, status: 'ready', chunk_count: 1 })
+    .insert({ bot_id: botId, user_id: user.id, type: 'image', title: file.name, status: 'indexing', chunk_count: 0 })
     .select()
     .single()
 
   if (!source || insertError) {
-    console.error('[ingest/image] insert error:', insertError?.message)
+    console.error('[ingest/image] source insert error:', insertError?.message)
     return NextResponse.json({ error: 'Failed to save source' }, { status: 500 })
   }
 
+  // Step 1: Insert chunk with content (embedding nullable — always succeeds)
+  const { data: chunk, error: chunkError } = await supabase
+    .from('knowledge_chunks')
+    .insert({ source_id: source.id, bot_id: botId, content })
+    .select('id')
+    .single()
+
+  if (!chunk || chunkError) {
+    console.error('[ingest/image] chunk insert error:', chunkError?.message)
+    // Still mark source as ready with 0 chunks so UI doesn't hang on indexing
+    await supabase.from('knowledge_sources').update({ status: 'ready', chunk_count: 0 }).eq('id', source.id)
+    return NextResponse.json({ success: true, sourceId: source.id, publicUrl, warning: 'Chunk not indexed' })
+  }
+
+  // Step 2: Mark source ready now that chunk exists
+  await supabase
+    .from('knowledge_sources')
+    .update({ status: 'ready', chunk_count: 1 })
+    .eq('id', source.id)
+
+  // Step 3: Generate embedding and attach — failure is non-fatal
   try {
-    await indexChunks(source.id, botId, [content])
+    const embedding = await embedText(content)
+    await supabase
+      .from('knowledge_chunks')
+      .update({ embedding })
+      .eq('id', chunk.id)
   } catch (err) {
-    console.error('[ingest/image] indexChunks error:', err)
-    // Source was saved, image uploaded — don't fail the whole request
+    console.error('[ingest/image] embedding error:', err)
+    // Chunk content is still saved; vector search won't find it until embedding is set
   }
 
   return NextResponse.json({ success: true, sourceId: source.id, publicUrl })
