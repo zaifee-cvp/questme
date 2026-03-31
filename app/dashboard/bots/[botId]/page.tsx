@@ -1,9 +1,10 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check } from 'lucide-react'
+import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight } from 'lucide-react'
 
 interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string }
+interface Chunk { id: string; content: string }
 interface Bot { id: string; name: string; welcome_message: string; fallback_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; handoff_enabled: boolean; handoff_email: string; restrict_to_knowledge: boolean; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string }
 type Tab = 'knowledge' | 'settings' | 'embed'
 
@@ -34,6 +35,26 @@ export default function BotPage() {
   const [imgCompressInfo, setImgCompressInfo] = useState<string | null>(null)
   const pdfInputRef = useRef<HTMLInputElement>(null)
   const imgInputRef = useRef<HTMLInputElement>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [previewData, setPreviewData] = useState<Record<string, { chunks: Chunk[]; loading: boolean }>>({})
+
+  async function toggleExpand(id: string) {
+    if (expandedId === id) { setExpandedId(null); return }
+    setExpandedId(id)
+    if (previewData[id]) return
+    setPreviewData(prev => ({ ...prev, [id]: { chunks: [], loading: true } }))
+    try {
+      const res = await fetch(`/api/knowledge/${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setPreviewData(prev => ({ ...prev, [id]: { chunks: data.chunks, loading: false } }))
+      } else {
+        setPreviewData(prev => ({ ...prev, [id]: { chunks: [], loading: false } }))
+      }
+    } catch {
+      setPreviewData(prev => ({ ...prev, [id]: { chunks: [], loading: false } }))
+    }
+  }
 
   const fetchData = useCallback(async () => {
     const [botRes, sourcesRes] = await Promise.all([fetch(`/api/bots/${botId}`), fetch(`/api/knowledge?botId=${botId}`)])
@@ -291,27 +312,94 @@ export default function BotPage() {
             <div style={{ textAlign: 'center', padding: '40px', border: '1px dashed #1E2028', borderRadius: '12px', color: '#6B7280', fontSize: '14px' }}>No knowledge sources yet. Add URLs, text, or FAQs above.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {sources.map(s => (
-                <div key={s.id} className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                    <span style={{ fontSize: '18px' }}>{s.type === 'url' ? '🌐' : s.type === 'faq' ? '💬' : s.type === 'file' ? '📄' : s.type === 'image' ? '🖼️' : '📝'}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
-                        <span className="source-type">{s.type}</span>
-                        {s.chunk_count > 0 && <span style={{ fontSize: '11px', color: '#6B7280' }}>{s.chunk_count} chunks</span>}
-                        {s.error_message && <span style={{ fontSize: '11px', color: '#f87171' }}>{s.error_message}</span>}
+              {sources.map(s => {
+                const isOpen = expandedId === s.id
+                const preview = previewData[s.id]
+                return (
+                  <div key={s.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                    {/* Row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', cursor: 'pointer' }}
+                      onClick={() => toggleExpand(s.id)}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                        <ChevronRight size={14} style={{ color: '#4B5563', flexShrink: 0, transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+                        <span style={{ fontSize: '18px' }}>{s.type === 'url' ? '🌐' : s.type === 'faq' ? '💬' : s.type === 'file' ? '📄' : s.type === 'image' ? '🖼️' : '📝'}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
+                            <span className="source-type">{s.type}</span>
+                            {s.chunk_count > 0 && <span style={{ fontSize: '11px', color: '#6B7280' }}>{s.chunk_count} chunks</span>}
+                            {s.error_message && <span style={{ fontSize: '11px', color: '#f87171' }}>{s.error_message}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                        {(s.status === 'indexing' || s.status === 'pending') && <span className="status-indexing" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><RefreshCw size={11} style={{ animation: 'spin 1s linear infinite' }} />Indexing</span>}
+                        {s.status === 'ready' && <span className="status-ready">Ready</span>}
+                        {s.status === 'failed' && <span className="status-failed">Failed</span>}
+                        <button onClick={() => deleteSource(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px', display: 'flex' }}><Trash2 size={14} /></button>
                       </div>
                     </div>
+
+                    {/* Expanded preview */}
+                    {isOpen && (
+                      <div style={{ borderTop: '1px solid #1E2028', background: '#1A1D2E', padding: '16px', fontSize: '14px', color: '#8B95A8' }}>
+                        {preview?.loading ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4B5563' }}>
+                            <RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} />Loading…
+                          </div>
+                        ) : !preview?.chunks.length ? (
+                          <div style={{ color: '#4B5563', fontStyle: 'italic' }}>No content indexed yet.</div>
+                        ) : s.type === 'image' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {preview.chunks.map(c => {
+                              const urlMatch = c.content.match(/Image URL:\s*(\S+)/)
+                              const descMatch = c.content.match(/Description:\s*([\s\S]+)/)
+                              return (
+                                <div key={c.id}>
+                                  {urlMatch && (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img src={urlMatch[1]} alt={s.title} style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '6px', marginBottom: '8px', display: 'block' }} />
+                                  )}
+                                  {descMatch && <div style={{ lineHeight: 1.6 }}>{descMatch[1].trim()}</div>}
+                                  {!descMatch && <div style={{ color: '#4B5563', fontStyle: 'italic' }}>No description.</div>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : s.type === 'url' ? (
+                          <div>
+                            <a href={s.title} target="_blank" rel="noreferrer" style={{ color: '#AAFF00', fontSize: '12px', wordBreak: 'break-all', display: 'block', marginBottom: '10px' }}>{s.title}</a>
+                            {preview.chunks.map(c => (
+                              <div key={c.id} style={{ lineHeight: 1.7, marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{c.content.slice(0, 500)}{c.content.length > 500 ? '…' : ''}</div>
+                            ))}
+                          </div>
+                        ) : s.type === 'faq' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {preview.chunks.map(c => {
+                              const qMatch = c.content.match(/Q:\s*([\s\S]+?)(?:\nA:|$)/)
+                              const aMatch = c.content.match(/A:\s*([\s\S]+)/)
+                              return (
+                                <div key={c.id} style={{ borderLeft: '2px solid #2D3148', paddingLeft: '12px' }}>
+                                  {qMatch && <div style={{ fontWeight: 600, color: '#D1D5DB', marginBottom: '4px' }}>Q: {qMatch[1].trim()}</div>}
+                                  {aMatch && <div>A: {aMatch[1].trim()}</div>}
+                                  {!qMatch && <div style={{ whiteSpace: 'pre-wrap' }}>{c.content}</div>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          // text / file
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {preview.chunks.map(c => (
+                              <div key={c.id} style={{ lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{c.content.slice(0, 500)}{c.content.length > 500 ? '…' : ''}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                    {(s.status === 'indexing' || s.status === 'pending') && <span className="status-indexing" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><RefreshCw size={11} style={{ animation: 'spin 1s linear infinite' }} />Indexing</span>}
-                    {s.status === 'ready' && <span className="status-ready">Ready</span>}
-                    {s.status === 'failed' && <span className="status-failed">Failed</span>}
-                    <button onClick={() => deleteSource(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px', display: 'flex' }}><Trash2 size={14} /></button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
