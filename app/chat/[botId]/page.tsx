@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
+import ChromeBanner from '@/components/ChromeBanner'
 
 interface Message { role: 'user' | 'assistant'; content: string }
 interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string; white_label?: boolean }
@@ -296,6 +297,7 @@ export default function ChatPage() {
         }
       `}</style>
       <div className="chat-page" style={{ '--accent': accent } as React.CSSProperties}>
+        <ChromeBanner />
 
         {/* Header */}
         <div className="chat-header">
