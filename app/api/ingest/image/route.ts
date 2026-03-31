@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   if (!file || !botId) return NextResponse.json({ error: 'Missing file or botId' }, { status: 400 })
   if (!file.type.startsWith('image/')) return NextResponse.json({ error: 'Only image files are supported' }, { status: 400 })
-  if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: 'Image too large (max 5MB)' }, { status: 400 })
+  if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: 'Image too large (max 10MB)' }, { status: 400 })
   if (!description) return NextResponse.json({ error: 'Description is required' }, { status: 400 })
 
   const { data: bot } = await supabase.from('bots').select('id').eq('id', botId).eq('user_id', user.id).single()

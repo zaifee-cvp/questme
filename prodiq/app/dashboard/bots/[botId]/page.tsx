@@ -26,10 +26,12 @@ export default function BotPage() {
   const [addingPdf, setAddingPdf] = useState(false)
   const [pdfMsg, setPdfMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [imgFile, setImgFile] = useState<File | null>(null)
+  const [imgBlob, setImgBlob] = useState<Blob | null>(null)
   const [imgPreview, setImgPreview] = useState<string | null>(null)
   const [imgDesc, setImgDesc] = useState('')
   const [addingImg, setAddingImg] = useState(false)
   const [imgMsg, setImgMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [imgCompressInfo, setImgCompressInfo] = useState<string | null>(null)
   const pdfInputRef = useRef<HTMLInputElement>(null)
   const imgInputRef = useRef<HTMLInputElement>(null)
 
@@ -91,18 +93,64 @@ export default function BotPage() {
     if (pdfInputRef.current) pdfInputRef.current.value = ''
   }
 
+  function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<Blob> {
+    return new Promise((resolve) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width)
+          width = maxWidth
+        }
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, width, height)
+        URL.revokeObjectURL(url)
+        canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', quality)
+      }
+      img.src = url
+    })
+  }
+
+  async function handleImageSelect(file: File) {
+    setImgMsg(null); setImgCompressInfo(null)
+    if (imgPreview) URL.revokeObjectURL(imgPreview)
+    setImgPreview(URL.createObjectURL(file))
+    setImgFile(file)
+    setImgBlob(null)
+
+    let compressed = await compressImage(file, 1200, 0.8)
+    if (compressed.size > 2 * 1024 * 1024) {
+      compressed = await compressImage(file, 1200, 0.6)
+    }
+
+    const fmt = (b: number) => b >= 1024 * 1024 ? `${(b / (1024 * 1024)).toFixed(1)}MB` : `${Math.round(b / 1024)}KB`
+    setImgCompressInfo(`Image compressed: ${fmt(file.size)} → ${fmt(compressed.size)}`)
+    setImgBlob(compressed)
+  }
+
   async function addImage(e: React.FormEvent) {
     e.preventDefault()
     if (!imgFile || !imgDesc.trim()) return
     setAddingImg(true); setImgMsg(null)
+    const uploadBlob = imgBlob ?? imgFile
+    const uploadFile = new File(
+      [uploadBlob],
+      imgFile.name.replace(/\.[^.]+$/, '.jpg'),
+      { type: 'image/jpeg' }
+    )
     const fd = new FormData()
-    fd.append('file', imgFile)
+    fd.append('file', uploadFile)
     fd.append('botId', botId)
     fd.append('description', imgDesc.trim())
     const res = await fetch('/api/ingest/image', { method: 'POST', body: fd })
     if (res.ok) {
       setImgMsg({ type: 'success', text: '✓ Image added' })
-      setImgFile(null); setImgPreview(null); setImgDesc('')
+      setImgFile(null); setImgBlob(null); setImgPreview(null); setImgDesc(''); setImgCompressInfo(null)
       await fetchData()
     } else {
       const err = await res.json().catch(() => ({ error: 'Upload failed' }))
@@ -201,12 +249,12 @@ export default function BotPage() {
               <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>🖼️ Upload Image</h3>
               <form onSubmit={addImage} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <input ref={imgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
-                  onChange={e => { const f = e.target.files?.[0]; if (!f) return; setImgFile(f); setImgMsg(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(URL.createObjectURL(f)) }} />
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleImageSelect(f) }} />
                 {imgPreview ? (
                   <div style={{ position: 'relative' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imgPreview} alt="preview" style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #1E2028', display: 'block' }} />
-                    <button type="button" onClick={() => { setImgFile(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(null); if (imgInputRef.current) imgInputRef.current.value = '' }}
+                    <button type="button" onClick={() => { setImgFile(null); setImgBlob(null); setImgCompressInfo(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(null); if (imgInputRef.current) imgInputRef.current.value = '' }}
                       style={{ position: 'absolute', top: '6px', right: '6px', background: '#080A0ECC', border: '1px solid #1E2028', borderRadius: '50%', width: '22px', height: '22px', color: '#9CA3AF', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>✕</button>
                   </div>
                 ) : (
@@ -215,6 +263,7 @@ export default function BotPage() {
                     🖼️ Choose image…
                   </button>
                 )}
+                {imgCompressInfo && <div style={{ fontSize: '11px', color: '#6B7280' }}>{imgCompressInfo}</div>}
                 <input className="input" placeholder="Describe this image (used by AI)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
                 {imgMsg && <div style={{ fontSize: '12px', color: imgMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{imgMsg.text}</div>}
                 <button className="btn-accent" type="submit" disabled={addingImg || !imgFile || !imgDesc.trim()}
