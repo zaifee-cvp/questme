@@ -125,6 +125,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section style={{ padding: '64px 24px', background: '#0F1117' }}>
+        <div style={{ maxWidth: '896px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>See it in action</p>
+            <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' }}>Watch how Questme works</h2>
+            <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>From uploading your docs to answering customer questions — under 2 minutes</p>
+          </div>
+          <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '16px', overflow: 'hidden', border: '1px solid #1E2028', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+            <iframe
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+              src="https://www.youtube.com/embed/F3UvH9WvEt4?rel=0&modestbranding=1"
+              title="Questme.ai Demo — AI Product Knowledge Bot"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      </section>
+
       <section id="features" style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Features</div>
@@ -205,6 +225,25 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'VideoObject',
+          name: 'Questme.ai Demo — AI Product Knowledge Bot',
+          description: 'See how Questme turns your product docs, FAQs, and URLs into an AI bot that answers customer questions instantly.',
+          thumbnailUrl: 'https://img.youtube.com/vi/F3UvH9WvEt4/maxresdefault.jpg',
+          uploadDate: '2026-03-31',
+          contentUrl: 'https://www.youtube.com/watch?v=F3UvH9WvEt4',
+          embedUrl: 'https://www.youtube.com/embed/F3UvH9WvEt4',
+          publisher: {
+            '@type': 'Organization',
+            name: 'Questme.ai',
+            url: 'https://questme.ai'
+          }
+        })}}
+      />
 
       <footer style={{ borderTop: '1px solid #1E2028', padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
