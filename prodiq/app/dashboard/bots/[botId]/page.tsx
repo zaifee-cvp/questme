@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check } from 'lucide-react'
 
@@ -25,6 +25,13 @@ export default function BotPage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [addingPdf, setAddingPdf] = useState(false)
   const [pdfMsg, setPdfMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [imgFile, setImgFile] = useState<File | null>(null)
+  const [imgPreview, setImgPreview] = useState<string | null>(null)
+  const [imgDesc, setImgDesc] = useState('')
+  const [addingImg, setAddingImg] = useState(false)
+  const [imgMsg, setImgMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const pdfInputRef = useRef<HTMLInputElement>(null)
+  const imgInputRef = useRef<HTMLInputElement>(null)
 
   const fetchData = useCallback(async () => {
     const [botRes, sourcesRes] = await Promise.all([fetch(`/api/bots/${botId}`), fetch(`/api/knowledge?botId=${botId}`)])
@@ -66,16 +73,14 @@ export default function BotPage() {
     setFaqPairs([{ question: '', answer: '' }]); await fetchData(); setAddingFaq(false)
   }
 
-  async function addPdf(e: React.FormEvent) {
-    e.preventDefault()
-    if (!pdfFile) return
+  async function uploadPdf(file: File) {
     setAddingPdf(true); setPdfMsg(null)
     const fd = new FormData()
-    fd.append('file', pdfFile)
+    fd.append('file', file)
     fd.append('botId', botId)
     const res = await fetch('/api/ingest/file', { method: 'POST', body: fd })
     if (res.ok) {
-      setPdfMsg({ type: 'success', text: `"${pdfFile.name}" is being indexed…` })
+      setPdfMsg({ type: 'success', text: '✓ PDF added — indexing in progress' })
       setPdfFile(null)
       await fetchData()
     } else {
@@ -83,6 +88,28 @@ export default function BotPage() {
       setPdfMsg({ type: 'error', text: err.error || 'Upload failed' })
     }
     setAddingPdf(false)
+    if (pdfInputRef.current) pdfInputRef.current.value = ''
+  }
+
+  async function addImage(e: React.FormEvent) {
+    e.preventDefault()
+    if (!imgFile || !imgDesc.trim()) return
+    setAddingImg(true); setImgMsg(null)
+    const fd = new FormData()
+    fd.append('file', imgFile)
+    fd.append('botId', botId)
+    fd.append('description', imgDesc.trim())
+    const res = await fetch('/api/ingest/image', { method: 'POST', body: fd })
+    if (res.ok) {
+      setImgMsg({ type: 'success', text: '✓ Image added' })
+      setImgFile(null); setImgPreview(null); setImgDesc('')
+      await fetchData()
+    } else {
+      const err = await res.json().catch(() => ({ error: 'Upload failed' }))
+      setImgMsg({ type: 'error', text: err.error || 'Upload failed' })
+    }
+    setAddingImg(false)
+    if (imgInputRef.current) imgInputRef.current.value = ''
   }
 
   async function deleteSource(id: string) {
@@ -159,18 +186,41 @@ export default function BotPage() {
             </div>
             <div className="card">
               <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>📄 Upload PDF</h3>
-              <form onSubmit={addPdf} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '6px', cursor: 'pointer' }}>
-                  <div className="input" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: pdfFile ? '#F0F0F0' : '#4B5563', fontSize: '13px', overflow: 'hidden' }}>
-                    <span style={{ flexShrink: 0 }}>📎</span>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pdfFile ? pdfFile.name : 'Choose PDF file…'}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input ref={pdfInputRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) { setPdfFile(f); uploadPdf(f) } }} />
+                <button className="btn-accent" type="button" disabled={addingPdf}
+                  onClick={() => { setPdfMsg(null); pdfInputRef.current?.click() }}
+                  style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
+                  {addingPdf ? 'Uploading…' : pdfFile ? `📎 ${pdfFile.name}` : '+ Choose & Upload PDF'}
+                </button>
+                {pdfMsg && <div style={{ fontSize: '12px', color: pdfMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{pdfMsg.text}</div>}
+              </div>
+            </div>
+            <div className="card">
+              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>🖼️ Upload Image</h3>
+              <form onSubmit={addImage} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input ref={imgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (!f) return; setImgFile(f); setImgMsg(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(URL.createObjectURL(f)) }} />
+                {imgPreview ? (
+                  <div style={{ position: 'relative' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imgPreview} alt="preview" style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #1E2028', display: 'block' }} />
+                    <button type="button" onClick={() => { setImgFile(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(null); if (imgInputRef.current) imgInputRef.current.value = '' }}
+                      style={{ position: 'absolute', top: '6px', right: '6px', background: '#080A0ECC', border: '1px solid #1E2028', borderRadius: '50%', width: '22px', height: '22px', color: '#9CA3AF', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>✕</button>
                   </div>
-                  <input type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={e => { setPdfFile(e.target.files?.[0] ?? null); setPdfMsg(null) }} />
-                </label>
-                {pdfMsg && (
-                  <div style={{ fontSize: '12px', color: pdfMsg.type === 'success' ? '#4ade80' : '#f87171', padding: '6px 0' }}>{pdfMsg.text}</div>
+                ) : (
+                  <button type="button" className="input" onClick={() => { setImgMsg(null); imgInputRef.current?.click() }}
+                    style={{ cursor: 'pointer', color: '#4B5563', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    🖼️ Choose image…
+                  </button>
                 )}
-                <button className="btn-accent" type="submit" disabled={addingPdf || !pdfFile} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>{addingPdf ? 'Uploading...' : '+ Upload PDF'}</button>
+                <input className="input" placeholder="Describe this image (used by AI)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
+                {imgMsg && <div style={{ fontSize: '12px', color: imgMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{imgMsg.text}</div>}
+                <button className="btn-accent" type="submit" disabled={addingImg || !imgFile || !imgDesc.trim()}
+                  style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
+                  {addingImg ? 'Uploading…' : '+ Upload Image'}
+                </button>
               </form>
             </div>
           </div>
@@ -183,7 +233,7 @@ export default function BotPage() {
               {sources.map(s => (
                 <div key={s.id} className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                    <span style={{ fontSize: '18px' }}>{s.type === 'url' ? '🌐' : s.type === 'faq' ? '💬' : s.type === 'file' ? '📄' : '📝'}</span>
+                    <span style={{ fontSize: '18px' }}>{s.type === 'url' ? '🌐' : s.type === 'faq' ? '💬' : s.type === 'file' ? '📄' : s.type === 'image' ? '🖼️' : '📝'}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
