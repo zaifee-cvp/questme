@@ -1,10 +1,11 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight } from 'lucide-react'
+import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight, Folder, FolderPlus, Pencil, MoreHorizontal } from 'lucide-react'
 
-interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string }
+interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string; folder_id?: string | null }
 interface Chunk { id: string; content: string }
+interface KnowledgeFolder { id: string; name: string; bot_id: string; created_at: string }
 interface Bot { id: string; name: string; welcome_message: string; fallback_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; handoff_enabled: boolean; handoff_email: string; restrict_to_knowledge: boolean; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string }
 type Tab = 'knowledge' | 'settings' | 'embed'
 
@@ -37,6 +38,14 @@ export default function BotPage() {
   const imgInputRef = useRef<HTMLInputElement>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<Record<string, { chunks: Chunk[]; loading: boolean }>>({})
+  const [folders, setFolders] = useState<KnowledgeFolder[]>([])
+  const [showNewFolder, setShowNewFolder] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [creatingFolder, setCreatingFolder] = useState(false)
+  const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null)
+  const [renameFolderName, setRenameFolderName] = useState('')
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [expandedFolders, setExpandedFolders] = useState<string[]>([])
 
   async function toggleExpand(id: string) {
     if (expandedId === id) { setExpandedId(null); return }
@@ -57,9 +66,14 @@ export default function BotPage() {
   }
 
   const fetchData = useCallback(async () => {
-    const [botRes, sourcesRes] = await Promise.all([fetch(`/api/bots/${botId}`), fetch(`/api/knowledge?botId=${botId}`)])
+    const [botRes, sourcesRes, foldersRes] = await Promise.all([
+      fetch(`/api/bots/${botId}`),
+      fetch(`/api/knowledge?botId=${botId}`),
+      fetch(`/api/knowledge/folders?botId=${botId}`)
+    ])
     if (botRes.ok) setBot(await botRes.json())
     if (sourcesRes.ok) setSources(await sourcesRes.json())
+    if (foldersRes.ok) setFolders(await foldersRes.json())
     setLoading(false)
   }, [botId])
 
@@ -74,6 +88,13 @@ export default function BotPage() {
     }, 3000)
     return () => clearInterval(interval)
   }, [sources, botId])
+
+  useEffect(() => {
+    if (!openMenuId) return
+    function close() { setOpenMenuId(null) }
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [openMenuId])
 
   async function addUrl(e: React.FormEvent) {
     e.preventDefault(); setAddingUrl(true)
@@ -197,6 +218,189 @@ export default function BotPage() {
     setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
+  async function createFolder() {
+    if (!newFolderName.trim() || creatingFolder) return
+    setCreatingFolder(true)
+    const res = await fetch('/api/knowledge/folders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newFolderName.trim(), botId })
+    })
+    if (res.ok) {
+      const folder = await res.json()
+      setFolders(prev => [...prev, folder])
+      setExpandedFolders(prev => prev.includes(folder.id) ? prev : [...prev, folder.id])
+    }
+    setNewFolderName('')
+    setShowNewFolder(false)
+    setCreatingFolder(false)
+  }
+
+  async function deleteFolder(folderId: string) {
+    await fetch(`/api/knowledge/folders/${folderId}`, { method: 'DELETE' })
+    setFolders(prev => prev.filter(f => f.id !== folderId))
+    setSources(prev => prev.map(s => s.folder_id === folderId ? { ...s, folder_id: null } : s))
+  }
+
+  async function renameFolder(folderId: string) {
+    if (!renameFolderName.trim()) { setRenamingFolderId(null); return }
+    await fetch(`/api/knowledge/folders/${folderId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: renameFolderName.trim() })
+    })
+    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, name: renameFolderName.trim() } : f))
+    setRenamingFolderId(null)
+  }
+
+  async function moveToFolder(sourceId: string, folderId: string | null) {
+    await fetch(`/api/knowledge/${sourceId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder_id: folderId })
+    })
+    setSources(prev => prev.map(s => s.id === sourceId ? { ...s, folder_id: folderId } : s))
+    setOpenMenuId(null)
+  }
+
+  function toggleFolder(folderId: string) {
+    setExpandedFolders(prev =>
+      prev.includes(folderId) ? prev.filter(id => id !== folderId) : [...prev, folderId]
+    )
+  }
+
+  function renderSourceRow(s: Source) {
+    const isOpen = expandedId === s.id
+    const preview = previewData[s.id]
+    const menuOpen = openMenuId === s.id
+    return (
+      <div key={s.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', cursor: 'pointer' }}
+          onClick={() => toggleExpand(s.id)}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+            <ChevronRight size={14} style={{ color: '#4B5563', flexShrink: 0, transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+            <span style={{ fontSize: '18px' }}>{s.type === 'url' ? '🌐' : s.type === 'faq' ? '💬' : s.type === 'file' ? '📄' : s.type === 'image' ? '🖼️' : '📝'}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
+                <span className="source-type">{s.type}</span>
+                {s.chunk_count > 0 && <span style={{ fontSize: '11px', color: '#6B7280' }}>{s.chunk_count} chunks</span>}
+                {s.error_message && <span style={{ fontSize: '11px', color: '#f87171' }}>{s.error_message}</span>}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+            {(s.status === 'indexing' || s.status === 'pending') && (
+              <span className="status-indexing" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <RefreshCw size={11} style={{ animation: 'spin 1s linear infinite' }} />Indexing
+              </span>
+            )}
+            {s.status === 'ready' && <span className="status-ready">Ready</span>}
+            {s.status === 'failed' && <span className="status-failed">Failed</span>}
+            {folders.length > 0 && (
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={e => { e.stopPropagation(); setOpenMenuId(menuOpen ? null : s.id) }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px', display: 'flex' }}
+                >
+                  <MoreHorizontal size={14} />
+                </button>
+                {menuOpen && (
+                  <div
+                    onClick={e => e.stopPropagation()}
+                    style={{ position: 'absolute', right: 0, top: '100%', zIndex: 50, background: '#0F1117', border: '1px solid #1E2028', borderRadius: '8px', minWidth: '160px', padding: '4px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}
+                  >
+                    {s.folder_id && (
+                      <button
+                        onClick={() => moveToFolder(s.id, null)}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#9CA3AF', fontSize: '13px', padding: '8px 12px', cursor: 'pointer', borderRadius: '6px', fontFamily: 'DM Sans, sans-serif' }}
+                      >
+                        Remove from folder
+                      </button>
+                    )}
+                    {folders.filter(f => f.id !== s.folder_id).map(f => (
+                      <button
+                        key={f.id}
+                        onClick={() => moveToFolder(s.id, f.id)}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#9CA3AF', fontSize: '13px', padding: '8px 12px', cursor: 'pointer', borderRadius: '6px', fontFamily: 'DM Sans, sans-serif' }}
+                      >
+                        Move to {f.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            <button
+              onClick={() => deleteSource(s.id)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px', display: 'flex' }}
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+
+        {isOpen && (
+          <div style={{ borderTop: '1px solid #1E2028', background: '#1A1D2E', padding: '16px', fontSize: '14px', color: '#8B95A8' }}>
+            {preview?.loading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4B5563' }}>
+                <RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} />Loading…
+              </div>
+            ) : !preview?.chunks.length ? (
+              <div style={{ color: '#4B5563', fontStyle: 'italic' }}>No content indexed yet.</div>
+            ) : s.type === 'image' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {preview.chunks.map(c => {
+                  const urlMatch = c.content.match(/Image URL:\s*(\S+)/)
+                  const descMatch = c.content.match(/Description:\s*([\s\S]+)/)
+                  return (
+                    <div key={c.id}>
+                      {urlMatch && (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={urlMatch[1]} alt={s.title} style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '6px', marginBottom: '8px', display: 'block' }} />
+                      )}
+                      {descMatch && <div style={{ lineHeight: 1.6 }}>{descMatch[1].trim()}</div>}
+                      {!descMatch && <div style={{ color: '#4B5563', fontStyle: 'italic' }}>No description.</div>}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : s.type === 'url' ? (
+              <div>
+                <a href={s.title} target="_blank" rel="noreferrer" style={{ color: '#AAFF00', fontSize: '12px', wordBreak: 'break-all', display: 'block', marginBottom: '10px' }}>{s.title}</a>
+                {preview.chunks.map(c => (
+                  <div key={c.id} style={{ lineHeight: 1.7, marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{c.content.slice(0, 500)}{c.content.length > 500 ? '…' : ''}</div>
+                ))}
+              </div>
+            ) : s.type === 'faq' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {preview.chunks.map(c => {
+                  const qMatch = c.content.match(/Q:\s*([\s\S]+?)(?:\nA:|$)/)
+                  const aMatch = c.content.match(/A:\s*([\s\S]+)/)
+                  return (
+                    <div key={c.id} style={{ borderLeft: '2px solid #2D3148', paddingLeft: '12px' }}>
+                      {qMatch && <div style={{ fontWeight: 600, color: '#D1D5DB', marginBottom: '4px' }}>Q: {qMatch[1].trim()}</div>}
+                      {aMatch && <div>A: {aMatch[1].trim()}</div>}
+                      {!qMatch && <div style={{ whiteSpace: 'pre-wrap' }}>{c.content}</div>}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {preview.chunks.map(c => (
+                  <div key={c.id} style={{ lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{c.content.slice(0, 500)}{c.content.length > 500 ? '…' : ''}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   if (loading) return <div style={{ color: '#6B7280', textAlign: 'center', padding: '60px' }}>Loading...</div>
   if (!bot) return <div style={{ color: '#f87171', textAlign: 'center', padding: '60px' }}>Bot not found</div>
 
@@ -307,99 +511,107 @@ export default function BotPage() {
             </div>
           </div>
 
-          <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', fontFamily: 'Outfit, sans-serif' }}>Sources ({sources.length})</h3>
-          {sources.length === 0 ? (
+          {/* Sources heading */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Sources ({sources.length})</h3>
+            <button
+              onClick={() => { setShowNewFolder(true); setNewFolderName('') }}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'none', border: '1px solid #2D3148', borderRadius: '7px', color: '#8B95A8', fontSize: '12px', padding: '6px 10px', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              <FolderPlus size={13} />New folder
+            </button>
+          </div>
+
+          {/* Inline new folder input */}
+          {showNewFolder && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', alignItems: 'center' }}>
+              <input
+                className="input"
+                placeholder="Folder name…"
+                value={newFolderName}
+                onChange={e => setNewFolderName(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') createFolder()
+                  if (e.key === 'Escape') { setShowNewFolder(false); setNewFolderName('') }
+                }}
+                autoFocus
+                style={{ fontSize: '13px', flex: 1 }}
+              />
+              <button
+                onClick={createFolder}
+                disabled={creatingFolder || !newFolderName.trim()}
+                style={{ padding: '9px 16px', background: '#AAFF00', color: '#080A0E', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', opacity: creatingFolder || !newFolderName.trim() ? 0.6 : 1, fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}
+              >{creatingFolder ? 'Creating…' : 'Create'}</button>
+              <button
+                onClick={() => { setShowNewFolder(false); setNewFolderName('') }}
+                style={{ padding: '9px 14px', background: 'none', border: '1px solid #2D3148', borderRadius: '8px', color: '#9CA3AF', fontSize: '13px', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', flexShrink: 0 }}
+              >Cancel</button>
+            </div>
+          )}
+
+          {sources.length === 0 && folders.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', border: '1px dashed #1E2028', borderRadius: '12px', color: '#6B7280', fontSize: '14px' }}>No knowledge sources yet. Add URLs, text, or FAQs above.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {sources.map(s => {
-                const isOpen = expandedId === s.id
-                const preview = previewData[s.id]
+              {/* Folders */}
+              {folders.map(folder => {
+                const folderSources = sources.filter(s => s.folder_id === folder.id)
+                const isFolderOpen = expandedFolders.includes(folder.id)
                 return (
-                  <div key={s.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                    {/* Row */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', cursor: 'pointer' }}
-                      onClick={() => toggleExpand(s.id)}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                        <ChevronRight size={14} style={{ color: '#4B5563', flexShrink: 0, transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
-                        <span style={{ fontSize: '18px' }}>{s.type === 'url' ? '🌐' : s.type === 'faq' ? '💬' : s.type === 'file' ? '📄' : s.type === 'image' ? '🖼️' : '📝'}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
-                            <span className="source-type">{s.type}</span>
-                            {s.chunk_count > 0 && <span style={{ fontSize: '11px', color: '#6B7280' }}>{s.chunk_count} chunks</span>}
-                            {s.error_message && <span style={{ fontSize: '11px', color: '#f87171' }}>{s.error_message}</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-                        {(s.status === 'indexing' || s.status === 'pending') && <span className="status-indexing" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><RefreshCw size={11} style={{ animation: 'spin 1s linear infinite' }} />Indexing</span>}
-                        {s.status === 'ready' && <span className="status-ready">Ready</span>}
-                        {s.status === 'failed' && <span className="status-failed">Failed</span>}
-                        <button onClick={() => deleteSource(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px', display: 'flex' }}><Trash2 size={14} /></button>
-                      </div>
+                  <div key={folder.id}>
+                    <div
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: isFolderOpen && folderSources.length > 0 ? '10px 10px 0 0' : '10px', cursor: 'pointer', userSelect: 'none' as const }}
+                      onClick={() => toggleFolder(folder.id)}
+                    >
+                      <ChevronRight size={13} style={{ color: '#4B5563', flexShrink: 0, transition: 'transform 0.2s', transform: isFolderOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+                      <Folder size={14} style={{ color: '#AAFF00', flexShrink: 0 }} />
+                      {renamingFolderId === folder.id ? (
+                        <input
+                          className="input"
+                          value={renameFolderName}
+                          onChange={e => setRenameFolderName(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') renameFolder(folder.id); if (e.key === 'Escape') setRenamingFolderId(null) }}
+                          onBlur={() => renameFolder(folder.id)}
+                          onClick={e => e.stopPropagation()}
+                          autoFocus
+                          style={{ fontSize: '13px', flex: 1, padding: '2px 8px', height: '28px' }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '13px', fontWeight: 600, flex: 1, color: '#D1D5DB' }}>{folder.name}</span>
+                      )}
+                      <span style={{ fontSize: '11px', color: '#4B5563', marginRight: '4px' }}>{folderSources.length}</span>
+                      <button
+                        onClick={e => { e.stopPropagation(); setRenamingFolderId(folder.id); setRenameFolderName(folder.name) }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4B5563', padding: '2px 4px', display: 'flex' }}
+                        title="Rename folder"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); deleteFolder(folder.id) }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '2px 4px', display: 'flex' }}
+                        title="Delete folder (sources kept)"
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
-
-                    {/* Expanded preview */}
-                    {isOpen && (
-                      <div style={{ borderTop: '1px solid #1E2028', background: '#1A1D2E', padding: '16px', fontSize: '14px', color: '#8B95A8' }}>
-                        {preview?.loading ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4B5563' }}>
-                            <RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} />Loading…
-                          </div>
-                        ) : !preview?.chunks.length ? (
-                          <div style={{ color: '#4B5563', fontStyle: 'italic' }}>No content indexed yet.</div>
-                        ) : s.type === 'image' ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {preview.chunks.map(c => {
-                              const urlMatch = c.content.match(/Image URL:\s*(\S+)/)
-                              const descMatch = c.content.match(/Description:\s*([\s\S]+)/)
-                              return (
-                                <div key={c.id}>
-                                  {urlMatch && (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img src={urlMatch[1]} alt={s.title} style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '6px', marginBottom: '8px', display: 'block' }} />
-                                  )}
-                                  {descMatch && <div style={{ lineHeight: 1.6 }}>{descMatch[1].trim()}</div>}
-                                  {!descMatch && <div style={{ color: '#4B5563', fontStyle: 'italic' }}>No description.</div>}
-                                </div>
-                              )
-                            })}
-                          </div>
-                        ) : s.type === 'url' ? (
-                          <div>
-                            <a href={s.title} target="_blank" rel="noreferrer" style={{ color: '#AAFF00', fontSize: '12px', wordBreak: 'break-all', display: 'block', marginBottom: '10px' }}>{s.title}</a>
-                            {preview.chunks.map(c => (
-                              <div key={c.id} style={{ lineHeight: 1.7, marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{c.content.slice(0, 500)}{c.content.length > 500 ? '…' : ''}</div>
-                            ))}
-                          </div>
-                        ) : s.type === 'faq' ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {preview.chunks.map(c => {
-                              const qMatch = c.content.match(/Q:\s*([\s\S]+?)(?:\nA:|$)/)
-                              const aMatch = c.content.match(/A:\s*([\s\S]+)/)
-                              return (
-                                <div key={c.id} style={{ borderLeft: '2px solid #2D3148', paddingLeft: '12px' }}>
-                                  {qMatch && <div style={{ fontWeight: 600, color: '#D1D5DB', marginBottom: '4px' }}>Q: {qMatch[1].trim()}</div>}
-                                  {aMatch && <div>A: {aMatch[1].trim()}</div>}
-                                  {!qMatch && <div style={{ whiteSpace: 'pre-wrap' }}>{c.content}</div>}
-                                </div>
-                              )
-                            })}
+                    {isFolderOpen && (
+                      <div style={{ border: '1px solid #1E2028', borderTop: 'none', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
+                        {folderSources.length === 0 ? (
+                          <div style={{ padding: '16px', color: '#4B5563', fontSize: '13px', fontStyle: 'italic', textAlign: 'center' }}>
+                            Empty folder — move sources here using the ⋯ menu
                           </div>
                         ) : (
-                          // text / file
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {preview.chunks.map(c => (
-                              <div key={c.id} style={{ lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{c.content.slice(0, 500)}{c.content.length > 500 ? '…' : ''}</div>
-                            ))}
-                          </div>
+                          folderSources.map(s => renderSourceRow(s))
                         )}
                       </div>
                     )}
                   </div>
                 )
               })}
+
+              {/* Ungrouped sources */}
+              {sources.filter(s => !s.folder_id).map(s => renderSourceRow(s))}
             </div>
           )}
         </div>

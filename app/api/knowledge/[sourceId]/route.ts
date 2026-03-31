@@ -21,6 +21,21 @@ export async function GET(_req: NextRequest, { params }: { params: { sourceId: s
   return NextResponse.json({ source, chunks: chunks ?? [] })
 }
 
+export async function PATCH(req: NextRequest, { params }: { params: { sourceId: string } }) {
+  const authClient = createSupabaseServerClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const body = await req.json()
+  const supabase = createSupabaseServiceClient()
+  const { error } = await supabase
+    .from('knowledge_sources')
+    .update({ folder_id: body.folder_id ?? null })
+    .eq('id', params.sourceId)
+    .eq('user_id', user.id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
 export async function DELETE(_req: NextRequest, { params }: { params: { sourceId: string } }) {
   const authClient = createSupabaseServerClient()
   const { data: { user } } = await authClient.auth.getUser()
