@@ -51,6 +51,7 @@ export default function LandingPage() {
           </div>
           <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             <a href="#features" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Features</a>
+            <a href="/blog" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</a>
             <a href="#pricing" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Pricing</a>
             <Link href="/sign-in" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
             <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free</Link>
@@ -71,6 +72,7 @@ export default function LandingPage() {
         {menuOpen && (
           <div style={{ background: '#080A0EE8', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1E2028', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <a href="#features" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Features</a>
+            <a href="/blog" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</a>
             <a href="#pricing" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Pricing</a>
             <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
             <Link href="/sign-up" className="btn-accent" onClick={() => setMenuOpen(false)} style={{ padding: '10px 20px', fontSize: '15px', borderRadius: '8px', textAlign: 'center' }}>Start free</Link>
@@ -220,9 +222,14 @@ export default function LandingPage() {
             Ready to transform your<br /><span style={{ color: '#AAFF00' }}>customer support?</span>
           </h2>
           <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px' }}>Join businesses already using Questme.ai to answer customer questions 24/7.</p>
-          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 40px' }}>
-            Start for free — no credit card
-          </Link>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 40px' }}>
+              Start for free — no credit card
+            </Link>
+            <Link href="/blog" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>
+              Read our blog →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -250,7 +257,10 @@ export default function LandingPage() {
           <div style={{ width: '24px', height: '24px', background: '#AAFF00', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '12px', color: '#080A0E', fontFamily: 'Outfit, sans-serif' }}>Q</div>
           <span style={{ fontWeight: 700, fontSize: '14px', fontFamily: 'Outfit, sans-serif' }}>Questme<span style={{ color: '#AAFF00' }}>.ai</span></span>
         </div>
-        <div style={{ fontSize: '13px', color: '#6B7280' }}>2025 Questme.ai — Built for product-led businesses · All prices in USD</div>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <a href="/blog" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Blog</a>
+          <span style={{ fontSize: '13px', color: '#6B7280' }}>2025 Questme.ai — Built for product-led businesses · All prices in USD</span>
+        </div>
       </footer>
     </div>
   )
