@@ -252,6 +252,18 @@ export default function LandingPage() {
         })}}
       />
 
+      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 56px' }}>
+        <div style={{ borderTop: '1px solid #1E2028', paddingTop: '40px' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '20px' }}>Resources &amp; Guides</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            <Link href="/blog" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>Blog</Link>
+            <Link href="/ai-customer-support-chatbot" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>AI Customer Support Chatbot</Link>
+            <Link href="/ai-product-knowledge-chatbot" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>AI Product Knowledge Chatbot</Link>
+            <Link href="/website-ai-chatbot-for-lead-generation" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>Website Chatbot for Lead Generation</Link>
+          </div>
+        </div>
+      </section>
+
       <footer style={{ borderTop: '1px solid #1E2028', padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '24px', height: '24px', background: '#AAFF00', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '12px', color: '#080A0E', fontFamily: 'Outfit, sans-serif' }}>Q</div>

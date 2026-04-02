@@ -82,6 +82,23 @@ function renderSection(section: BlogSection, index: number) {
           {section.content as string}
         </blockquote>
       )
+    case 'cta_links':
+      return (
+        <div key={index} style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '12px', padding: '20px 24px', marginTop: '32px', marginBottom: '24px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#AAFF00', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>Related guides</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {(section.content as string[]).map((item, i) => {
+              const [label, href] = item.split('|')
+              return (
+                <Link key={i} href={href} style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: '#AAFF00', fontSize: '12px' }}>→</span>
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )
     default:
       return null
   }
