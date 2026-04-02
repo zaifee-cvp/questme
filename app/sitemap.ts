@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://questme.ai'
+  const base = 'https://www.questme.ai'
   const now = new Date().toISOString()
 
   const featurePages = [
@@ -23,6 +23,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'increase-conversion-with-ai-chat',
     'self-service-customer-support',
     'ai-for-product-sellers',
+    // Added: SEO-targeted blog posts
+    'how-ai-chatbots-help-businesses-respond-instantly',
+    'whatsapp-ai-chatbots-for-customer-support',
+    'why-businesses-lose-leads-without-instant-response',
+    'how-ai-answers-customer-questions-using-product-data',
+    'ai-chatbots-vs-human-support-cost-efficiency',
+    'how-to-turn-website-visitors-into-leads-using-ai',
+  ]
+
+  // SEO landing pages
+  const landingPages = [
+    'ai-customer-support-chatbot',
+    'ai-product-knowledge-chatbot',
+    'ai-chatbot-for-small-business',
+    'whatsapp-ai-chatbot-for-business',
+    'website-ai-chatbot-for-lead-generation',
+    'automated-customer-enquiry-system',
   ]
 
   return [
@@ -30,6 +47,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/sign-up`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/sign-in`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${base}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    ...landingPages.map(slug => ({
+      url: `${base}/${slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    })),
     ...featurePages.map(slug => ({
       url: `${base}/features/${slug}`,
       lastModified: now,
