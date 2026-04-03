@@ -40,6 +40,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'whatsapp-ai-chatbot-for-business',
     'website-ai-chatbot-for-lead-generation',
     'automated-customer-enquiry-system',
+    'ai-chatbot-for-business',
+    'website-ai-chatbot',
+    'chatbot-for-lead-generation',
   ]
 
   return [
