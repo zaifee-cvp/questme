@@ -49,7 +49,7 @@ const softwareSchema = {
   operatingSystem: 'Web',
   offers: {
     '@type': 'Offer',
-    priceCurrency: 'SGD',
+    priceCurrency: 'USD',
     price: '88',
   },
   description: 'AI chatbot trained on your own product knowledge. Deploy on WhatsApp and your website to answer customer questions 24/7.',

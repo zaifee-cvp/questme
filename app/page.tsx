@@ -252,6 +252,42 @@ export default function LandingPage() {
         })}}
       />
 
+      <section id="faq" style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>FAQ</div>
+          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>Frequently asked questions</h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '760px', margin: '0 auto' }}>
+          {[
+            {
+              q: 'What is Questme.ai?',
+              a: 'Questme.ai is an AI chatbot platform that lets businesses train a bot on their own product knowledge — documents, URLs, FAQs — and deploy it on their website or WhatsApp to answer customer questions 24/7.',
+            },
+            {
+              q: 'How does the AI chatbot learn about my business?',
+              a: 'You upload your product docs, paste URLs, or type FAQs directly into the dashboard. Questme indexes the content automatically. The bot only answers from your uploaded knowledge — it never makes things up.',
+            },
+            {
+              q: 'What happens if the chatbot can\'t answer a question?',
+              a: 'If the bot has no matching knowledge, it tells the visitor honestly and can trigger a human handoff — notifying your team by email so no lead is lost.',
+            },
+            {
+              q: 'Can I embed the chatbot on any website?',
+              a: 'Yes. Questme generates a single script tag that works on any website — Shopify, Webflow, WordPress, or custom HTML. No developer needed.',
+            },
+            {
+              q: 'Is there a free plan?',
+              a: 'Yes. Questme offers a 14-day free trial on all plans with no credit card required. You can test the full product before committing.',
+            },
+          ].map((item) => (
+            <div key={item.q} className="card">
+              <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '10px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' }}>{item.q}</div>
+              <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.a}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 56px' }}>
         <div style={{ borderTop: '1px solid #1E2028', paddingTop: '40px' }}>
           <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '20px' }}>Resources &amp; Guides</p>
@@ -271,7 +307,7 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <a href="/blog" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Blog</a>
-          <span style={{ fontSize: '13px', color: '#6B7280' }}>2025 Questme.ai — Built for product-led businesses · All prices in USD</span>
+          <span style={{ fontSize: '13px', color: '#6B7280' }}>2026 Questme.ai — Built for product-led businesses · All prices in USD</span>
         </div>
       </footer>
     </div>
