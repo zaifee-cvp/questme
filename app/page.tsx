@@ -137,7 +137,7 @@ export default function LandingPage() {
           <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '16px', overflow: 'hidden', border: '1px solid #1E2028', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
             <iframe
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-              src="https://www.youtube.com/embed/F3UvH9WvEt4?rel=0&modestbranding=1"
+              src="https://www.youtube.com/embed/5wvbgdnFAqk?rel=0&modestbranding=1"
               title="Questme.ai Demo — AI Product Knowledge Bot"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -240,10 +240,10 @@ export default function LandingPage() {
           '@type': 'VideoObject',
           name: 'Questme.ai Demo — AI Product Knowledge Bot',
           description: 'See how Questme turns your product docs, FAQs, and URLs into an AI bot that answers customer questions instantly.',
-          thumbnailUrl: 'https://img.youtube.com/vi/F3UvH9WvEt4/maxresdefault.jpg',
+          thumbnailUrl: 'https://img.youtube.com/vi/5wvbgdnFAqk/maxresdefault.jpg',
           uploadDate: '2026-03-31',
-          contentUrl: 'https://www.youtube.com/watch?v=F3UvH9WvEt4',
-          embedUrl: 'https://www.youtube.com/embed/F3UvH9WvEt4',
+          contentUrl: 'https://www.youtube.com/watch?v=5wvbgdnFAqk',
+          embedUrl: 'https://www.youtube.com/embed/5wvbgdnFAqk',
           publisher: {
             '@type': 'Organization',
             name: 'Questme.ai',
