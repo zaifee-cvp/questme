@@ -1,10 +1,12 @@
 'use client'
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function SettingsPage() {
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [feedbackMsg, setFeedbackMsg] = useState('')
@@ -52,7 +54,12 @@ export default function SettingsPage() {
       <div className="card" style={{ marginBottom: '16px' }}>
         <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '16px', fontFamily: 'Outfit, sans-serif' }}>Change password</h3>
         <form onSubmit={updatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input className="input" type="password" placeholder="New password (8+ characters)" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
+          <div className="relative">
+            <input className="input pr-10" type={showPassword ? 'text' : 'password'} placeholder="New password (8+ characters)" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} style={{ width: '100%' }} />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#AAFF00] transition-colors" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           {msg && <div style={{ fontSize: '13px', color: msg.includes('success') ? '#4ade80' : '#f87171' }}>{msg}</div>}
           <button className="btn-accent" type="submit" disabled={saving} style={{ width: 'fit-content' }}>{saving ? 'Saving...' : 'Update password'}</button>
         </form>

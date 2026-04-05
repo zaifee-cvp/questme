@@ -1,11 +1,13 @@
 'use client'
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
@@ -41,7 +43,12 @@ export default function SignUpPage() {
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <input className="input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-              <input className="input" type="password" placeholder="Password (8+ characters)" value={password} onChange={e => setPassword(e.target.value)} required />
+              <div className="relative">
+                <input className="input pr-10" type={showPassword ? 'text' : 'password'} placeholder="Password (8+ characters)" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%' }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#AAFF00] transition-colors" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {error && <div style={{ fontSize: '13px', color: '#f87171', background: '#1f0a0a', border: '1px solid #3d1515', borderRadius: '8px', padding: '10px 14px' }}>{error}</div>}
               <button className="btn-accent" type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
                 {loading ? 'Creating account...' : 'Create free account →'}
