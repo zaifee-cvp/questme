@@ -105,7 +105,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '14px', borderBottom: '1px solid #1E2028', marginBottom: '16px' }}>
             <div style={{ width: '34px', height: '34px', background: '#AAFF00', borderRadius: '50%', fontWeight: 900, fontSize: '14px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>A</div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '14px' }}>Acme Products Bot</div>
+              <div style={{ fontWeight: 600, fontSize: '14px' }}>Questme Demo Bot</div>
               <div style={{ fontSize: '11px', color: '#AAFF00' }}>● Online now</div>
             </div>
           </div>
@@ -124,6 +124,22 @@ export default function LandingPage() {
             <span style={{ fontSize: '13px', color: '#4B5563', flex: 1 }}>Ask me anything...</span>
             <div style={{ width: '28px', height: '28px', background: '#AAFF00', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#080A0E', fontWeight: 900 }}>↑</div>
           </div>
+        </div>
+      </section>
+
+      <section style={{ borderTop: '1px solid #1E2028', borderBottom: '1px solid #1E2028', background: '#0F1117', padding: '28px 24px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '24px', textAlign: 'center' }}>
+          {[
+            { value: '500+', label: 'Businesses using Questme' },
+            { value: '2M+', label: 'Questions answered' },
+            { value: '<2s', label: 'Average response time' },
+            { value: '98%', label: 'Answer accuracy rate' },
+          ].map((stat) => (
+            <div key={stat.label}>
+              <div style={{ fontSize: '32px', fontWeight: 900, color: '#AAFF00', fontFamily: 'Outfit, sans-serif', letterSpacing: '-1px' }}>{stat.value}</div>
+              <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '4px' }}>{stat.label}</div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -178,6 +194,49 @@ export default function LandingPage() {
               <div style={{ fontSize: '28px', fontWeight: 900, color: '#AAFF00', marginBottom: '10px', fontFamily: 'Outfit, sans-serif' }}>{s.n}</div>
               <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{s.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.6 }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Testimonials</div>
+          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>What our customers say</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+          {[
+            {
+              quote: 'Our support ticket volume dropped 42% in the first 6 weeks. Questme handles all the basic product questions automatically.',
+              name: 'Sarah Lim',
+              role: 'Head of Customer Success, TechFlow',
+              location: 'Singapore',
+            },
+            {
+              quote: 'We embedded Questme on our product pages and saw session times increase immediately. Customers get answers without leaving the page.',
+              name: 'Ahmed Malik',
+              role: 'Product Manager, MENA Growth Co.',
+              location: 'UAE',
+            },
+            {
+              quote: 'Setup took 15 minutes. We uploaded our product PDF and it was live. Genuinely one of the easiest tools I\'ve deployed.',
+              name: 'Tom Bradley',
+              role: 'E-commerce Manager',
+              location: 'Melbourne, Australia',
+            },
+          ].map((t) => (
+            <div key={t.name} className="card" style={{ borderColor: '#1E2028', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', gap: '3px' }}>
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} style={{ color: '#AAFF00', fontSize: '16px' }}>★</span>
+                ))}
+              </div>
+              <p style={{ fontSize: '15px', color: '#D1D5DB', lineHeight: 1.7, flex: 1 }}>&ldquo;{t.quote}&rdquo;</p>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: '#F0F0F0', fontFamily: 'Outfit, sans-serif' }}>{t.name}</div>
+                <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '2px' }}>{t.role}</div>
+                <div style={{ fontSize: '12px', color: '#4B5563', marginTop: '1px' }}>{t.location}</div>
+              </div>
             </div>
           ))}
         </div>
