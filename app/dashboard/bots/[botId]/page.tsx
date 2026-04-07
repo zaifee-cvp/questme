@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight, Folder, FolderPlus, Pencil, MoreHorizontal } from 'lucide-react'
+import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight, Folder, FolderPlus, Pencil, MoreHorizontal, QrCode } from 'lucide-react'
+import { QRCodeCanvas } from 'qrcode.react'
 
 interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string; folder_id?: string | null }
 interface Chunk { id: string; content: string }
@@ -16,6 +17,8 @@ export default function BotPage() {
   const [tab, setTab] = useState<Tab>('knowledge')
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [showQR, setShowQR] = useState(false)
+  const qrRef = useRef<HTMLCanvasElement>(null)
   const [urlInput, setUrlInput] = useState('')
   const [addingUrl, setAddingUrl] = useState(false)
   const [textTitle, setTextTitle] = useState('')
@@ -684,7 +687,35 @@ export default function BotPage() {
               <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/chat/${botId}`); setCopied(true); setTimeout(() => setCopied(false), 2000) }} style={{ background: 'none', border: 'none', color: '#AAFF00', cursor: 'pointer', fontSize: '13px', fontWeight: 700, flexShrink: 0 }}>
                 {copied ? 'Copied!' : 'Copy'}
               </button>
+              <button onClick={() => setShowQR(v => !v)} style={{ background: 'none', border: 'none', color: showQR ? '#AAFF00' : '#6B7280', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }} title="Show QR code">
+                <QrCode size={18} />
+              </button>
             </div>
+            {showQR && (
+              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+                <div style={{ background: '#ffffff', padding: '12px', borderRadius: '8px', display: 'inline-block' }}>
+                  <QRCodeCanvas
+                    ref={qrRef}
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'https://questme.ai'}/chat/${botId}`}
+                    size={160}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const canvas = qrRef.current
+                    if (!canvas) return
+                    const url = canvas.toDataURL('image/png')
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `questme-qr-${botId}.png`
+                    a.click()
+                  }}
+                  style={{ background: 'none', border: '1px solid #1E2028', color: '#D1D5DB', cursor: 'pointer', fontSize: '12px', fontWeight: 600, padding: '6px 12px', borderRadius: '6px' }}
+                >
+                  Download PNG
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
