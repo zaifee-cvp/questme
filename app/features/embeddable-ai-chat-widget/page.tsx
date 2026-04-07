@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Embeddable AI Chat Widget | Questme.ai',
     description: 'Add an AI chat widget to any website in 5 minutes with one line of code.',
-    url: 'https://www.questme.ai/features/embeddable-ai-chat-widget',
+    url: 'https://questme.ai/features/embeddable-ai-chat-widget',
     type: 'website',
   },
 }
@@ -25,7 +25,7 @@ const jsonLd = {
   '@type': 'WebPage',
   name: 'Embeddable AI Chat Widget | Questme.ai',
   description: 'Add an AI chat widget to any website in 5 minutes with one line of code.',
-  url: 'https://www.questme.ai/features/embeddable-ai-chat-widget',
+  url: 'https://questme.ai/features/embeddable-ai-chat-widget',
   mainEntity: {
     '@type': 'FAQPage',
     mainEntity: faqs.map(f => ({
@@ -77,7 +77,7 @@ export default function EmbeddableAIChatWidgetPage() {
             <span style={{ color: '#AAFF00' }}>&lt;script</span>
             <span style={{ color: '#60A5FA' }}> src</span>
             <span style={{ color: '#F0F0F0' }}>=</span>
-            <span style={{ color: '#34D399' }}>&quot;https://www.questme.ai/widget.js&quot;</span><br />
+            <span style={{ color: '#34D399' }}>&quot;https://questme.ai/widget.js&quot;</span><br />
             <span style={{ color: '#60A5FA' }}>{'        '}data-bot-id</span>
             <span style={{ color: '#F0F0F0' }}>=</span>
             <span style={{ color: '#34D399' }}>&quot;your-bot-id&quot;</span>

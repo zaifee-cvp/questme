@@ -8,7 +8,7 @@
   var botId = script.getAttribute('data-bot-id')
   if (!botId) return
 
-  var BASE_URL = 'https://www.questme.ai'
+  var BASE_URL = 'https://questme.ai'
 
   // Inject styles
   var style = document.createElement('style')

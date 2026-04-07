@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'WhatsApp AI Chatbot for Business | Questme.ai',
   description: 'Deploy an AI chatbot on WhatsApp for your business. Questme.ai answers customer questions automatically via WhatsApp — trained on your own business data.',
-  alternates: { canonical: 'https://www.questme.ai/whatsapp-ai-chatbot-for-business' },
+  alternates: { canonical: 'https://questme.ai/whatsapp-ai-chatbot-for-business' },
 }
 
 export default function WhatsAppAIChatbotForBusiness() {

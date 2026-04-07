@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'Chatbot for Lead Generation | Questme.ai',
   description: 'Use Questme.ai as a chatbot for lead generation. Engage website visitors, answer their questions, and capture leads automatically — powered by your business knowledge.',
-  alternates: { canonical: 'https://www.questme.ai/chatbot-for-lead-generation' },
+  alternates: { canonical: 'https://questme.ai/chatbot-for-lead-generation' },
 }
 
 export default function ChatbotForLeadGeneration() {

@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'AI Customer Support Chatbot for Businesses | Questme.ai',
   description: 'Questme.ai lets you deploy an AI chatbot that answers customer support questions 24/7 — trained on your own product and service knowledge.',
-  alternates: { canonical: 'https://www.questme.ai/ai-customer-support-chatbot' },
+  alternates: { canonical: 'https://questme.ai/ai-customer-support-chatbot' },
 }
 
 export default function AICustomerSupportChatbot() {

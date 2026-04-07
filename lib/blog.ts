@@ -315,7 +315,7 @@ export const posts: BlogPost[] = [
       },
       {
         type: 'blockquote',
-        content: '<script src="https://www.questme.ai/widget.js" data-bot-id="your-bot-id"></script>',
+        content: '<script src="https://questme.ai/widget.js" data-bot-id="your-bot-id"></script>',
       },
       {
         type: 'p',

@@ -2,17 +2,17 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.questme.ai'),
+  metadataBase: new URL('https://questme.ai'),
   title: {
     default: 'Questme.ai — AI Product Knowledge Chatbot for Businesses',
     template: '%s | Questme.ai',
   },
   description: 'Questme.ai lets businesses deploy an AI chatbot trained on their own product knowledge. Instantly answer customer questions on WhatsApp, your website, and more.',
-  alternates: { canonical: 'https://www.questme.ai' },
+  alternates: { canonical: 'https://questme.ai' },
   openGraph: {
     type: 'website',
     locale: 'en_SG',
-    url: 'https://www.questme.ai',
+    url: 'https://questme.ai',
     siteName: 'Questme.ai',
     title: 'Questme.ai — AI Product Knowledge Chatbot for Businesses',
     description: 'Train an AI chatbot on your business knowledge. Answer customer questions instantly on WhatsApp and your website — 24/7.',
@@ -31,8 +31,8 @@ const orgSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Questme.ai',
-  url: 'https://www.questme.ai',
-  logo: 'https://www.questme.ai/logo.png',
+  url: 'https://questme.ai',
+  logo: 'https://questme.ai/logo.png',
   description: 'AI product knowledge chatbot SaaS. Train your AI on your own business data and answer customer questions instantly.',
   contactPoint: {
     '@type': 'ContactPoint',

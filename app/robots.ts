@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/dashboard/', '/api/', '/auth/', '/_next/'],
       },
     ],
-    sitemap: 'https://www.questme.ai/sitemap.xml',
-    host: 'www.questme.ai',
+    sitemap: 'https://questme.ai/sitemap.xml',
+    host: 'questme.ai',
   }
 }

@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'AI Chatbot for Small Business | Questme.ai',
   description: 'Questme.ai gives small businesses an AI chatbot that answers customer questions automatically — affordable, easy to set up, and available around the clock.',
-  alternates: { canonical: 'https://www.questme.ai/ai-chatbot-for-small-business' },
+  alternates: { canonical: 'https://questme.ai/ai-chatbot-for-small-business' },
 }
 
 export default function AIChatbotForSmallBusiness() {
