@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Questme.ai Blog — AI Product Knowledge & Customer Support',
     description: 'Practical guides on AI product knowledge bots, customer support automation, and e-commerce conversion.',
-    url: 'https://questme.ai/blog',
+    url: 'https://www.questme.ai/blog',
     type: 'website',
   },
 }

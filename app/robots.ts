@@ -10,5 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: 'https://www.questme.ai/sitemap.xml',
+    host: 'www.questme.ai',
   }
 }

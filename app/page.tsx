@@ -306,7 +306,7 @@ export default function LandingPage() {
           publisher: {
             '@type': 'Organization',
             name: 'Questme.ai',
-            url: 'https://questme.ai'
+            url: 'https://www.questme.ai'
           }
         })}}
       />

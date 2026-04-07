@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Customer Support Automation with AI | Questme.ai',
     description: 'Automate up to 60% of customer support with AI trained on your documentation.',
-    url: 'https://questme.ai/features/customer-support-automation',
+    url: 'https://www.questme.ai/features/customer-support-automation',
     type: 'website',
   },
 }
@@ -25,7 +25,7 @@ const jsonLd = {
   '@type': 'WebPage',
   name: 'Customer Support Automation with AI | Questme.ai',
   description: 'Automate up to 60% of customer support with an AI that answers from your own documentation.',
-  url: 'https://questme.ai/features/customer-support-automation',
+  url: 'https://www.questme.ai/features/customer-support-automation',
   mainEntity: {
     '@type': 'FAQPage',
     mainEntity: faqs.map(f => ({

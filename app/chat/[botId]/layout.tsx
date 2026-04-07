@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-const SITE_URL = 'https://questme.ai'
+const SITE_URL = 'https://www.questme.ai'
 const OG_IMAGE = `${SITE_URL}/og-image.png`
 
 export async function generateMetadata(

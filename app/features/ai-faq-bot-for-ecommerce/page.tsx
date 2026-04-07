@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'AI FAQ Bot for E-commerce | Questme.ai',
     description: 'Replace your static FAQ page with an AI that answers product questions instantly.',
-    url: 'https://questme.ai/features/ai-faq-bot-for-ecommerce',
+    url: 'https://www.questme.ai/features/ai-faq-bot-for-ecommerce',
     type: 'website',
   },
 }
@@ -25,7 +25,7 @@ const jsonLd = {
   '@type': 'WebPage',
   name: 'AI FAQ Bot for E-commerce | Questme.ai',
   description: 'Replace your static FAQ page with an AI that answers shoppers\' product questions instantly.',
-  url: 'https://questme.ai/features/ai-faq-bot-for-ecommerce',
+  url: 'https://www.questme.ai/features/ai-faq-bot-for-ecommerce',
   mainEntity: {
     '@type': 'FAQPage',
     mainEntity: faqs.map(f => ({

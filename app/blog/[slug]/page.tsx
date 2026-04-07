@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://questme.ai/blog/${post.slug}`,
+      url: `https://www.questme.ai/blog/${post.slug}`,
       type: 'article',
       publishedTime: post.date,
     },
@@ -117,9 +117,9 @@ export default function BlogPostPage({ params }: Props) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
-    author: { '@type': 'Organization', name: 'Questme.ai', url: 'https://questme.ai' },
-    publisher: { '@type': 'Organization', name: 'Questme.ai', url: 'https://questme.ai' },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://questme.ai/blog/${post.slug}` },
+    author: { '@type': 'Organization', name: 'Questme.ai', url: 'https://www.questme.ai' },
+    publisher: { '@type': 'Organization', name: 'Questme.ai', url: 'https://www.questme.ai' },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.questme.ai/blog/${post.slug}` },
   }
 
   return (

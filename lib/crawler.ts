@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 
 export async function crawlUrl(url: string): Promise<{ title: string; content: string }> {
   const response = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Questme-Bot/1.0; +https://questme.ai)' },
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Questme-Bot/1.0; +https://www.questme.ai)' },
     signal: AbortSignal.timeout(12000),
   })
   if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch ${url}`)

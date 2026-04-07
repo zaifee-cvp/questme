@@ -668,7 +668,7 @@ export default function BotPage() {
             <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>Embed on your website</h3>
             <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '14px' }}>Paste this before your closing body tag</p>
             <div style={{ background: '#161820', border: '1px solid #1E2028', borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#AAFF00', lineHeight: 1.8, marginBottom: '12px', wordBreak: 'break-all' }}>
-              {`<script src="${typeof window !== 'undefined' ? window.location.origin : 'https://questme.ai'}/widget.js" data-bot-id="${botId}"></script>`}
+              {`<script src="${typeof window !== 'undefined' ? window.location.origin : 'https://www.questme.ai'}/widget.js" data-bot-id="${botId}"></script>`}
             </div>
             <button className="btn-accent" onClick={copyEmbed} style={{ fontSize: '13px', padding: '9px 18px' }}>
               {copied ? <><Check size={14} />Copied!</> : <><Copy size={14} />Copy embed code</>}
@@ -679,7 +679,7 @@ export default function BotPage() {
             <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '14px' }}>Share a direct link — no website needed</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#161820', border: '1px solid #1E2028', borderRadius: '8px', padding: '10px 14px' }}>
               <span style={{ flex: 1, fontSize: '13px', color: '#D1D5DB', fontFamily: 'monospace', wordBreak: 'break-all' }}>
-                {typeof window !== 'undefined' ? window.location.origin : 'https://questme.ai'}/chat/{botId}
+                {typeof window !== 'undefined' ? window.location.origin : 'https://www.questme.ai'}/chat/{botId}
               </span>
               <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/chat/${botId}`); setCopied(true); setTimeout(() => setCopied(false), 2000) }} style={{ background: 'none', border: 'none', color: '#AAFF00', cursor: 'pointer', fontSize: '13px', fontWeight: 700, flexShrink: 0 }}>
                 {copied ? 'Copied!' : 'Copy'}

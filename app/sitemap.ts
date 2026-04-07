@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://questme.ai'
+  const base = 'https://www.questme.ai'
   const now = new Date().toISOString()
 
   const featurePages = [
