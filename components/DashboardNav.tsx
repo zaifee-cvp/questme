@@ -1,13 +1,14 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { LayoutDashboard, BarChart3, Mail, CreditCard, Settings, HelpCircle, LogOut, MessageSquare } from 'lucide-react'
 
 const NAV = [
   { href: '/dashboard', label: 'My Bots', icon: LayoutDashboard },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/dashboard/leads', label: 'Leads', icon: Mail },
+  { href: '/dashboard/leads', label: 'Leads', icon: Mail, badge: true },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
   { href: '/dashboard/help', label: 'Help', icon: HelpCircle },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
@@ -17,6 +18,11 @@ const NAV = [
 export default function DashboardNav() {
   const pathname = usePathname()
   const router = useRouter()
+  const [leadsCount, setLeadsCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/leads').then(r => r.ok ? r.json() : null).then(d => { if (d?.count) setLeadsCount(d.count) }).catch(() => {})
+  }, [])
 
   async function handleSignOut() {
     const supabase = createSupabaseBrowserClient()
@@ -33,11 +39,17 @@ export default function DashboardNav() {
         </Link>
       </div>
       <nav style={{ flex: 1, padding: '16px 12px' }}>
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {NAV.map(({ href, label, icon: Icon, badge }) => {
           const active = pathname === href
           return (
             <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '8px', marginBottom: '2px', background: active ? '#AAFF0015' : 'transparent', color: active ? '#AAFF00' : '#9CA3AF', textDecoration: 'none', fontSize: '14px', fontWeight: active ? 600 : 400, border: active ? '1px solid #AAFF0030' : '1px solid transparent', transition: 'all 0.15s' }}>
-              <Icon size={16} />{label}
+              <Icon size={16} />
+              <span style={{ flex: 1 }}>{label}</span>
+              {badge && leadsCount > 0 && (
+                <span style={{ background: '#AAFF00', color: '#080A0E', fontSize: '11px', fontWeight: 700, borderRadius: '10px', padding: '1px 6px', lineHeight: '16px' }}>
+                  {leadsCount > 99 ? '99+' : leadsCount}
+                </span>
+              )}
             </Link>
           )
         })}

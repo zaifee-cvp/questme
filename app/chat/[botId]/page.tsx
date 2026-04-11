@@ -18,6 +18,11 @@ export default function ChatPage() {
   const [leadEmail, setLeadEmail] = useState('')
   const [leadName, setLeadName] = useState('')
   const [submittingLead, setSubmittingLead] = useState(false)
+  const [showLeadForm, setShowLeadForm] = useState(false)
+  const [leadPhone, setLeadPhone] = useState('')
+  const [leadSubmitted, setLeadSubmitted] = useState(false)
+  const [leadError, setLeadError] = useState('')
+  const [triggerMessage, setTriggerMessage] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -48,6 +53,27 @@ export default function ChatPage() {
     setSubmittingLead(false)
   }
 
+  const cannotAnswerPhrases = [
+    "i don't have information",
+    "i don't know",
+    "i cannot find",
+    "not sure about",
+    "don't have details",
+    "unable to find",
+    "no information",
+    "cannot answer",
+    "outside my knowledge",
+    "not in my knowledge",
+    "recommend contacting",
+    "please contact",
+    "reach out to",
+  ]
+
+  function checkIfBotCantAnswer(response: string): boolean {
+    const lower = response.toLowerCase()
+    return cannotAnswerPhrases.some(phrase => lower.includes(phrase))
+  }
+
   async function sendMessage(e: React.FormEvent | React.MouseEvent) {
     e.preventDefault()
     if (!input.trim() || loading) return
@@ -62,8 +88,13 @@ export default function ChatPage() {
       body: JSON.stringify({ botId, sessionId, message: userMsg, messages: newMessages.slice(-10) }),
     })
     const data = await res.json()
-    setMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'Sorry, I had trouble responding. Please try again.' }])
+    const botAnswer = data.answer || 'Sorry, I had trouble responding. Please try again.'
+    setMessages(prev => [...prev, { role: 'assistant', content: botAnswer }])
     setLoading(false)
+    if (!showLeadForm && !leadSubmitted && checkIfBotCantAnswer(botAnswer)) {
+      setTriggerMessage(userMsg)
+      setTimeout(() => setShowLeadForm(true), 1500)
+    }
   }
 
   const accent = bot?.color || '#AAFF00'
@@ -353,6 +384,73 @@ export default function ChatPage() {
                       ))}
                     </div>
                   </div>
+                </div>
+              )}
+              {showLeadForm && !leadSubmitted && (
+                <div style={{ background: '#0F0F1A', border: '1px solid #AAFF00', borderRadius: 12, padding: 16, margin: '8px 0' }}>
+                  <p style={{ color: '#AAFF00', fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>
+                    Want us to follow up with you?
+                  </p>
+                  <p style={{ color: '#9CA3AF', fontSize: 12, margin: '0 0 12px' }}>
+                    Leave your details and we'll get back to you shortly.
+                  </p>
+                  {leadError && (
+                    <p style={{ color: '#F87171', fontSize: 12, margin: '0 0 8px' }}>{leadError}</p>
+                  )}
+                  <input
+                    value={leadName}
+                    onChange={e => setLeadName(e.target.value)}
+                    placeholder="Your name *"
+                    style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
+                  />
+                  <input
+                    value={leadEmail}
+                    onChange={e => setLeadEmail(e.target.value)}
+                    placeholder="Email address"
+                    type="email"
+                    style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
+                  />
+                  <input
+                    value={leadPhone}
+                    onChange={e => setLeadPhone(e.target.value)}
+                    placeholder="Phone / WhatsApp"
+                    type="tel"
+                    style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 12, boxSizing: 'border-box', outline: 'none' }}
+                  />
+                  <p style={{ color: '#4B5563', fontSize: 11, margin: '0 0 10px' }}>* Email or phone required</p>
+                  <button
+                    onClick={async () => {
+                      if (!leadName.trim()) { setLeadError('Please enter your name'); return }
+                      if (!leadEmail.trim() && !leadPhone.trim()) { setLeadError('Please enter your email or phone number'); return }
+                      setLeadError('')
+                      const res = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          bot_id: botId,
+                          session_id: sessionId,
+                          name: leadName,
+                          email: leadEmail || null,
+                          phone: leadPhone || null,
+                          trigger_message: triggerMessage,
+                        })
+                      })
+                      if (res.ok) {
+                        setLeadSubmitted(true)
+                      } else {
+                        setLeadError('Something went wrong. Please try again.')
+                      }
+                    }}
+                    style={{ width: '100%', background: '#AAFF00', border: 'none', borderRadius: 6, padding: '9px', color: '#080A0E', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Send My Details →
+                  </button>
+                </div>
+              )}
+              {leadSubmitted && (
+                <div style={{ background: '#0A1A0A', border: '1px solid #1A3A1A', borderRadius: 12, padding: 16, margin: '8px 0' }}>
+                  <p style={{ color: '#AAFF00', fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>✓ Got it!</p>
+                  <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0 }}>We'll be in touch shortly. Thanks for reaching out!</p>
                 </div>
               )}
               <div ref={messagesEndRef} />
