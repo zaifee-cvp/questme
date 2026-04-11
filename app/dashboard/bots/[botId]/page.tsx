@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { Plus, Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight, Folder, FolderPlus, Pencil, MoreHorizontal, QrCode } from 'lucide-react'
+import { Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight, Folder, FolderPlus, Pencil, MoreHorizontal, QrCode } from 'lucide-react'
 import { QRCodeCanvas } from 'qrcode.react'
 
 interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string; folder_id?: string | null }
@@ -24,8 +24,7 @@ export default function BotPage() {
   const [textTitle, setTextTitle] = useState('')
   const [textContent, setTextContent] = useState('')
   const [addingText, setAddingText] = useState(false)
-  const [faqPairs, setFaqPairs] = useState([{ question: '', answer: '' }])
-  const [addingFaq, setAddingFaq] = useState(false)
+
   const [saving, setSaving] = useState(false)
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [addingPdf, setAddingPdf] = useState(false)
@@ -49,6 +48,7 @@ export default function BotPage() {
   const [renameFolderName, setRenameFolderName] = useState('')
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] = useState<string[]>([])
+  const [addTab, setAddTab] = useState<'text' | 'url' | 'pdf'>('text')
 
   async function toggleExpand(id: string) {
     if (expandedId === id) { setExpandedId(null); return }
@@ -111,14 +111,6 @@ export default function BotPage() {
     setTextTitle(''); setTextContent(''); await fetchData(); setAddingText(false)
   }
 
-  async function addFaq(e: React.FormEvent) {
-    e.preventDefault()
-    const valid = faqPairs.filter(f => f.question.trim() && f.answer.trim())
-    if (!valid.length) return
-    setAddingFaq(true)
-    await fetch('/api/ingest/faq', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, faqs: valid }) })
-    setFaqPairs([{ question: '', answer: '' }]); await fetchData(); setAddingFaq(false)
-  }
 
   async function uploadPdf(file: File) {
     setAddingPdf(true); setPdfMsg(null)
@@ -429,89 +421,101 @@ export default function BotPage() {
 
       {tab === 'knowledge' && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-            <div className="card">
-              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>🌐 Add URL</h3>
-              <form onSubmit={addUrl} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input className="input" type="url" placeholder="https://yoursite.com/faq" value={urlInput} onChange={e => setUrlInput(e.target.value)} required />
-                <button className="btn-accent" type="submit" disabled={addingUrl} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>{addingUrl ? 'Crawling...' : '+ Add URL'}</button>
-              </form>
-            </div>
-            <div className="card">
-              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>📝 Add text</h3>
-              <form onSubmit={addText} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input className="input" placeholder="Title" value={textTitle} onChange={e => setTextTitle(e.target.value)} required />
-                <textarea className="input" placeholder="Paste product info, policies, descriptions..." value={textContent} onChange={e => setTextContent(e.target.value)} required style={{ minHeight: '80px' }} />
-                <button className="btn-accent" type="submit" disabled={addingText} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>{addingText ? 'Adding...' : '+ Add text'}</button>
-              </form>
-            </div>
-            <div className="card">
-              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>💬 Add FAQ</h3>
-              <form onSubmit={addFaq} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {faqPairs.map((pair, i) => (
-                  <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <input className="input" placeholder={`Question ${i + 1}`} value={pair.question} onChange={e => { const p = [...faqPairs]; p[i].question = e.target.value; setFaqPairs(p) }} />
-                    <textarea className="input" placeholder="Answer" value={pair.answer} onChange={e => { const p = [...faqPairs]; p[i].answer = e.target.value; setFaqPairs(p) }} style={{ minHeight: '60px' }} />
-                  </div>
-                ))}
-                <button type="button" className="btn-ghost" style={{ fontSize: '12px', padding: '7px', justifyContent: 'center' }} onClick={() => setFaqPairs(prev => [...prev, { question: '', answer: '' }])}>
-                  <Plus size={13} />Add another Q&A
-                </button>
-                <button className="btn-accent" type="submit" disabled={addingFaq} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>{addingFaq ? 'Adding...' : '+ Save FAQs'}</button>
-              </form>
-            </div>
-            <div className="card">
-              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>📄 Upload PDF</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input ref={pdfInputRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }}
-                  onChange={e => { const f = e.target.files?.[0]; if (f) { setPdfFile(f); uploadPdf(f) } }} />
-                <div
-                  onClick={() => { if (!addingPdf) { setPdfMsg(null); pdfInputRef.current?.click() } }}
-                  style={{ border: '1px dashed #374151', borderRadius: '8px', padding: '20px', cursor: addingPdf ? 'default' : 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: addingPdf ? 0.6 : 1, transition: 'border-color 0.15s' }}
-                  onMouseEnter={e => { if (!addingPdf) (e.currentTarget as HTMLDivElement).style.borderColor = '#AAFF00' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#374151' }}
-                >
-                  <span style={{ fontSize: '22px' }}>📄</span>
-                  <span style={{ fontSize: '13px', color: '#6B7280' }}>
-                    {addingPdf ? 'Uploading…' : pdfFile ? `📎 ${pdfFile.name}` : 'Click to choose PDF'}
-                  </span>
-                </div>
-                {pdfMsg && <div style={{ fontSize: '12px', color: pdfMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{pdfMsg.text}</div>}
+          {sources.length === 0 && folders.length === 0 && (
+            <div style={{ background: 'linear-gradient(135deg, rgba(170,255,0,0.08) 0%, #080A0E 100%)', border: '1px solid rgba(170,255,0,0.2)', borderRadius: '14px', padding: '24px', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', marginBottom: '8px' }}>🚀 Train your bot in 60 seconds</h3>
+              <p style={{ fontSize: '13px', color: '#8B95A8', marginBottom: '16px' }}>Your bot needs knowledge to answer questions. Add your first source below to get started.</p>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const }}>
+                <button onClick={() => setAddTab('text')} style={{ padding: '8px 16px', background: addTab === 'text' ? '#AAFF00' : 'transparent', color: addTab === 'text' ? '#080A0E' : '#AAFF00', border: '1px solid #AAFF00', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Paste FAQ text</button>
+                <button onClick={() => setAddTab('url')} style={{ padding: '8px 16px', background: addTab === 'url' ? '#AAFF00' : 'transparent', color: addTab === 'url' ? '#080A0E' : '#AAFF00', border: '1px solid #AAFF00', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Add website URL</button>
+                <button onClick={() => setAddTab('pdf')} style={{ padding: '8px 16px', background: addTab === 'pdf' ? '#AAFF00' : 'transparent', color: addTab === 'pdf' ? '#080A0E' : '#AAFF00', border: '1px solid #AAFF00', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Upload PDF</button>
               </div>
             </div>
-            <div className="card">
-              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit, sans-serif' }}>🖼️ Upload Image</h3>
-              <form onSubmit={addImage} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input ref={imgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
-                  onChange={e => { const f = e.target.files?.[0]; if (f) handleImageSelect(f) }} />
-                {imgPreview ? (
-                  <div style={{ position: 'relative' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={imgPreview} alt="preview" style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #1E2028', display: 'block' }} />
-                    <button type="button" onClick={() => { setImgFile(null); setImgBlob(null); setImgCompressInfo(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(null); if (imgInputRef.current) imgInputRef.current.value = '' }}
-                      style={{ position: 'absolute', top: '6px', right: '6px', background: '#080A0ECC', border: '1px solid #1E2028', borderRadius: '50%', width: '22px', height: '22px', color: '#9CA3AF', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>✕</button>
-                    {imgFile && <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{imgFile.name}</div>}
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => { setImgMsg(null); imgInputRef.current?.click() }}
-                    style={{ border: '1px dashed #374151', borderRadius: '8px', padding: '20px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transition: 'border-color 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#AAFF00' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#374151' }}
-                  >
-                    <span style={{ fontSize: '22px' }}>🖼️</span>
-                    <span style={{ fontSize: '13px', color: '#6B7280' }}>Click to choose image</span>
-                  </div>
-                )}
-                {imgCompressInfo && <div style={{ fontSize: '11px', color: '#6B7280' }}>{imgCompressInfo}</div>}
-                <input className="input" placeholder="Describe this image for AI (optional)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
-                {imgMsg && <div style={{ fontSize: '12px', color: imgMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{imgMsg.text}</div>}
-                <button className="btn-accent" type="submit" disabled={addingImg || !imgFile}
-                  style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
-                  {addingImg ? 'Uploading…' : '+ Upload Image'}
-                </button>
-              </form>
+          )}
+          <div className="card" style={{ padding: 0, marginBottom: '28px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', borderBottom: '1px solid #1E2028' }}>
+              <button onClick={() => setAddTab('text')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'text' ? '2px solid #AAFF00' : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'text' ? '#AAFF00' : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Paste Text / FAQ</button>
+              <button onClick={() => setAddTab('url')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'url' ? '2px solid #AAFF00' : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'url' ? '#AAFF00' : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Add Website URL</button>
+              <button onClick={() => setAddTab('pdf')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'pdf' ? '2px solid #AAFF00' : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'pdf' ? '#AAFF00' : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Upload PDF</button>
             </div>
+            {addTab === 'text' && (
+              <div style={{ padding: '20px' }}>
+                <p style={{ fontSize: '13px', color: '#8B95A8', marginBottom: '14px' }}>Paste your FAQ, product descriptions, or any text your bot should know</p>
+                <form onSubmit={addText} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <input className="input" placeholder="Title (e.g. FAQ, Product Info)" value={textTitle} onChange={e => setTextTitle(e.target.value)} required style={{ fontSize: '13px' }} />
+                  <textarea className="input" placeholder="Paste your content here…" value={textContent} onChange={e => setTextContent(e.target.value)} required style={{ minHeight: '140px', fontSize: '13px', resize: 'vertical' }} />
+                  <button className="btn-accent" type="submit" disabled={addingText} style={{ justifyContent: 'center', padding: '10px', fontSize: '14px', fontWeight: 700 }}>{addingText ? 'Training…' : 'Train Bot on This Text'}</button>
+                </form>
+              </div>
+            )}
+            {addTab === 'url' && (
+              <div style={{ padding: '20px' }}>
+                <p style={{ fontSize: '13px', color: '#8B95A8', marginBottom: '14px' }}>Enter your website URL and we'll extract the content automatically</p>
+                <form onSubmit={addUrl} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <input className="input" type="url" placeholder="https://yoursite.com/faq" value={urlInput} onChange={e => setUrlInput(e.target.value)} required style={{ fontSize: '13px' }} />
+                  {addingUrl && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#AAFF00' }}>
+                      <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />Fetching and extracting content…
+                    </div>
+                  )}
+                  <button className="btn-accent" type="submit" disabled={addingUrl} style={{ justifyContent: 'center', padding: '10px', fontSize: '14px', fontWeight: 700 }}>{addingUrl ? 'Fetching…' : 'Fetch & Train'}</button>
+                </form>
+              </div>
+            )}
+            {addTab === 'pdf' && (
+              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div>
+                  <p style={{ fontSize: '13px', color: '#8B95A8', marginBottom: '14px' }}>Upload a PDF catalogue, price list, or manual</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <input ref={pdfInputRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) { setPdfFile(f); uploadPdf(f) } }} />
+                    <div
+                      onClick={() => { if (!addingPdf) { setPdfMsg(null); pdfInputRef.current?.click() } }}
+                      style={{ border: '1px dashed #374151', borderRadius: '8px', padding: '28px 20px', cursor: addingPdf ? 'default' : 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', opacity: addingPdf ? 0.6 : 1, transition: 'border-color 0.15s' }}
+                      onMouseEnter={e => { if (!addingPdf) (e.currentTarget as HTMLDivElement).style.borderColor = '#AAFF00' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#374151' }}
+                    >
+                      <span style={{ fontSize: '28px' }}>📄</span>
+                      <span style={{ fontSize: '13px', color: '#6B7280' }}>{addingPdf ? 'Uploading…' : pdfFile ? `📎 ${pdfFile.name}` : 'Click to choose PDF'}</span>
+                      <span style={{ fontSize: '12px', color: '#4B5563' }}>Upload & Train</span>
+                    </div>
+                    {pdfMsg && <div style={{ fontSize: '12px', color: pdfMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{pdfMsg.text}</div>}
+                  </div>
+                </div>
+                <div style={{ borderTop: '1px solid #1E2028', paddingTop: '20px' }}>
+                  <p style={{ fontSize: '13px', color: '#8B95A8', marginBottom: '14px' }}>🖼️ Or upload an image (product photos, menus, etc.)</p>
+                  <form onSubmit={addImage} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <input ref={imgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) handleImageSelect(f) }} />
+                    {imgPreview ? (
+                      <div style={{ position: 'relative' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={imgPreview} alt="preview" style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #1E2028', display: 'block' }} />
+                        <button type="button" onClick={() => { setImgFile(null); setImgBlob(null); setImgCompressInfo(null); if (imgPreview) URL.revokeObjectURL(imgPreview); setImgPreview(null); if (imgInputRef.current) imgInputRef.current.value = '' }}
+                          style={{ position: 'absolute', top: '6px', right: '6px', background: '#080A0ECC', border: '1px solid #1E2028', borderRadius: '50%', width: '22px', height: '22px', color: '#9CA3AF', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>✕</button>
+                        {imgFile && <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{imgFile.name}</div>}
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => { setImgMsg(null); imgInputRef.current?.click() }}
+                        style={{ border: '1px dashed #374151', borderRadius: '8px', padding: '20px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transition: 'border-color 0.15s' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#AAFF00' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#374151' }}
+                      >
+                        <span style={{ fontSize: '22px' }}>🖼️</span>
+                        <span style={{ fontSize: '13px', color: '#6B7280' }}>Click to choose image</span>
+                      </div>
+                    )}
+                    {imgCompressInfo && <div style={{ fontSize: '11px', color: '#6B7280' }}>{imgCompressInfo}</div>}
+                    <input className="input" placeholder="Describe this image for AI (optional)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
+                    {imgMsg && <div style={{ fontSize: '12px', color: imgMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{imgMsg.text}</div>}
+                    <button className="btn-accent" type="submit" disabled={addingImg || !imgFile} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
+                      {addingImg ? 'Uploading…' : '+ Upload Image'}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sources heading */}
