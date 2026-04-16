@@ -4,7 +4,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#080A0E' }}>
       <DashboardNav />
-      <main style={{ flex: 1, overflow: 'auto', padding: '32px', maxWidth: '1100px' }}>
+      <main className="dash-main" style={{ flex: 1, overflow: 'auto', padding: '32px', maxWidth: '1100px' }}>
         {children}
       </main>
     </div>

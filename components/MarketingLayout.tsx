@@ -1,15 +1,20 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <div style={{ background: '#080A0E', color: '#F0F0F0', minHeight: '100vh', fontFamily: 'DM Sans, sans-serif' }}>
       {/* Nav */}
-      <nav style={{ borderBottom: '1px solid #1E2028', padding: '0 32px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#080A0EEE', backdropFilter: 'blur(12px)', zIndex: 100 }}>
+      <nav style={{ borderBottom: '1px solid #1E2028', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#080A0EEE', backdropFilter: 'blur(12px)', zIndex: 100 }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
           <div style={{ width: '28px', height: '28px', background: '#AAFF00', borderRadius: '7px', fontWeight: 900, fontSize: '14px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>Q</div>
           <span style={{ fontWeight: 700, fontSize: '16px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' }}>Questme<span style={{ color: '#AAFF00' }}>.ai</span></span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        {/* Desktop links */}
+        <div className="mk-nav-links" style={{ alignItems: 'center', gap: '24px' }}>
           <Link href="/features/ai-product-knowledge-bot" style={{ color: '#9CA3AF', fontSize: '14px', textDecoration: 'none' }}>Features</Link>
           <Link href="/blog" style={{ color: '#9CA3AF', fontSize: '14px', textDecoration: 'none' }}>Blog</Link>
           <Link href="/sign-in" style={{ color: '#9CA3AF', fontSize: '14px', textDecoration: 'none' }}>Sign in</Link>
@@ -17,13 +22,43 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             Get Started Free →
           </Link>
         </div>
+        {/* Mobile hamburger */}
+        <button
+          className="mk-hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? (
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <line x1="4" y1="4" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <line x1="18" y1="4" x2="4" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="2" y="5" width="18" height="2" rx="1" fill="currentColor" />
+              <rect x="2" y="10" width="18" height="2" rx="1" fill="currentColor" />
+              <rect x="2" y="15" width="18" height="2" rx="1" fill="currentColor" />
+            </svg>
+          )}
+        </button>
       </nav>
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
+        <div className="mk-mobile-menu">
+          <Link href="/features/ai-product-knowledge-bot" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none', padding: '4px 0' }}>Features</Link>
+          <Link href="/blog" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none', padding: '4px 0' }}>Blog</Link>
+          <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none', padding: '4px 0' }}>Sign in</Link>
+          <Link href="/sign-up" onClick={() => setMenuOpen(false)} style={{ background: '#AAFF00', color: '#080A0E', fontWeight: 700, fontSize: '14px', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', textAlign: 'center', fontFamily: 'Outfit, sans-serif' }}>
+            Get Started Free →
+          </Link>
+        </div>
+      )}
 
       {/* Page content */}
       {children}
 
       {/* Footer */}
-      <footer style={{ borderTop: '1px solid #1E2028', padding: '48px 32px', marginTop: '80px' }}>
+      <footer style={{ borderTop: '1px solid #1E2028', padding: '48px 24px', marginTop: '80px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>

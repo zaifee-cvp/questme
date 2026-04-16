@@ -40,6 +40,11 @@ export default function LandingPage() {
         @media (max-width: 639px) {
           .nav-links { display: none !important; }
           .nav-hamburger { display: flex !important; }
+          .hero-h1 { letter-spacing: -1px !important; }
+          .hero-para { font-size: 16px !important; }
+          .section-h2 { font-size: 26px !important; letter-spacing: -0.5px !important; }
+          .cta-inner { padding: 40px 20px !important; }
+          .pricing-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
@@ -85,12 +90,12 @@ export default function LandingPage() {
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
           AI Product Knowledge Platform
         </div>
-        <h1 style={{ fontSize: 'clamp(36px, 6vw, 68px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-2px', fontFamily: 'Outfit, sans-serif' }}>
+        <h1 className="hero-h1" style={{ fontSize: 'clamp(36px, 6vw, 68px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-2px', fontFamily: 'Outfit, sans-serif' }}>
           Your product,<br />
           <span style={{ color: '#AAFF00' }}>perfectly explained</span><br />
           24 hours a day
         </h1>
-        <p style={{ fontSize: '18px', color: '#9CA3AF', maxWidth: '560px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+        <p className="hero-para" style={{ fontSize: '18px', color: '#9CA3AF', maxWidth: '560px', margin: '0 auto 40px', lineHeight: 1.7 }}>
           Upload your product knowledge. Get an embeddable AI that answers every customer question — instantly, accurately, only from your content.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -276,13 +281,13 @@ export default function LandingPage() {
       </section>
 
       <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px 80px' }}>
-        <div style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '60px 24px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '40px', fontWeight: 900, marginBottom: '16px', letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>
+        <div className="cta-inner" style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '60px 24px', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 6vw, 40px)', fontWeight: 900, marginBottom: '16px', letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>
             Ready to transform your<br /><span style={{ color: '#AAFF00' }}>customer support?</span>
           </h2>
           <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px' }}>Join businesses already using Questme.ai to answer customer questions 24/7.</p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 40px' }}>
+            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 24px' }}>
               Start for free — no credit card
             </Link>
             <Link href="/blog" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>
