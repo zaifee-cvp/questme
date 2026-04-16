@@ -37,9 +37,11 @@ export default function LandingPage() {
     <div style={{ minHeight: '100vh', background: '#080A0E', color: '#F0F0F0' }}>
       <style>{`
         .nav-hamburger { display: none; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 4px; color: #F0F0F0; }
+        .nav-mobile-signin { display: none; }
         @media (max-width: 639px) {
           .nav-links { display: none !important; }
           .nav-hamburger { display: flex !important; }
+          .nav-mobile-signin { display: inline-flex !important; align-items: center; font-size: 13px; color: #9CA3AF; text-decoration: none; padding: 6px 10px; border: 1px solid #2D3148; border-radius: 8px; }
           .hero-h1 { letter-spacing: -1px !important; }
           .hero-para { font-size: 16px !important; }
           .section-h2 { font-size: 26px !important; letter-spacing: -0.5px !important; }
@@ -61,17 +63,20 @@ export default function LandingPage() {
             <Link href="/sign-in" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
             <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free</Link>
           </div>
-          <button
-            className="nav-hamburger"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link href="/sign-in" className="nav-mobile-signin">Sign in</Link>
+            <button
+              className="nav-hamburger"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="2" y="5" width="18" height="2" rx="1" fill="currentColor" />
               <rect x="2" y="10" width="18" height="2" rx="1" fill="currentColor" />
               <rect x="2" y="15" width="18" height="2" rx="1" fill="currentColor" />
             </svg>
-          </button>
+            </button>
+          </div>
         </nav>
 
         {menuOpen && (
