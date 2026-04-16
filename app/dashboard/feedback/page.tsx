@@ -7,6 +7,8 @@ const FEEDBACK_TYPES = ['Bug report', 'Feature request', 'General feedback', 'Ot
 
 export default function FeedbackPage() {
   const [type, setType] = useState('General feedback')
+  const [rating, setRating] = useState(0)
+  const [hovered, setHovered] = useState(0)
   const [message, setMessage] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -31,7 +33,7 @@ export default function FeedbackPage() {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message }),
+        body: JSON.stringify({ type, rating, message }),
       })
       const data = await res.json()
       if (data.success) { setSubmitted(true) }
@@ -52,7 +54,7 @@ export default function FeedbackPage() {
           </div>
           <h2 style={{ fontSize: '20px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', marginBottom: '8px' }}>Thanks for your feedback!</h2>
           <p style={{ fontSize: '14px', color: '#9CA3AF', marginBottom: '28px', lineHeight: 1.6 }}>We read every submission and use it to improve Questme.ai.</p>
-          <button onClick={() => { setSubmitted(false); setMessage('') }}
+          <button onClick={() => { setSubmitted(false); setMessage(''); setRating(0) }}
             style={{ background: '#AAFF00', color: '#080A0E', fontWeight: 700, fontSize: '14px', padding: '10px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
             Send another
           </button>
@@ -80,6 +82,29 @@ export default function FeedbackPage() {
             <select value={type} onChange={e => setType(e.target.value)} style={{ ...INPUT, cursor: 'pointer' }}>
               {FEEDBACK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
+          </div>
+          <div>
+            <label style={LABEL}>Rating <span style={{ color: '#4B5563', fontWeight: 400 }}>(optional)</span></label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star === rating ? 0 : star)}
+                  onMouseEnter={() => setHovered(star)}
+                  onMouseLeave={() => setHovered(0)}
+                  aria-label={`${star} star`}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', lineHeight: 1, fontSize: '28px', color: star <= (hovered || rating) ? '#AAFF00' : '#2D3148', transition: 'color 0.12s, transform 0.12s', transform: hovered === star ? 'scale(1.2)' : 'scale(1)' }}
+                >
+                  ★
+                </button>
+              ))}
+              {rating > 0 && (
+                <span style={{ fontSize: '13px', color: '#9CA3AF', marginLeft: '4px' }}>
+                  {['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][rating]}
+                </span>
+              )}
+            </div>
           </div>
           <div>
             <label style={LABEL}>Message</label>
