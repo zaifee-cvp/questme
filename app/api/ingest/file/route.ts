@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { chunkText } from '@/lib/chunker'
 
+function extractTextFromPDF(buffer: Buffer): string {
+  // Simple PDF text extraction - find text between parentheses in PDF streams
+  const text = buffer.toString('latin1')
+  const textParts: string[] = []
+  const matches = text.match(/\(([^)]*)\)/g)
+  if (matches) {
+    for (const match of matches) {
+      const cleaned = match.slice(1, -1)
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '')
+        .replace(/\\\(/g, '(')
+        .replace(/\\\)/g, ')')
+        .replace(/\\\\/g, '\\')
+      if (cleaned.length > 2 && /[a-zA-Z]/.test(cleaned)) {
+        textParts.push(cleaned)
+      }
+    }
+  }
+  return textParts.join(' ').replace(/\s+/g, ' ').trim()
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authClient = createSupabaseServerClient()
@@ -21,11 +42,9 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse')
-      const data = await pdfParse(buffer)
-      if (!data.text || data.text.trim().length < 50) throw new Error('Could not extract text from PDF')
-      const chunks = chunkText(data.text)
+      const extractedText = extractTextFromPDF(buffer)
+      if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF')
+      const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
       for (const chunk of chunks) {
         await supabase.from('knowledge_chunks').insert({
