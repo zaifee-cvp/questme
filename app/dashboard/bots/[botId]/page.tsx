@@ -100,7 +100,21 @@ export default function BotPage() {
 
   async function addUrl(e: React.FormEvent) {
     e.preventDefault(); setAddingUrl(true)
-    await fetch('/api/ingest/url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, url: urlInput }) })
+    const ingestRes = await fetch('/api/ingest/url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, url: urlInput }) })
+    const ingestData = await ingestRes.json()
+    if (ingestData.sourceId) {
+      let done = false
+      while (!done) {
+        const embedRes = await fetch('/api/ingest/embed-next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sourceId: ingestData.sourceId }),
+        })
+        const embedData = await embedRes.json()
+        done = embedData.done
+        if (embedData.error) { done = true }
+      }
+    }
     setUrlInput(''); await fetchData(); setAddingUrl(false)
   }
 
@@ -118,6 +132,20 @@ export default function BotPage() {
     fd.append('botId', botId)
     const res = await fetch('/api/ingest/file', { method: 'POST', body: fd })
     if (res.ok) {
+      const ingestData = await res.json()
+      if (ingestData.sourceId) {
+        let done = false
+        while (!done) {
+          const embedRes = await fetch('/api/ingest/embed-next', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sourceId: ingestData.sourceId }),
+          })
+          const embedData = await embedRes.json()
+          done = embedData.done
+          if (embedData.error) { done = true }
+        }
+      }
       setPdfMsg({ type: 'success', text: '✓ PDF added — indexing in progress' })
       setPdfFile(null)
       await fetchData()

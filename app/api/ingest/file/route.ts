@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { chunkText } from '@/lib/chunker'
-import { indexChunks } from '@/lib/rag'
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,25 +18,31 @@ export async function POST(req: NextRequest) {
     if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
     const { data: source } = await supabase.from('knowledge_sources').insert({ bot_id: botId, user_id: user.id, type: 'file', title: file.name, status: 'indexing' }).select().single()
     if (!source) return NextResponse.json({ error: 'Failed' }, { status: 500 })
-    const buffer = Buffer.from(await file.arrayBuffer())
-    processFile(supabase, source.id, botId, buffer, file.name).catch(console.error)
-    return NextResponse.json({ sourceId: source.id, status: 'indexing' })
+
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse = require('pdf-parse')
+      const data = await pdfParse(buffer)
+      if (!data.text || data.text.trim().length < 50) throw new Error('Could not extract text from PDF')
+      const chunks = chunkText(data.text)
+      if (chunks.length === 0) throw new Error('No meaningful content extracted')
+      for (const chunk of chunks) {
+        await supabase.from('knowledge_chunks').insert({
+          source_id: source.id,
+          bot_id: botId,
+          content: chunk,
+          embedding: null,
+        })
+      }
+      await supabase.from('knowledge_sources').update({ title: file.name, status: 'processing', chunk_count: chunks.length, updated_at: new Date().toISOString() }).eq('id', source.id)
+      return NextResponse.json({ sourceId: source.id, status: 'processing', totalChunks: chunks.length })
+    } catch (err: any) {
+      await supabase.from('knowledge_sources').update({ status: 'failed', error_message: err.message }).eq('id', source.id)
+      return NextResponse.json({ sourceId: source.id, status: 'failed', error: err.message }, { status: 422 })
+    }
   } catch (err: any) {
     console.error('[POST /api/ingest/file] unhandled error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
-
-async function processFile(supabase: any, sourceId: string, botId: string, buffer: Buffer, filename: string) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse')
-    const data = await pdfParse(buffer)
-    if (!data.text || data.text.trim().length < 50) throw new Error('Could not extract text from PDF')
-    const chunks = chunkText(data.text)
-    await indexChunks(sourceId, botId, chunks)
-    await supabase.from('knowledge_sources').update({ title: filename, status: 'ready', chunk_count: chunks.length }).eq('id', sourceId)
-  } catch (err: any) {
-    await supabase.from('knowledge_sources').update({ status: 'failed', error_message: err.message }).eq('id', sourceId)
   }
 }
