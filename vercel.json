@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/ingest/url/route.ts": {
+      "memory": 1024
+    }
+  }
+}
