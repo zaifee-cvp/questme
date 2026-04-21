@@ -1,13 +1,18 @@
-import OpenAI from 'openai'
 import { createSupabaseServiceClient } from './supabase/server'
 
 export async function embedText(text: string): Promise<number[]> {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  const response = await openai.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: text.replace(/\n/g, ' ').trim().slice(0, 8191),
+  const input = text.replace(/\n/g, ' ').trim().slice(0, 8191)
+  const res = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({ model: 'text-embedding-3-small', input }),
   })
-  return response.data[0].embedding
+  if (!res.ok) throw new Error(`OpenAI embedding error: ${res.status}`)
+  const data = await res.json()
+  return data.data[0].embedding
 }
 
 export async function searchKnowledge(botId: string, query: string, threshold = 0.65, limit = 5): Promise<{ id: string; content: string; similarity: number }[]> {
@@ -30,7 +35,6 @@ export async function generateAnswer(opts: {
   context: string
   messages: { role: 'user' | 'assistant'; content: string }[]
 }): Promise<string> {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   const { botName, fallbackMessage, restrictToKnowledge, context, messages } = opts
   const systemPrompt = restrictToKnowledge
     ? `You are the AI assistant for ${botName}.
@@ -45,13 +49,22 @@ ${context || '(No relevant information found)'}`
 CONTEXT:
 ${context || '(No context provided)'}`
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'system', content: systemPrompt }, ...messages.slice(-10)],
-    temperature: 0.2,
-    max_tokens: 600,
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'system', content: systemPrompt }, ...messages.slice(-10)],
+      temperature: 0.2,
+      max_tokens: 600,
+    }),
   })
-  return response.choices[0].message.content || fallbackMessage
+  if (!res.ok) throw new Error(`OpenAI chat error: ${res.status}`)
+  const data = await res.json()
+  return data.choices[0].message.content || fallbackMessage
 }
 
 export async function indexChunks(sourceId: string, botId: string, chunks: string[]): Promise<void> {
