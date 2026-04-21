@@ -1,7 +1,8 @@
 {
   "functions": {
     "app/api/ingest/url/route.ts": {
-      "memory": 1024
+      "memory": 3009,
+      "maxDuration": 60
     }
   }
 }
