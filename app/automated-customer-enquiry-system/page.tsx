@@ -10,6 +10,18 @@ export const metadata: Metadata = {
 export default function AutomatedCustomerEnquirySystem() {
   return (
     <div style={{ minHeight: '100vh', background: '#080A0E', color: '#F0F0F0' }}>
+      <style>{`
+        @media (max-width: 639px) {
+          .hero-wrap { padding-top: 56px !important; padding-bottom: 40px !important; }
+          .hero-h1 { letter-spacing: -0.8px !important; }
+          .hero-sub { font-size: 16px !important; line-height: 1.65 !important; }
+          .hero-actions { width: 100%; }
+          .hero-actions > * { width: 100%; justify-content: center; }
+          .seo-article { padding-bottom: 56px !important; }
+          .seo-article section { margin-bottom: 40px !important; }
+          .seo-article h2 { font-size: 24px !important; line-height: 1.25 !important; }
+        }
+      `}</style>
 
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid #1E2028', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto' }}>
@@ -20,31 +32,38 @@ export default function AutomatedCustomerEnquirySystem() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link href="/blog" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</Link>
           <Link href="/sign-in" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
-          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free</Link>
+          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free trial</Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
+      <section className="hero-wrap" style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '6px 16px', fontSize: '12px', color: '#9CA3AF', marginBottom: '28px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
-          Enquiry Automation
+          AI Enquiry Response System
         </div>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
-          Automated Customer Enquiry<br />
-          <span style={{ color: '#AAFF00' }}>System for Businesses</span>
+        <h1 className="hero-h1" style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
+          Respond to every customer enquiry<br />
+          <span style={{ color: '#AAFF00' }}>without delay</span>
         </h1>
-        <p style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
-          Every inbound customer question deserves a fast, accurate response. Questme.ai automates your entire customer enquiry flow — trained on your own business data, active across your website and WhatsApp, and running 24 hours a day.
+        <p className="hero-sub" style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
+          Questme automates repetitive inbound questions across your website and WhatsApp so your team can focus on high-value conversations and conversions.
         </p>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start for free →</Link>
-          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See how it works</Link>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {['24/7 response coverage', 'Built for SMEs and service teams', 'One knowledge base across channels'].map((pill) => (
+            <span key={pill} style={{ fontSize: '12px', color: '#D1D5DB', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '999px', padding: '6px 12px' }}>
+              {pill}
+            </span>
+          ))}
+        </div>
+        <div className="hero-actions" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start free trial</Link>
+          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See platform overview</Link>
         </div>
       </section>
 
       {/* Content */}
-      <article style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <article className="seo-article" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
 
         <section style={{ marginBottom: '56px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px', fontFamily: 'Outfit, sans-serif', marginBottom: '16px' }}>
@@ -157,16 +176,16 @@ export default function AutomatedCustomerEnquirySystem() {
         {/* CTA */}
         <section style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '48px 32px', textAlign: 'center' }}>
           <h2 style={{ fontSize: '36px', fontWeight: 900, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif', marginBottom: '16px' }}>
-            Get Started with Automated<br /><span style={{ color: '#AAFF00' }}>Enquiry Handling</span>
+            Automate enquiry response<br /><span style={{ color: '#AAFF00' }}>and capture more value</span>
           </h2>
           <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px', maxWidth: '480px', margin: '0 auto 32px' }}>
-            Upload your business knowledge, deploy on your website and WhatsApp, and let AI handle the rest — from day one.
+            Launch your AI enquiry system quickly and keep customer conversations moving across every channel.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start for free — no credit card</Link>
-            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>Learn more →</Link>
+            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start free trial</Link>
+            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>See pricing</Link>
           </div>
-          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>Free plan available · No credit card required</p>
+          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>14-day free trial · No credit card required</p>
         </section>
 
       </article>

@@ -81,7 +81,7 @@ export default function BlogPage() {
           Upload your product docs, FAQs, and URLs — and have an AI answering customer questions in under 30 minutes.
         </p>
         <Link href="/sign-up" style={{ display: 'inline-block', background: '#AAFF00', color: '#080A0E', fontWeight: 700, fontSize: '15px', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
-          Start Free Today →
+          Start Free Trial
         </Link>
       </div>
     </div>

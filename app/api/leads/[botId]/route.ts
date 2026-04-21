@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest, { params }: { params: { botId: stri
     const supabase = createSupabaseServiceClient()
     const { data: bot } = await supabase.from('bots').select('id').eq('id', params.botId).eq('user_id', user.id).single()
     if (!bot) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    const { data } = await supabase.from('leads').select('*').eq('bot_id', params.botId).order('created_at', { ascending: false })
+    const { data } = await supabase.from('leads').select('*').eq('bot_id', params.botId).is('deleted_at', null).order('created_at', { ascending: false })
     return NextResponse.json(data || [])
   } catch (err: any) {
     console.error('[GET /api/leads] unhandled error:', err)

@@ -10,6 +10,18 @@ export const metadata: Metadata = {
 export default function WhatsAppAIChatbotForBusiness() {
   return (
     <div style={{ minHeight: '100vh', background: '#080A0E', color: '#F0F0F0' }}>
+      <style>{`
+        @media (max-width: 639px) {
+          .hero-wrap { padding-top: 56px !important; padding-bottom: 40px !important; }
+          .hero-h1 { letter-spacing: -0.8px !important; }
+          .hero-sub { font-size: 16px !important; line-height: 1.65 !important; }
+          .hero-actions { width: 100%; }
+          .hero-actions > * { width: 100%; justify-content: center; }
+          .seo-article { padding-bottom: 56px !important; }
+          .seo-article section { margin-bottom: 40px !important; }
+          .seo-article h2 { font-size: 24px !important; line-height: 1.25 !important; }
+        }
+      `}</style>
 
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid #1E2028', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto' }}>
@@ -20,31 +32,31 @@ export default function WhatsAppAIChatbotForBusiness() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link href="/blog" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</Link>
           <Link href="/sign-in" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
-          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free</Link>
+          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free trial</Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
+      <section className="hero-wrap" style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '6px 16px', fontSize: '12px', color: '#9CA3AF', marginBottom: '28px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
           WhatsApp Automation
         </div>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
+        <h1 className="hero-h1" style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
           WhatsApp AI Chatbot<br />
           <span style={{ color: '#AAFF00' }}>for Business</span>
         </h1>
-        <p style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
+        <p className="hero-sub" style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
           Your customers are already on WhatsApp. Questme.ai lets you deploy an AI chatbot that handles their questions automatically — trained on your own products and services, available every hour of every day.
         </p>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start for free →</Link>
-          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See how it works</Link>
+        <div className="hero-actions" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start free trial</Link>
+          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See platform overview</Link>
         </div>
       </section>
 
       {/* Content */}
-      <article style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <article className="seo-article" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
 
         <section style={{ marginBottom: '56px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px', fontFamily: 'Outfit, sans-serif', marginBottom: '16px' }}>
@@ -145,10 +157,10 @@ export default function WhatsAppAIChatbotForBusiness() {
             Train the AI on your business, connect to WhatsApp, and start answering customer questions automatically — from day one.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start for free — no credit card</Link>
-            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>Learn more →</Link>
+            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start free trial</Link>
+            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>See pricing</Link>
           </div>
-          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>Free plan available · No credit card required</p>
+          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>14-day free trial · No credit card required</p>
         </section>
 
       </article>

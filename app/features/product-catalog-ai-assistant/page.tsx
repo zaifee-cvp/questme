@@ -56,7 +56,7 @@ export default function ProductCatalogAIAssistantPage() {
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/sign-up" style={{ display: 'inline-block', background: '#AAFF00', color: '#080A0E', fontWeight: 700, fontSize: '16px', padding: '16px 36px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
-              Start Free Today →
+              Start Free Trial
             </Link>
             <Link href="/blog/product-knowledge-management" style={{ display: 'inline-block', background: 'none', color: '#F0F0F0', fontWeight: 600, fontSize: '15px', padding: '16px 28px', borderRadius: '10px', textDecoration: 'none', border: '1px solid #2D3148' }}>
               Read About PKM

@@ -174,7 +174,7 @@ export default function BlogPostPage({ params }: Props) {
                 Upload your product docs and get an AI chat widget answering customer questions in under 30 minutes.
               </p>
               <Link href="/sign-up" style={{ display: 'inline-block', background: '#AAFF00', color: '#080A0E', fontWeight: 700, fontSize: '14px', padding: '12px 28px', borderRadius: '9px', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
-                Start Free Today →
+                Start Free Trial
               </Link>
             </div>
           </main>

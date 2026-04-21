@@ -7,9 +7,47 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://questme.ai/website-ai-chatbot' },
 }
 
+const TRUST_POINTS = [
+  {
+    title: 'Grounded in your own content',
+    desc: 'Answers come from your uploaded pages, docs, and FAQs.',
+  },
+  {
+    title: 'No forced guesswork',
+    desc: 'When an answer is unavailable in your knowledge base, the bot can be transparent.',
+  },
+  {
+    title: 'Conversion-friendly handoff',
+    desc: 'Escalate high-value conversations to your team when human support is needed.',
+  },
+  {
+    title: 'Quick website launch',
+    desc: 'Deploy with a lightweight embed and start supporting visitors in minutes.',
+  },
+]
+
+const OUTCOMES = [
+  'Answer objections before visitors abandon your pages',
+  'Reduce repetitive support questions that slow your team',
+  'Capture more qualified website leads during live intent',
+  'Improve after-hours responsiveness without added staffing',
+]
+
 export default function WebsiteAIChatbot() {
   return (
     <div style={{ minHeight: '100vh', background: '#080A0E', color: '#F0F0F0' }}>
+      <style>{`
+        @media (max-width: 639px) {
+          .hero-wrap { padding-top: 56px !important; padding-bottom: 40px !important; }
+          .hero-h1 { letter-spacing: -0.8px !important; }
+          .hero-sub { font-size: 16px !important; line-height: 1.65 !important; }
+          .hero-actions { width: 100%; }
+          .hero-actions > * { width: 100%; justify-content: center; }
+          .seo-article { padding-bottom: 56px !important; }
+          .seo-article section { margin-bottom: 40px !important; }
+          .seo-article h2 { font-size: 24px !important; line-height: 1.25 !important; }
+        }
+      `}</style>
 
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid #1E2028', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto' }}>
@@ -20,31 +58,54 @@ export default function WebsiteAIChatbot() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link href="/blog" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</Link>
           <Link href="/sign-in" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
-          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free</Link>
+          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free trial</Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
+      <section className="hero-wrap" style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '6px 16px', fontSize: '12px', color: '#9CA3AF', marginBottom: '28px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
-          Website Chat Automation
+          AI Website Chat for Conversion
         </div>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
-          Website AI Chatbot<br />
-          <span style={{ color: '#AAFF00' }}>for Your Business</span>
+        <h1 className="hero-h1" style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
+          Stop losing website buyers to<br />
+          <span style={{ color: '#AAFF00' }}>unanswered questions</span>
         </h1>
-        <p style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
-          Add a website AI chatbot to your site and start answering visitor questions instantly — trained on your own content, live on any page, working around the clock.
+        <p className="hero-sub" style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
+          Questme turns your website into an always-on response channel that reduces support backlog and captures more high-intent conversations.
         </p>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start for free →</Link>
-          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See how it works</Link>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {['For ecommerce stores', 'For SaaS product sites', 'For service businesses', 'One-line website embed'].map((pill) => (
+            <span key={pill} style={{ fontSize: '12px', color: '#D1D5DB', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '999px', padding: '6px 12px' }}>
+              {pill}
+            </span>
+          ))}
+        </div>
+        <div className="hero-actions" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start free trial</Link>
+          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See platform overview</Link>
+        </div>
+        <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '12px' }}>When answers are delayed, purchase intent cools fast.</p>
+      </section>
+
+      <section style={{ maxWidth: '980px', margin: '0 auto', padding: '0 24px 40px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '8px' }}>Trust layer</div>
+          <h2 style={{ fontSize: '30px', fontWeight: 800, letterSpacing: '-0.8px', fontFamily: 'Outfit, sans-serif' }}>Built for dependable on-site answers</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+          {TRUST_POINTS.map((item) => (
+            <div key={item.title} className="card" style={{ borderColor: '#2a2d38', padding: '18px' }}>
+              <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
+              <div style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: 1.6 }}>{item.desc}</div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Content */}
-      <article style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <article className="seo-article" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
 
         <section style={{ marginBottom: '52px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px', fontFamily: 'Outfit, sans-serif', marginBottom: '16px' }}>
@@ -139,6 +200,20 @@ export default function WebsiteAIChatbot() {
           </p>
         </section>
 
+        <section style={{ marginBottom: '52px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '12px', padding: '24px' }}>
+          <h2 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.4px', fontFamily: 'Outfit, sans-serif', marginBottom: '14px' }}>
+            Commercial outcomes from faster answers
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
+            {OUTCOMES.map((item) => (
+              <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '14px', color: '#D1D5DB' }}>
+                <span style={{ color: '#AAFF00', fontWeight: 900, lineHeight: 1 }}>✓</span>
+                <span style={{ lineHeight: 1.6 }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Related pages */}
         <section style={{ marginBottom: '52px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '12px', padding: '24px' }}>
           <p style={{ fontSize: '11px', fontWeight: 700, color: '#AAFF00', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>Related guides</p>
@@ -204,16 +279,16 @@ export default function WebsiteAIChatbot() {
         {/* CTA */}
         <section style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '48px 32px', textAlign: 'center' }}>
           <h2 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif', marginBottom: '16px' }}>
-            Add an AI Chatbot to Your Website<br /><span style={{ color: '#AAFF00' }}>Today</span>
+            Add always-on AI answers to your website<br /><span style={{ color: '#AAFF00' }}>today</span>
           </h2>
           <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px', maxWidth: '440px', margin: '0 auto 32px' }}>
-            Train the AI on your business content, paste one script tag, and go live — in under 10 minutes.
+            Launch quickly, answer questions in real time, and keep visitors engaged through conversion-critical moments.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start for free — no credit card</Link>
-            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>Learn more →</Link>
+            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start free trial</Link>
+            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>See pricing</Link>
           </div>
-          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>Free plan available · No credit card required</p>
+          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>14-day free trial · No credit card required</p>
         </section>
 
       </article>

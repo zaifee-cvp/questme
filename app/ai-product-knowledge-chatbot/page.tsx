@@ -20,7 +20,7 @@ export default function AIProductKnowledgeChatbot() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link href="/blog" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</Link>
           <Link href="/sign-in" style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
-          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free</Link>
+          <Link href="/sign-up" className="btn-accent" style={{ padding: '8px 20px', fontSize: '14px', borderRadius: '8px' }}>Start free trial</Link>
         </div>
       </nav>
 
@@ -28,18 +28,25 @@ export default function AIProductKnowledgeChatbot() {
       <section style={{ maxWidth: '800px', margin: '0 auto', padding: '72px 24px 48px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '6px 16px', fontSize: '12px', color: '#9CA3AF', marginBottom: '28px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
-          AI Product Knowledge Platform
+          AI Answers Trained on Your Business
         </div>
         <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-1.5px', fontFamily: 'Outfit, sans-serif' }}>
-          AI Product Knowledge Chatbot<br />
-          <span style={{ color: '#AAFF00' }}>for Your Business</span>
+          Replace generic chatbot replies<br />
+          <span style={{ color: '#AAFF00' }}>with accurate product answers</span>
         </h1>
         <p style={{ fontSize: '18px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px', maxWidth: '620px' }}>
-          Stop answering the same product questions over and over. Train an AI chatbot on your catalogue, FAQs, and service details — and let it handle every customer question accurately, around the clock.
+          Train Questme on your catalogue, FAQs, and policies so visitors get fast, reliable answers from your own knowledge, not internet guesswork.
         </p>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {['Built for product and service websites', 'Grounded in your own content', 'Designed to reduce repetitive support'].map((pill) => (
+            <span key={pill} style={{ fontSize: '12px', color: '#D1D5DB', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '999px', padding: '6px 12px' }}>
+              {pill}
+            </span>
+          ))}
+        </div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start for free →</Link>
-          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See how it works</Link>
+          <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 32px' }}>Start free trial</Link>
+          <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See platform overview</Link>
         </div>
       </section>
 
@@ -135,16 +142,16 @@ export default function AIProductKnowledgeChatbot() {
         {/* CTA */}
         <section style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '48px 32px', textAlign: 'center' }}>
           <h2 style={{ fontSize: '36px', fontWeight: 900, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif', marginBottom: '16px' }}>
-            Deploy Your Product Knowledge Bot<br /><span style={{ color: '#AAFF00' }}>Today</span>
+            Turn product questions into faster decisions<br /><span style={{ color: '#AAFF00' }}>with Questme</span>
           </h2>
           <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px', maxWidth: '480px', margin: '0 auto 32px' }}>
-            Upload your products, train the AI, and go live — in under 10 minutes. No developers needed.
+            Launch your knowledge bot quickly and keep visitors moving toward purchase with instant, grounded answers.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start for free — no credit card</Link>
-            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>Learn more →</Link>
+            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 36px' }}>Start free trial</Link>
+            <Link href="/" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>See pricing</Link>
           </div>
-          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>Free plan available · No credit card required</p>
+          <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>14-day free trial · No credit card required</p>
         </section>
 
       </article>

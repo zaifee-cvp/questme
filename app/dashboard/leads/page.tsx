@@ -25,6 +25,18 @@ export default function LeadsPage() {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'questme-leads.csv'; a.click()
   }
 
+  async function deleteLead(leadId: string) {
+    if (!selectedBot) return
+    if (!window.confirm('Delete this lead?')) return
+    const response = await fetch(`/api/leads/${selectedBot}/${leadId}`, { method: 'DELETE' })
+    const data = await response.json()
+    if (!response.ok || !data?.success) {
+      alert(data?.error || 'Failed to delete lead')
+      return
+    }
+    setLeads(prev => prev.filter(l => l.id !== leadId))
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -53,6 +65,7 @@ export default function LeadsPage() {
                 {['Name', 'Email', 'Phone', 'Question Asked', 'Date captured'].map(h => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                 ))}
+                <th style={{ padding: '12px 16px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -63,6 +76,22 @@ export default function LeadsPage() {
                   <td style={{ padding: '12px 16px', fontSize: '14px', color: '#AAFF00' }}>{l.phone || <span style={{ color: '#6B7280' }}>—</span>}</td>
                   <td style={{ padding: '12px 16px', fontSize: '13px', color: '#9CA3AF', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.trigger_message || <span style={{ color: '#6B7280' }}>—</span>}</td>
                   <td style={{ padding: '12px 16px', fontSize: '13px', color: '#6B7280' }}>{new Date(l.created_at).toLocaleDateString()}</td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                    <button
+                      onClick={() => deleteLead(l.id)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#F87171',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
