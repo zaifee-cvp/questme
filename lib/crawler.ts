@@ -4,16 +4,29 @@ export async function crawlUrl(url: string): Promise<{ title: string; content: s
     signal: AbortSignal.timeout(12000),
   })
   if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch ${url}`)
-  // Limit raw HTML to 500KB to prevent OOM on large pages
-  const html = (await response.text()).slice(0, 500_000)
+
+  // Stream only the first 500KB to prevent OOM on large pages
+  const MAX_BYTES = 500_000
+  const reader = response.body?.getReader()
+  if (!reader) throw new Error('No response body')
+
+  const decoder = new TextDecoder()
+  let html = ''
+  while (html.length < MAX_BYTES) {
+    const { done, value } = await reader.read()
+    if (done) break
+    html += decoder.decode(value, { stream: true })
+  }
+  reader.cancel()
+  html = html.slice(0, MAX_BYTES)
 
   // Extract title before stripping tags
-  const titleMatch = html.match(/<title[^>]*>([\/\S\s]*?)<\/title>/i)
+  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)
   const h1Match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)
   const rawTitle = titleMatch?.[1] ?? h1Match?.[1] ?? new URL(url).hostname
   const title = rawTitle.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 200)
 
-  // Strip noisy sections (script, style, nav, footer, etc.), then strip all remaining tags
+  // Strip noisy sections then strip all remaining tags
   const content = html
     .replace(/<(script|style|nav|footer|header|aside|noscript)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
