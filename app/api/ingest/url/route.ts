@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     } catch (err: any) {
       console.error('[ingest/url] error:', err)
       await supabase.from('knowledge_sources').update({ status: 'failed', error_message: err.message || 'Failed' }).eq('id', source.id)
-      return NextResponse.json({ sourceId: source.id, status: 'failed' }, { status: 422 })
+      return NextResponse.json({ sourceId: source.id, status: 'failed', error: err.message || 'Failed' }, { status: 422 })
     }
   } catch (err: any) {
     console.error('[POST /api/ingest/url] unhandled error:', err)

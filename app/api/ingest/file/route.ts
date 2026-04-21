@@ -24,12 +24,11 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse')
-      // Pass a no-op pagerender to avoid canvas/DOM function calls in serverless
-      const parsed = await pdfParse(buffer, { pagerender: () => Promise.resolve('') })
-      const extractedText = parsed.text
-      if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF')
+      const { extractText, getDocumentProxy } = await import('unpdf')
+      const pdf = await getDocumentProxy(new Uint8Array(buffer))
+      const { text } = await extractText(pdf, { mergePages: true })
+      const extractedText = Array.isArray(text) ? text.join(' ') : text
+      if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
       for (const chunk of chunks) {

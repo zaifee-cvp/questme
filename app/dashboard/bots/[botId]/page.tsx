@@ -100,7 +100,11 @@ export default function BotPage() {
 
   async function addUrl(e: React.FormEvent) {
     e.preventDefault(); setAddingUrl(true)
-    await fetch('/api/ingest/url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, url: urlInput }) })
+    const res = await fetch('/api/ingest/url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, url: urlInput }) })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Failed to add URL' }))
+      alert(err.error || 'Failed to add URL')
+    }
     setUrlInput(''); await fetchData(); setAddingUrl(false)
   }
 
