@@ -37,12 +37,12 @@ export async function POST(req: NextRequest, { params }: { params: { botId: stri
   }
   try {
     const supabase = createSupabaseServiceClient()
-    const { email, name, sessionId } = await req.json()
-    if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+    const { email, name, phone, trigger_message, sessionId } = await req.json()
+    if (!email && !phone) return NextResponse.json({ error: 'Email or phone required' }, { status: 400 })
     const { data: bot } = await supabase.from('bots').select('user_id').eq('id', params.botId).eq('is_active', true).single()
     if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
-    await supabase.from('leads').insert({ bot_id: params.botId, user_id: bot.user_id, email, name: name || null, session_id: sessionId || null })
-    if (sessionId) await supabase.from('chat_sessions').update({ visitor_email: email, visitor_name: name || null }).eq('id', sessionId)
+    await supabase.from('leads').insert({ bot_id: params.botId, user_id: bot.user_id, email: email || null, name: name || null, phone: phone || null, trigger_message: trigger_message || null, session_id: sessionId || null })
+    if (sessionId) await supabase.from('chat_sessions').update({ visitor_email: email || null, visitor_name: name || null }).eq('id', sessionId)
     return NextResponse.json({ success: true })
   } catch (err: any) {
     console.error('[POST /api/leads] unhandled error:', err)
