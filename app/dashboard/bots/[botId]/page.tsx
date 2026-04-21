@@ -640,8 +640,8 @@ export default function BotPage() {
               { key: 'contact_email', label: 'Email address', placeholder: 'hello@yourbusiness.com', type: 'email' },
               { key: 'contact_website', label: 'Website', placeholder: 'https://yourbusiness.com', type: 'text' },
               { key: 'contact_address', label: 'Address', placeholder: '123 Orchard Road, Singapore 238858', type: 'text' },
-              { key: 'contact_instagram', label: 'Instagram', placeholder: '@yourbusiness', type: 'text' },
-              { key: 'contact_facebook', label: 'Facebook page', placeholder: 'https://facebook.com/yourbusiness', type: 'text' },
+              { key: 'contact_instagram', label: 'Instagram', placeholder: 'https://instagram.com/yourbusiness', type: 'url' },
+              { key: 'contact_facebook', label: 'Facebook page', placeholder: 'https://facebook.com/yourbusiness', type: 'url' },
             ].map(({ key, label, placeholder, type }) => (
               <div key={key}>
                 <label style={{ fontSize: '13px', color: '#9CA3AF', display: 'block', marginBottom: '6px' }}>{label}</label>
