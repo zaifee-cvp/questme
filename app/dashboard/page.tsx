@@ -81,7 +81,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <Link href={`/dashboard/bots/${bot.id}`} className="btn-accent" style={{ flex: 1, justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
+              <Link href={`/dashboard/bots/${bot.id}`} className="btn-accent" style={{ flex: 1, justifyContent: 'center', padding: '9px', fontSize: '13px', background: bot.color || '#AAFF00', borderColor: bot.color || '#AAFF00' }}>
                 <Settings size={14} />Manage
               </Link>
               <a href={`/chat/${bot.id}`} target="_blank" rel="noreferrer" className="btn-ghost" style={{ padding: '9px 12px', fontSize: '13px' }}><ExternalLink size={14} /></a>
