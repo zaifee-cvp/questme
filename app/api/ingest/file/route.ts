@@ -24,20 +24,10 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      // Polyfill DOMMatrix for pdfjs-dist in Node.js (no browser APIs available)
-      if (typeof globalThis.DOMMatrix === 'undefined') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(globalThis as any).DOMMatrix = class DOMMatrix {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          constructor(_init?: string | number[]) {}
-          static fromMatrix() { return new (globalThis as any).DOMMatrix() }
-          static fromFloat32Array() { return new (globalThis as any).DOMMatrix() }
-          static fromFloat64Array() { return new (globalThis as any).DOMMatrix() }
-        }
-      }
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const pdfParse = require('pdf-parse')
-      const parsed = await pdfParse(buffer)
+      // Pass a no-op pagerender to avoid canvas/DOM function calls in serverless
+      const parsed = await pdfParse(buffer, { pagerender: () => Promise.resolve('') })
       const extractedText = parsed.text
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF')
       const chunks = chunkText(extractedText)
