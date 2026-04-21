@@ -57,18 +57,13 @@ ${context || '(No context provided)'}`
 export async function indexChunks(sourceId: string, botId: string, chunks: string[]): Promise<void> {
   if (chunks.length === 0) return
   const supabase = createSupabaseServiceClient()
-  // Process in small batches of 5: embed and insert immediately to avoid accumulating all embeddings in memory
-  const batchSize = 5
-  for (let i = 0; i < chunks.length; i += batchSize) {
-    const batch = chunks.slice(i, i + batchSize)
-    const records = await Promise.all(
-      batch.map(async chunk => ({
-        source_id: sourceId,
-        bot_id: botId,
-        content: chunk,
-        embedding: await embedText(chunk),
-      }))
-    )
-    await supabase.from('knowledge_chunks').insert(records)
+  for (let i = 0; i < chunks.length; i++) {
+    const embedding = await embedText(chunks[i])
+    await supabase.from('knowledge_chunks').insert({
+      source_id: sourceId,
+      bot_id: botId,
+      content: chunks[i],
+      embedding,
+    })
   }
 }
