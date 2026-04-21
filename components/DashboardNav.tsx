@@ -25,6 +25,12 @@ export default function DashboardNav() {
     fetch('/api/leads').then(r => r.ok ? r.json() : null).then(d => { if (d?.count) setLeadsCount(d.count) }).catch(() => {})
   }, [])
 
+  useEffect(() => {
+    const refresh = () => { fetch('/api/leads').then(r => r.ok ? r.json() : null).then(d => { if (d?.count) setLeadsCount(d.count) }).catch(() => {}) }
+    window.addEventListener('leads-updated', refresh)
+    return () => window.removeEventListener('leads-updated', refresh)
+  }, [])
+
   // Close drawer on route change
   useEffect(() => { setDrawerOpen(false) }, [pathname])
 

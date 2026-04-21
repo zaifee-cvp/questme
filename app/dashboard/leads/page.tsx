@@ -35,6 +35,7 @@ export default function LeadsPage() {
       return
     }
     setLeads(prev => prev.filter(l => l.id !== leadId))
+    window.dispatchEvent(new Event('leads-updated'))
   }
 
   return (
