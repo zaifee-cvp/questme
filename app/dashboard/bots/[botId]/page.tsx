@@ -396,16 +396,17 @@ export default function BotPage() {
     )
   }
 
+  const accent = bot?.color || '#AAFF00'
   if (loading) return <div style={{ color: '#6B7280', textAlign: 'center', padding: '60px' }}>Loading...</div>
   if (!bot) return <div style={{ color: '#f87171', textAlign: 'center', padding: '60px' }}>Bot not found</div>
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
-        <div style={{ width: '44px', height: '44px', background: bot.color || '#AAFF00', borderRadius: '12px', fontWeight: 900, fontSize: '20px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>{bot.name[0].toUpperCase()}</div>
+        <div style={{ width: '44px', height: '44px', background: accent, borderRadius: '12px', fontWeight: 900, fontSize: '20px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>{bot.name[0].toUpperCase()}</div>
         <div>
           <h1 style={{ fontSize: '22px', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>{bot.name}</h1>
-          <a href={`/chat/${botId}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#AAFF00', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <a href={`/chat/${botId}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: accent, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <ExternalLink size={12} />Preview chat
           </a>
         </div>
@@ -413,7 +414,7 @@ export default function BotPage() {
 
       <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #1E2028', marginBottom: '24px' }}>
         {(['knowledge', 'settings', 'embed'] as Tab[]).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 18px', fontSize: '14px', color: tab === t ? '#AAFF00' : '#6B7280', borderBottom: tab === t ? '2px solid #AAFF00' : '2px solid transparent', fontFamily: 'DM Sans, sans-serif' }}>
+          <button key={t} onClick={() => setTab(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 18px', fontSize: '14px', color: tab === t ? accent : '#6B7280', borderBottom: tab === t ? `2px solid ${accent}` : '2px solid transparent', fontFamily: 'DM Sans, sans-serif' }}>
             {t === 'embed' ? 'Embed & Share' : t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
@@ -426,17 +427,17 @@ export default function BotPage() {
               <h3 style={{ fontSize: '18px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', marginBottom: '8px' }}>🚀 Train your bot in 60 seconds</h3>
               <p style={{ fontSize: '13px', color: '#8B95A8', marginBottom: '16px' }}>Your bot needs knowledge to answer questions. Add your first source below to get started.</p>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const }}>
-                <button onClick={() => setAddTab('text')} style={{ padding: '8px 16px', background: addTab === 'text' ? '#AAFF00' : 'transparent', color: addTab === 'text' ? '#080A0E' : '#AAFF00', border: '1px solid #AAFF00', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Paste FAQ text</button>
-                <button onClick={() => setAddTab('url')} style={{ padding: '8px 16px', background: addTab === 'url' ? '#AAFF00' : 'transparent', color: addTab === 'url' ? '#080A0E' : '#AAFF00', border: '1px solid #AAFF00', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Add website URL</button>
-                <button onClick={() => setAddTab('pdf')} style={{ padding: '8px 16px', background: addTab === 'pdf' ? '#AAFF00' : 'transparent', color: addTab === 'pdf' ? '#080A0E' : '#AAFF00', border: '1px solid #AAFF00', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Upload PDF</button>
+                <button onClick={() => setAddTab('text')} style={{ padding: '8px 16px', background: addTab === 'text' ? accent : 'transparent', color: addTab === 'text' ? '#080A0E' : accent, border: `1px solid ${accent}`, borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Paste FAQ text</button>
+                <button onClick={() => setAddTab('url')} style={{ padding: '8px 16px', background: addTab === 'url' ? accent : 'transparent', color: addTab === 'url' ? '#080A0E' : accent, border: `1px solid ${accent}`, borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Add website URL</button>
+                <button onClick={() => setAddTab('pdf')} style={{ padding: '8px 16px', background: addTab === 'pdf' ? accent : 'transparent', color: addTab === 'pdf' ? '#080A0E' : accent, border: `1px solid ${accent}`, borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Upload PDF</button>
               </div>
             </div>
           )}
           <div className="card" style={{ padding: 0, marginBottom: '28px', overflow: 'hidden' }}>
             <div style={{ display: 'flex', borderBottom: '1px solid #1E2028' }}>
-              <button onClick={() => setAddTab('text')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'text' ? '2px solid #AAFF00' : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'text' ? '#AAFF00' : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Paste Text / FAQ</button>
-              <button onClick={() => setAddTab('url')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'url' ? '2px solid #AAFF00' : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'url' ? '#AAFF00' : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Add Website URL</button>
-              <button onClick={() => setAddTab('pdf')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'pdf' ? '2px solid #AAFF00' : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'pdf' ? '#AAFF00' : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Upload PDF</button>
+              <button onClick={() => setAddTab('text')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'text' ? `2px solid ${accent}` : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'text' ? accent : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Paste Text / FAQ</button>
+              <button onClick={() => setAddTab('url')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'url' ? `2px solid ${accent}` : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'url' ? accent : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Add Website URL</button>
+              <button onClick={() => setAddTab('pdf')} style={{ flex: 1, background: 'none', border: 'none', borderBottom: addTab === 'pdf' ? `2px solid ${accent}` : '2px solid transparent', cursor: 'pointer', padding: '14px 8px', fontSize: '13px', fontWeight: 600, color: addTab === 'pdf' ? accent : '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>Upload PDF</button>
             </div>
             {addTab === 'text' && (
               <div style={{ padding: '20px' }}>
@@ -444,7 +445,7 @@ export default function BotPage() {
                 <form onSubmit={addText} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <input className="input" placeholder="Title (e.g. FAQ, Product Info)" value={textTitle} onChange={e => setTextTitle(e.target.value)} required style={{ fontSize: '13px' }} />
                   <textarea className="input" placeholder="Paste your content here…" value={textContent} onChange={e => setTextContent(e.target.value)} required style={{ minHeight: '140px', fontSize: '13px', resize: 'vertical' }} />
-                  <button className="btn-accent" type="submit" disabled={addingText} style={{ justifyContent: 'center', padding: '10px', fontSize: '14px', fontWeight: 700 }}>{addingText ? 'Training…' : 'Train Bot on This Text'}</button>
+                  <button type="submit" disabled={addingText} style={{ justifyContent: 'center', padding: '10px', fontSize: '14px', fontWeight: 700, background: accent, color: '#080A0E', border: 'none', borderRadius: '8px', fontFamily: 'Outfit, sans-serif', marginTop: '8px' }}>{addingText ? 'Training…' : 'Train Bot on This Text'}</button>
                 </form>
               </div>
             )}
@@ -458,7 +459,7 @@ export default function BotPage() {
                       <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />Fetching and extracting content…
                     </div>
                   )}
-                  <button className="btn-accent" type="submit" disabled={addingUrl} style={{ justifyContent: 'center', padding: '10px', fontSize: '14px', fontWeight: 700 }}>{addingUrl ? 'Fetching…' : 'Fetch & Train'}</button>
+                  <button type="submit" disabled={addingUrl} style={{ justifyContent: 'center', padding: '10px', fontSize: '14px', fontWeight: 700, background: accent, color: '#080A0E', border: 'none', borderRadius: '8px', fontFamily: 'Outfit, sans-serif', marginTop: '8px' }}>{addingUrl ? 'Fetching…' : 'Fetch & Train'}</button>
                 </form>
               </div>
             )}
@@ -509,7 +510,7 @@ export default function BotPage() {
                     {imgCompressInfo && <div style={{ fontSize: '11px', color: '#6B7280' }}>{imgCompressInfo}</div>}
                     <input className="input" placeholder="Describe this image for AI (optional)…" value={imgDesc} onChange={e => setImgDesc(e.target.value)} style={{ fontSize: '13px' }} />
                     {imgMsg && <div style={{ fontSize: '12px', color: imgMsg.type === 'success' ? '#4ade80' : '#f87171' }}>{imgMsg.text}</div>}
-                    <button className="btn-accent" type="submit" disabled={addingImg || !imgFile} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px' }}>
+                    <button type="submit" disabled={addingImg || !imgFile} style={{ justifyContent: 'center', padding: '9px', fontSize: '13px', background: accent, color: '#080A0E', border: 'none', borderRadius: '8px', fontFamily: 'Outfit, sans-serif', marginTop: '8px' }}>
                       {addingImg ? 'Uploading…' : '+ Upload Image'}
                     </button>
                   </form>
@@ -547,7 +548,7 @@ export default function BotPage() {
               <button
                 onClick={createFolder}
                 disabled={creatingFolder || !newFolderName.trim()}
-                style={{ padding: '9px 16px', background: '#AAFF00', color: '#080A0E', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', opacity: creatingFolder || !newFolderName.trim() ? 0.6 : 1, fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}
+                style={{ padding: '9px 16px', background: accent, color: '#080A0E', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', opacity: creatingFolder || !newFolderName.trim() ? 0.6 : 1, fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}
               >{creatingFolder ? 'Creating…' : 'Create'}</button>
               <button
                 onClick={() => { setShowNewFolder(false); setNewFolderName('') }}
@@ -657,7 +658,7 @@ export default function BotPage() {
               { key: 'handoff_enabled', label: 'Enable human handoff', desc: 'Email your team when a visitor asks for a human' },
             ].map(({ key, label, desc }) => (
               <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                <input type="checkbox" checked={!!(bot as any)[key]} onChange={e => setBot({ ...bot, [key]: e.target.checked })} style={{ width: '18px', height: '18px', accentColor: '#AAFF00', flexShrink: 0 }} />
+                <input type="checkbox" checked={!!(bot as any)[key]} onChange={e => setBot({ ...bot, [key]: e.target.checked })} style={{ width: '18px', height: '18px', accentColor: accent, flexShrink: 0 }} />
                 <div><div style={{ fontSize: '14px', fontWeight: 500 }}>{label}</div><div style={{ fontSize: '12px', color: '#6B7280' }}>{desc}</div></div>
               </label>
             ))}
@@ -665,7 +666,7 @@ export default function BotPage() {
           {bot.handoff_enabled && (
             <div><label style={{ fontSize: '13px', color: '#9CA3AF', display: 'block', marginBottom: '6px' }}>Handoff email</label><input className="input" type="email" placeholder="your@email.com" value={bot.handoff_email || ''} onChange={e => setBot({ ...bot, handoff_email: e.target.value })} /></div>
           )}
-          <button className="btn-accent" type="submit" disabled={saving} style={{ width: 'fit-content' }}>{saving ? 'Saving...' : 'Save settings'}</button>
+          <button type="submit" disabled={saving} style={{ width: 'fit-content', background: accent, color: '#080A0E', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '14px', padding: '10px 24px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', marginTop: '8px' }}>{saving ? 'Saving...' : 'Save settings'}</button>
         </form>
       )}
 
@@ -674,10 +675,10 @@ export default function BotPage() {
           <div className="card">
             <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>Embed on your website</h3>
             <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '14px' }}>Paste this before your closing body tag</p>
-            <div style={{ background: '#161820', border: '1px solid #1E2028', borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#AAFF00', lineHeight: 1.8, marginBottom: '12px', wordBreak: 'break-all' }}>
+            <div style={{ background: '#161820', border: '1px solid #1E2028', borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: accent, lineHeight: 1.8, marginBottom: '12px', wordBreak: 'break-all' }}>
               {`<script src="${typeof window !== 'undefined' ? window.location.origin : 'https://questme.ai'}/widget.js" data-bot-id="${botId}"></script>`}
             </div>
-            <button className="btn-accent" onClick={copyEmbed} style={{ fontSize: '13px', padding: '9px 18px' }}>
+            <button onClick={copyEmbed} style={{ fontSize: '13px', padding: '9px 18px', background: accent, color: '#080A0E', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
               {copied ? <><Check size={14} />Copied!</> : <><Copy size={14} />Copy embed code</>}
             </button>
           </div>
@@ -688,10 +689,10 @@ export default function BotPage() {
               <span style={{ flex: 1, fontSize: '13px', color: '#D1D5DB', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {typeof window !== 'undefined' ? window.location.origin : 'https://questme.ai'}/chat/{botId}
               </span>
-              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/chat/${botId}`); setCopied(true); setTimeout(() => setCopied(false), 2000) }} style={{ background: 'none', border: 'none', color: '#AAFF00', cursor: 'pointer', fontSize: '13px', fontWeight: 700, flexShrink: 0 }}>
+              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/chat/${botId}`); setCopied(true); setTimeout(() => setCopied(false), 2000) }} style={{ background: 'none', border: 'none', color: accent, cursor: 'pointer', fontSize: '13px', fontWeight: 700, flexShrink: 0 }}>
                 {copied ? 'Copied!' : 'Copy'}
               </button>
-              <button onClick={() => setShowQR(v => !v)} style={{ background: 'none', border: 'none', color: showQR ? '#AAFF00' : '#6B7280', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }} title="Show QR code">
+              <button onClick={() => setShowQR(v => !v)} style={{ background: 'none', border: 'none', color: showQR ? accent : '#6B7280', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }} title="Show QR code">
                 <QrCode size={18} />
               </button>
             </div>
