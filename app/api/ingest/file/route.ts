@@ -2,50 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { chunkText } from '@/lib/chunker'
 import { embedText } from '@/lib/rag'
-import { inflateSync, inflateRawSync } from 'zlib'
-
-function extractFromStream(stream: string, parts: string[]): void {
-  const btEtRegex = /BT[\s\S]*?ET/g
-  let bm
-  while ((bm = btEtRegex.exec(stream)) !== null) {
-    const strRe = /\(([^()\\]|\\.)*\)/g
-    let m
-    while ((m = strRe.exec(bm[0])) !== null) {
-      const inner = m[0].slice(1, -1)
-        .replace(/\\n/g, ' ')
-        .replace(/\\r/g, '')
-        .replace(/\\t/g, ' ')
-        .replace(/\\\\/g, '\\')
-        .replace(/\\\(/g, '(')
-        .replace(/\\\)/g, ')')
-        .replace(/\\[0-7]{3}/g, (oct) => {
-          const code = parseInt(oct.slice(1), 8)
-          return (code > 31 && code < 127) ? String.fromCharCode(code) : ' '
-        })
-        .replace(/[^\x20-\x7E\n]/g, ' ')
-        .trim()
-      if (inner.length > 1 && /[a-zA-Z0-9]/.test(inner)) {
-        parts.push(inner)
-      }
-    }
-  }
-}
-
-function extractTextFromPDF(buffer: Buffer): string {
-  const parts: string[] = []
-  const bufStr = buffer.toString('binary')
-  const streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g
-  let match
-  while ((match = streamRe.exec(bufStr)) !== null) {
-    const data = Buffer.from(match[1], 'binary')
-    let txt = ''
-    try { txt = inflateSync(data).toString('latin1') } catch {
-      try { txt = inflateRawSync(data).toString('latin1') } catch { txt = match[1] }
-    }
-    extractFromStream(txt, parts)
-  }
-  return parts.join(' ').replace(/\s+/g, ' ').trim()
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -66,7 +22,10 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const extractedText = extractTextFromPDF(buffer)
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse = require('pdf-parse')
+      const parsed = await pdfParse(buffer)
+      const extractedText = parsed.text
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
