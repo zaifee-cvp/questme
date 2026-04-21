@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { crawlUrl } from '@/lib/crawler'
 import { chunkText } from '@/lib/chunker'
+import { embedText } from '@/lib/rag'
 
 export const maxDuration = 60
 
@@ -26,15 +27,11 @@ export async function POST(req: NextRequest) {
       const chunks = chunkText(content)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
       for (const chunk of chunks) {
-        await supabase.from('knowledge_chunks').insert({
-          source_id: source.id,
-          bot_id: botId,
-          content: chunk,
-          embedding: null,
-        })
+        const embedding = await embedText(chunk)
+        await supabase.from('knowledge_chunks').insert({ source_id: source.id, bot_id: botId, content: chunk, embedding })
       }
-      await supabase.from('knowledge_sources').update({ status: 'processing', chunk_count: chunks.length, updated_at: new Date().toISOString() }).eq('id', source.id)
-      return NextResponse.json({ sourceId: source.id, status: 'processing', totalChunks: chunks.length })
+      await supabase.from('knowledge_sources').update({ status: 'ready', chunk_count: chunks.length, updated_at: new Date().toISOString() }).eq('id', source.id)
+      return NextResponse.json({ sourceId: source.id, status: 'ready' })
     } catch (err: any) {
       console.error('[ingest/url] error:', err)
       await supabase.from('knowledge_sources').update({ status: 'failed', error_message: err.message || 'Failed' }).eq('id', source.id)

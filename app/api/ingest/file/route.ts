@@ -1,26 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { chunkText } from '@/lib/chunker'
+import { embedText } from '@/lib/rag'
+import { inflateSync, inflateRawSync } from 'zlib'
 
-function extractTextFromPDF(buffer: Buffer): string {
-  // Simple PDF text extraction - find text between parentheses in PDF streams
-  const text = buffer.toString('latin1')
-  const textParts: string[] = []
-  const matches = text.match(/\(([^)]*)\)/g)
-  if (matches) {
-    for (const match of matches) {
-      const cleaned = match.slice(1, -1)
-        .replace(/\\n/g, '\n')
+function extractFromStream(stream: string, parts: string[]): void {
+  const btEtRegex = /BT[\s\S]*?ET/g
+  let bm
+  while ((bm = btEtRegex.exec(stream)) !== null) {
+    const strRe = /\(([^()\\]|\\.)*\)/g
+    let m
+    while ((m = strRe.exec(bm[0])) !== null) {
+      const inner = m[0].slice(1, -1)
+        .replace(/\\n/g, ' ')
         .replace(/\\r/g, '')
+        .replace(/\\t/g, ' ')
+        .replace(/\\\\/g, '\\')
         .replace(/\\\(/g, '(')
         .replace(/\\\)/g, ')')
-        .replace(/\\\\/g, '\\')
-      if (cleaned.length > 2 && /[a-zA-Z]/.test(cleaned)) {
-        textParts.push(cleaned)
+        .replace(/\\[0-7]{3}/g, (oct) => {
+          const code = parseInt(oct.slice(1), 8)
+          return (code > 31 && code < 127) ? String.fromCharCode(code) : ' '
+        })
+        .replace(/[^\x20-\x7E\n]/g, ' ')
+        .trim()
+      if (inner.length > 1 && /[a-zA-Z0-9]/.test(inner)) {
+        parts.push(inner)
       }
     }
   }
-  return textParts.join(' ').replace(/\s+/g, ' ').trim()
+}
+
+function extractTextFromPDF(buffer: Buffer): string {
+  const parts: string[] = []
+  const bufStr = buffer.toString('binary')
+  const streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g
+  let match
+  while ((match = streamRe.exec(bufStr)) !== null) {
+    const data = Buffer.from(match[1], 'binary')
+    let txt = ''
+    try { txt = inflateSync(data).toString('latin1') } catch {
+      try { txt = inflateRawSync(data).toString('latin1') } catch { txt = match[1] }
+    }
+    extractFromStream(txt, parts)
+  }
+  return parts.join(' ').replace(/\s+/g, ' ').trim()
 }
 
 export async function POST(req: NextRequest) {
@@ -47,15 +71,11 @@ export async function POST(req: NextRequest) {
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
       for (const chunk of chunks) {
-        await supabase.from('knowledge_chunks').insert({
-          source_id: source.id,
-          bot_id: botId,
-          content: chunk,
-          embedding: null,
-        })
+        const embedding = await embedText(chunk)
+        await supabase.from('knowledge_chunks').insert({ source_id: source.id, bot_id: botId, content: chunk, embedding })
       }
-      await supabase.from('knowledge_sources').update({ title: file.name, status: 'processing', chunk_count: chunks.length, updated_at: new Date().toISOString() }).eq('id', source.id)
-      return NextResponse.json({ sourceId: source.id, status: 'processing', totalChunks: chunks.length })
+      await supabase.from('knowledge_sources').update({ title: file.name, status: 'ready', chunk_count: chunks.length, updated_at: new Date().toISOString() }).eq('id', source.id)
+      return NextResponse.json({ sourceId: source.id, status: 'ready' })
     } catch (err: any) {
       await supabase.from('knowledge_sources').update({ status: 'failed', error_message: err.message }).eq('id', source.id)
       return NextResponse.json({ sourceId: source.id, status: 'failed', error: err.message }, { status: 422 })
