@@ -493,7 +493,7 @@ export default function ChatPage() {
             </div>
 
             {/* Contact bar */}
-            {(bot.contact_whatsapp || bot.contact_phone || bot.contact_email || bot.contact_website) && (
+            {(bot.contact_whatsapp || bot.contact_phone || bot.contact_email || bot.contact_website || bot.contact_instagram || bot.contact_facebook) && (
               <div className="contact-bar">
                 {bot.contact_whatsapp && (
                   <a href={`https://wa.me/${bot.contact_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a1f0a', color: '#4ade80', border: '1px solid #166534' }}>
@@ -513,6 +513,16 @@ export default function ChatPage() {
                 {bot.contact_website && (
                   <a href={bot.contact_website} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a1400', color: '#AAFF00', border: '1px solid #365314' }}>
                     🌐 Website
+                  </a>
+                )}
+                {bot.contact_instagram && (
+                  <a href={bot.contact_instagram} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#1a0a1a', color: '#f472b6', border: '1px solid #831843' }}>
+                    📸 Instagram
+                  </a>
+                )}
+                {bot.contact_facebook && (
+                  <a href={bot.contact_facebook} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a0f28', color: '#818cf8', border: '1px solid #312e81' }}>
+                    👍 Facebook
                   </a>
                 )}
               </div>
