@@ -46,8 +46,11 @@ export default function ChatPage() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, loading])
 
   async function submitLead(e: React.FormEvent) {
-    e.preventDefault(); if (!leadEmail) return; setSubmittingLead(true)
-    await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail, name: leadName, sessionId }) })
+    e.preventDefault()
+    if (!leadEmail && !leadPhone) { setLeadError('Please provide an email or phone number'); return }
+    setLeadError('')
+    setSubmittingLead(true)
+    await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail || null, name: leadName, phone: leadPhone || null, sessionId }) })
     setLeadCaptured(true)
     setMessages([{ role: 'assistant', content: bot?.welcome_message || 'Hi! How can I help?' }])
     setSubmittingLead(false)
@@ -355,7 +358,10 @@ export default function ChatPage() {
               <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', marginBottom: '20px' }}>Takes less than 10 seconds</p>
               <input className="lead-input" placeholder="Your name (optional)" value={leadName} onChange={e => setLeadName(e.target.value)} />
               <input className="lead-input" type="email" inputMode="email" placeholder="Your email address" value={leadEmail} onChange={e => setLeadEmail(e.target.value)} />
-              <button className="lead-btn" onClick={submitLead} disabled={submittingLead || !leadEmail} style={{ background: accent, color: '#080A0E' }}>
+              <input className="lead-input" type="tel" inputMode="tel" placeholder="+65 9123 4567" value={leadPhone} onChange={e => setLeadPhone(e.target.value)} />
+              <p style={{ fontSize: '12px', color: '#4B5563', marginBottom: '10px', marginTop: '-4px' }}>Phone (optional if email provided)</p>
+              {leadError && <p style={{ fontSize: '12px', color: '#f87171', marginBottom: '8px' }}>{leadError}</p>}
+              <button className="lead-btn" onClick={submitLead} disabled={submittingLead || (!leadEmail && !leadPhone)} style={{ background: accent, color: '#080A0E' }}>
                 {submittingLead ? 'Starting...' : 'Start chatting →'}
               </button>
             </div>
