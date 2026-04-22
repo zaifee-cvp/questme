@@ -9,8 +9,7 @@ function extractTextFromPDFBuffer(buffer: Buffer): string {
   const zlib = require('zlib')
   const text: string[] = []
   const pdfStr = buffer.toString('binary')
-  
-  // Extract text from PDF stream objects
+
   const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g
   let match
   while ((match = streamRegex.exec(pdfStr)) !== null) {
@@ -22,31 +21,86 @@ function extractTextFromPDFBuffer(buffer: Buffer): string {
       } catch {
         decoded = streamData.toString('utf-8')
       }
-      // Extract text from PDF text operators
-      const textMatches = decoded.match(/\(([^)]*)\)/g)
-      if (textMatches) {
-        for (const t of textMatches) {
-          const clean = t.slice(1, -1)
-            .replace(/\\n/g, '\n')
-            .replace(/\\r/g, '')
-            .replace(/\\\\/g, '\\')
-            .replace(/\\([()])/g, '$1')
-          if (clean.trim().length > 0) text.push(clean)
-        }
-      }
-      // Also try Tj/TJ operators
-      const tjMatches = decoded.match(/\[(.*?)\]\s*TJ/g)
-      if (tjMatches) {
-        for (const tj of tjMatches) {
-          const parts = tj.match(/\(([^)]*)\)/g)
-          if (parts) {
-            const line = parts.map(p => p.slice(1, -1)).join('')
-            if (line.trim().length > 0) text.push(line)
+
+      // Extract text between BT...ET blocks
+      const btBlocks = decoded.match(/BT[\s\S]*?ET/g)
+      if (btBlocks) {
+        for (const block of btBlocks) {
+          // Handle parenthesized strings: (text) Tj
+          const parenMatches = block.match(/\(([^)]*)\)\s*Tj/g)
+          if (parenMatches) {
+            for (const pm of parenMatches) {
+              const inner = pm.match(/\(([^)]*)\)/)
+              if (inner) {
+                const clean = inner[1]
+                  .replace(/\\n/g, '\n').replace(/\\r/g, '')
+                  .replace(/\\\\/g, '\\').replace(/\\([()])/g, '$1')
+                if (clean.trim()) text.push(clean)
+              }
+            }
+          }
+
+          // Handle hex strings: <hex> Tj
+          const hexTj = block.match(/<([0-9a-fA-F]+)>\s*Tj/g)
+          if (hexTj) {
+            for (const h of hexTj) {
+              const hexMatch = h.match(/<([0-9a-fA-F]+)>/)
+              if (hexMatch) {
+                const hex = hexMatch[1]
+                let str = ''
+                for (let i = 0; i < hex.length; i += 4) {
+                  const code = parseInt(hex.substring(i, i + 4), 16)
+                  if (code > 0 && code < 65535) str += String.fromCharCode(code)
+                }
+                if (!str.trim()) {
+                  str = ''
+                  for (let i = 0; i < hex.length; i += 2) {
+                    const code = parseInt(hex.substring(i, i + 2), 16)
+                    if (code > 31 && code < 127) str += String.fromCharCode(code)
+                  }
+                }
+                if (str.trim()) text.push(str)
+              }
+            }
+          }
+
+          // Handle TJ arrays: [(text) num (text)] TJ
+          const tjArrays = block.match(/\[(.*?)\]\s*TJ/g)
+          if (tjArrays) {
+            for (const tj of tjArrays) {
+              const parts: string[] = []
+              // Paren strings in TJ
+              const parenParts = tj.match(/\(([^)]*)\)/g)
+              if (parenParts) {
+                for (const p of parenParts) {
+                  const inner = p.slice(1, -1)
+                    .replace(/\\n/g, '\n').replace(/\\r/g, '')
+                    .replace(/\\\\/g, '\\').replace(/\\([()])/g, '$1')
+                  parts.push(inner)
+                }
+              }
+              // Hex strings in TJ
+              const hexParts = tj.match(/<([0-9a-fA-F]+)>/g)
+              if (hexParts) {
+                for (const hp of hexParts) {
+                  const hex = hp.slice(1, -1)
+                  let str = ''
+                  for (let i = 0; i < hex.length; i += 2) {
+                    const code = parseInt(hex.substring(i, i + 2), 16)
+                    if (code > 31 && code < 127) str += String.fromCharCode(code)
+                  }
+                  if (str.trim()) parts.push(str)
+                }
+              }
+              const line = parts.join('')
+              if (line.trim()) text.push(line)
+            }
           }
         }
       }
     } catch {}
   }
+
   return text.join(' ').replace(/\s+/g, ' ').trim()
 }
 
