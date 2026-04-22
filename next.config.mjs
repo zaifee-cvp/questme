@@ -30,6 +30,12 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['unpdf', 'pdfjs-dist'],
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'unpdf', 'pdfjs-dist']
+    }
+    return config
+  },
   async redirects() {
     return [
       {
