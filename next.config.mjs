@@ -27,6 +27,9 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  experimental: {
+    serverComponentsExternalPackages: ['unpdf', 'pdfjs-dist'],
+  },
   async redirects() {
     return [
       {
