@@ -5,103 +5,28 @@ import { embedText } from '@/lib/rag'
 
 export const maxDuration = 300
 
-function extractTextFromPDFBuffer(buffer: Buffer): string {
-  const zlib = require('zlib')
-  const text: string[] = []
-  const pdfStr = buffer.toString('binary')
-
-  const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g
-  let match
-  while ((match = streamRegex.exec(pdfStr)) !== null) {
-    try {
-      const streamData = Buffer.from(match[1], 'binary')
-      let decoded: string
+function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const PDFParser = require('pdf2json')
+    const parser = new PDFParser()
+    parser.on('pdfParser_dataReady', (data: any) => {
       try {
-        decoded = zlib.inflateSync(streamData).toString('utf-8')
-      } catch {
-        decoded = streamData.toString('utf-8')
+        const pages = data?.Pages || []
+        const text = pages.map((page: any) => {
+          const texts = page.Texts || []
+          return texts.map((t: any) => {
+            const runs = t.R || []
+            return runs.map((r: any) => decodeURIComponent(r.T || '')).join('')
+          }).join(' ')
+        }).join('\n\n')
+        resolve(text)
+      } catch (e) {
+        reject(e)
       }
-
-      // Extract text between BT...ET blocks
-      const btBlocks = decoded.match(/BT[\s\S]*?ET/g)
-      if (btBlocks) {
-        for (const block of btBlocks) {
-          // Handle parenthesized strings: (text) Tj
-          const parenMatches = block.match(/\(([^)]*)\)\s*Tj/g)
-          if (parenMatches) {
-            for (const pm of parenMatches) {
-              const inner = pm.match(/\(([^)]*)\)/)
-              if (inner) {
-                const clean = inner[1]
-                  .replace(/\\n/g, '\n').replace(/\\r/g, '')
-                  .replace(/\\\\/g, '\\').replace(/\\([()])/g, '$1')
-                if (clean.trim()) text.push(clean)
-              }
-            }
-          }
-
-          // Handle hex strings: <hex> Tj
-          const hexTj = block.match(/<([0-9a-fA-F]+)>\s*Tj/g)
-          if (hexTj) {
-            for (const h of hexTj) {
-              const hexMatch = h.match(/<([0-9a-fA-F]+)>/)
-              if (hexMatch) {
-                const hex = hexMatch[1]
-                let str = ''
-                for (let i = 0; i < hex.length; i += 4) {
-                  const code = parseInt(hex.substring(i, i + 4), 16)
-                  if (code > 0 && code < 65535) str += String.fromCharCode(code)
-                }
-                if (!str.trim()) {
-                  str = ''
-                  for (let i = 0; i < hex.length; i += 2) {
-                    const code = parseInt(hex.substring(i, i + 2), 16)
-                    if (code > 31 && code < 127) str += String.fromCharCode(code)
-                  }
-                }
-                if (str.trim()) text.push(str)
-              }
-            }
-          }
-
-          // Handle TJ arrays: [(text) num (text)] TJ
-          const tjArrays = block.match(/\[(.*?)\]\s*TJ/g)
-          if (tjArrays) {
-            for (const tj of tjArrays) {
-              const parts: string[] = []
-              // Paren strings in TJ
-              const parenParts = tj.match(/\(([^)]*)\)/g)
-              if (parenParts) {
-                for (const p of parenParts) {
-                  const inner = p.slice(1, -1)
-                    .replace(/\\n/g, '\n').replace(/\\r/g, '')
-                    .replace(/\\\\/g, '\\').replace(/\\([()])/g, '$1')
-                  parts.push(inner)
-                }
-              }
-              // Hex strings in TJ
-              const hexParts = tj.match(/<([0-9a-fA-F]+)>/g)
-              if (hexParts) {
-                for (const hp of hexParts) {
-                  const hex = hp.slice(1, -1)
-                  let str = ''
-                  for (let i = 0; i < hex.length; i += 2) {
-                    const code = parseInt(hex.substring(i, i + 2), 16)
-                    if (code > 31 && code < 127) str += String.fromCharCode(code)
-                  }
-                  if (str.trim()) parts.push(str)
-                }
-              }
-              const line = parts.join('')
-              if (line.trim()) text.push(line)
-            }
-          }
-        }
-      }
-    } catch {}
-  }
-
-  return text.join(' ').replace(/\s+/g, ' ').trim()
+    })
+    parser.on('pdfParser_dataError', (err: any) => reject(err.parserError || err))
+    parser.parseBuffer(buffer)
+  })
 }
 
 export async function POST(req: NextRequest) {
@@ -123,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const extractedText = extractTextFromPDFBuffer(buffer)
+      const extractedText = await extractTextFromPDFBuffer(buffer)
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
