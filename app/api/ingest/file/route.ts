@@ -5,6 +5,51 @@ import { embedText } from '@/lib/rag'
 
 export const maxDuration = 300
 
+function extractTextFromPDFBuffer(buffer: Buffer): string {
+  const zlib = require('zlib')
+  const text: string[] = []
+  const pdfStr = buffer.toString('binary')
+  
+  // Extract text from PDF stream objects
+  const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g
+  let match
+  while ((match = streamRegex.exec(pdfStr)) !== null) {
+    try {
+      const streamData = Buffer.from(match[1], 'binary')
+      let decoded: string
+      try {
+        decoded = zlib.inflateSync(streamData).toString('utf-8')
+      } catch {
+        decoded = streamData.toString('utf-8')
+      }
+      // Extract text from PDF text operators
+      const textMatches = decoded.match(/\(([^)]*)\)/g)
+      if (textMatches) {
+        for (const t of textMatches) {
+          const clean = t.slice(1, -1)
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '')
+            .replace(/\\\\/g, '\\')
+            .replace(/\\([()])/g, '$1')
+          if (clean.trim().length > 0) text.push(clean)
+        }
+      }
+      // Also try Tj/TJ operators
+      const tjMatches = decoded.match(/\[(.*?)\]\s*TJ/g)
+      if (tjMatches) {
+        for (const tj of tjMatches) {
+          const parts = tj.match(/\(([^)]*)\)/g)
+          if (parts) {
+            const line = parts.map(p => p.slice(1, -1)).join('')
+            if (line.trim().length > 0) text.push(line)
+          }
+        }
+      }
+    } catch {}
+  }
+  return text.join(' ').replace(/\s+/g, ' ').trim()
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authClient = createSupabaseServerClient()
@@ -24,9 +69,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const { extractText } = await import('unpdf')
-      const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
-      const extractedText = Array.isArray(text) ? text.join(' ') : text
+      const extractedText = extractTextFromPDFBuffer(buffer)
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
