@@ -24,9 +24,8 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const { extractText, getDocumentProxy } = await import('unpdf')
-      const pdf = await getDocumentProxy(new Uint8Array(buffer))
-      const { text } = await extractText(pdf, { mergePages: true })
+      const { extractText } = await import('unpdf')
+      const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
       const extractedText = Array.isArray(text) ? text.join(' ') : text
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
