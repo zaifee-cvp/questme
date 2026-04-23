@@ -27,7 +27,6 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  serverExternalPackages: ['unpdf'],
   async redirects() {
     return [
       {
@@ -48,4 +47,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+module.exports = nextConfig
