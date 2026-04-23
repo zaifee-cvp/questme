@@ -100,7 +100,11 @@ export default function BotPage() {
 
   async function addUrl(e: React.FormEvent) {
     e.preventDefault(); setAddingUrl(true)
-    const res = await fetch('/api/ingest/url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, url: urlInput }) })
+    const res = await fetch('/api/knowledge/ingest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ botId, type: 'url', url: urlInput })
+    })
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Failed to add URL' }))
       alert(err.error || 'Failed to add URL')
@@ -110,7 +114,15 @@ export default function BotPage() {
 
   async function addText(e: React.FormEvent) {
     e.preventDefault(); setAddingText(true)
-    await fetch('/api/ingest/text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId, title: textTitle, content: textContent }) })
+    const res = await fetch('/api/knowledge/ingest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ botId, type: 'text', title: textTitle, content: textContent })
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Failed to add text' }))
+      alert(err.error || 'Failed to add text')
+    }
     setTextTitle(''); setTextContent(''); await fetchData(); setAddingText(false)
   }
 
@@ -118,32 +130,11 @@ export default function BotPage() {
   async function uploadPdf(file: File) {
     setAddingPdf(true); setPdfMsg(null)
     try {
-      const pdfjsLib = await new Promise<any>((resolve, reject) => {
-        if ((window as any).pdfjsLib) return resolve((window as any).pdfjsLib)
-        const script = document.createElement('script')
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
-        script.onload = () => {
-          const lib = (window as any).pdfjsLib
-          lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
-          resolve(lib)
-        }
-        script.onerror = () => reject(new Error('Failed to load PDF library'))
-        document.head.appendChild(script)
-      })
-      const arrayBuffer = await file.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      let fullText = ''
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i)
-        const content = await page.getTextContent()
-        const pageText = content.items.map((item: any) => item.str).join(' ')
-        fullText += pageText + '\n\n'
-      }
-      const res = await fetch('/api/upload-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullText, fileName: file.name, botId })
-      })
+      const fd = new FormData()
+      fd.append('botId', botId)
+      fd.append('type', 'file')
+      fd.append('file', file)
+      const res = await fetch('/api/knowledge/ingest', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Upload failed')
       setPdfMsg({ type: 'success', text: '✓ PDF added — indexing in progress' })
