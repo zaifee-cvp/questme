@@ -2,14 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { chunkText } from '@/lib/chunker'
 import { embedText } from '@/lib/rag'
+import { extractTextFromPDF } from '@/lib/pdf-extract'
 
 export const maxDuration = 300
-
-async function extractPdfText(buffer: Buffer): Promise<string> {
-  const { extractText } = await import('unpdf')
-  const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
-  return Array.isArray(text) ? text.join(' ') : text
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const extractedText = await extractPdfText(buffer)
+      const extractedText = await extractTextFromPDF(buffer)
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
