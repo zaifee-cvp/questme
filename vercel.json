@@ -1,8 +1,0 @@
-{
-  "functions": {
-    "app/api/upload-pdf/route.ts": {
-      "memory": 3009,
-      "maxDuration": 300
-    }
-  }
-}

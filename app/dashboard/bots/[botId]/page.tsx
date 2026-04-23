@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Trash2, RefreshCw, ExternalLink, Copy, Check, ChevronRight, Folder, FolderPlus, Pencil, MoreHorizontal } from 'lucide-react'
 import { QRCodeCanvas } from 'qrcode.react'
+import * as pdfjsLib from 'pdfjs-dist'
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
 
 interface Source { id: string; type: string; title: string; status: string; chunk_count: number; error_message?: string; folder_id?: string | null }
 interface Chunk { id: string; content: string }
@@ -117,20 +119,32 @@ export default function BotPage() {
 
   async function uploadPdf(file: File) {
     setAddingPdf(true); setPdfMsg(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('botId', botId)
-    const res = await fetch('/api/upload-pdf', { method: 'POST', body: fd })
-    if (res.ok) {
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      let fullText = ''
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const content = await page.getTextContent()
+        const pageText = content.items.map((item: any) => item.str).join(' ')
+        fullText += pageText + '\n\n'
+      }
+      const res = await fetch('/api/upload-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: fullText, fileName: file.name, botId })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Upload failed')
       setPdfMsg({ type: 'success', text: '✓ PDF added — indexing in progress' })
       setPdfFile(null)
       await fetchData()
-    } else {
-      const err = await res.json().catch(() => ({ error: 'Upload failed' }))
-      setPdfMsg({ type: 'error', text: err.error || 'Upload failed' })
+    } catch (err: any) {
+      setPdfMsg({ type: 'error', text: err.message || 'Upload failed' })
+    } finally {
+      setAddingPdf(false)
+      if (pdfInputRef.current) pdfInputRef.current.value = ''
     }
-    setAddingPdf(false)
-    if (pdfInputRef.current) pdfInputRef.current.value = ''
   }
 
   function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<Blob> {
