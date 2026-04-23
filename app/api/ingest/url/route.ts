@@ -27,7 +27,10 @@ export async function POST(req: NextRequest) {
       const chunks = chunkText(content)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
       for (const chunk of chunks) {
-        const embedding = await embedText(chunk)
+        let embedding: number[] | null = null
+        try { embedding = await embedText(chunk) } catch (embErr: any) {
+          console.warn('[ingest/url] embedding failed, storing chunk without embedding:', embErr.message)
+        }
         await supabase.from('knowledge_chunks').insert({ source_id: source.id, bot_id: botId, content: chunk, embedding })
       }
       await supabase.from('knowledge_sources').update({ status: 'ready', chunk_count: chunks.length, updated_at: new Date().toISOString() }).eq('id', source.id)
