@@ -5,30 +5,6 @@ import { embedText } from '@/lib/rag'
 
 export const maxDuration = 300
 
-function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const PDFParser = require('pdf2json')
-    const parser = new PDFParser()
-    parser.on('pdfParser_dataReady', (data: any) => {
-      try {
-        const pages = data?.Pages || []
-        const text = pages.map((page: any) => {
-          const texts = page.Texts || []
-          return texts.map((t: any) => {
-            const runs = t.R || []
-            return runs.map((r: any) => decodeURIComponent(r.T || '')).join('')
-          }).join(' ')
-        }).join('\n\n')
-        resolve(text)
-      } catch (e) {
-        reject(e)
-      }
-    })
-    parser.on('pdfParser_dataError', (err: any) => reject(err.parserError || err))
-    parser.parseBuffer(buffer)
-  })
-}
-
 export async function POST(req: NextRequest) {
   try {
     const authClient = createSupabaseServerClient()
@@ -48,7 +24,9 @@ export async function POST(req: NextRequest) {
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const extractedText = await extractTextFromPDFBuffer(buffer)
+      const { extractText } = await import('unpdf')
+      const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
+      const extractedText = Array.isArray(text) ? text.join(' ') : text
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
@@ -63,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ sourceId: source.id, status: 'failed', error: err.message }, { status: 422 })
     }
   } catch (err: any) {
-    console.error('[POST /api/ingest/file] unhandled error:', err)
+    console.error('[POST /api/upload-pdf] unhandled error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

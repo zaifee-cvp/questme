@@ -120,7 +120,7 @@ export default function BotPage() {
     const fd = new FormData()
     fd.append('file', file)
     fd.append('botId', botId)
-    const res = await fetch('/api/ingest/file', { method: 'POST', body: fd })
+    const res = await fetch('/api/upload-pdf', { method: 'POST', body: fd })
     if (res.ok) {
       setPdfMsg({ type: 'success', text: '✓ PDF added — indexing in progress' })
       setPdfFile(null)
