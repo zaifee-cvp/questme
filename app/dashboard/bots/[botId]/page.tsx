@@ -118,9 +118,18 @@ export default function BotPage() {
   async function uploadPdf(file: File) {
     setAddingPdf(true); setPdfMsg(null)
     try {
-      // @ts-expect-error — CDN dynamic import not resolvable by TypeScript
-      const pdfjsLib = await import(/* webpackIgnore: true */ 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs')
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs'
+      const pdfjsLib = await new Promise<any>((resolve, reject) => {
+        if ((window as any).pdfjsLib) return resolve((window as any).pdfjsLib)
+        const script = document.createElement('script')
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
+        script.onload = () => {
+          const lib = (window as any).pdfjsLib
+          lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+          resolve(lib)
+        }
+        script.onerror = () => reject(new Error('Failed to load PDF library'))
+        document.head.appendChild(script)
+      })
       const arrayBuffer = await file.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
       let fullText = ''
