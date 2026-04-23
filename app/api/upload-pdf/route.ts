@@ -5,6 +5,12 @@ import { embedText } from '@/lib/rag'
 
 export const maxDuration = 300
 
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  const { extractText } = await import('unpdf')
+  const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
+  return Array.isArray(text) ? text.join(' ') : text
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authClient = createSupabaseServerClient()
@@ -20,13 +26,11 @@ export async function POST(req: NextRequest) {
     const { data: bot } = await supabase.from('bots').select('id').eq('id', botId).eq('user_id', user.id).single()
     if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
     const { data: source } = await supabase.from('knowledge_sources').insert({ bot_id: botId, user_id: user.id, type: 'file', title: file.name, status: 'indexing' }).select().single()
-    if (!source) return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    if (!source) return NextResponse.json({ error: 'Failed to create source' }, { status: 500 })
 
     try {
       const buffer = Buffer.from(await file.arrayBuffer())
-      const { extractText } = await import('unpdf')
-      const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
-      const extractedText = Array.isArray(text) ? text.join(' ') : text
+      const extractedText = await extractPdfText(buffer)
       if (!extractedText || extractedText.trim().length < 50) throw new Error('Could not extract text from PDF (the PDF may be a scanned image without selectable text)')
       const chunks = chunkText(extractedText)
       if (chunks.length === 0) throw new Error('No meaningful content extracted')
@@ -41,7 +45,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ sourceId: source.id, status: 'failed', error: err.message }, { status: 422 })
     }
   } catch (err: any) {
-    console.error('[POST /api/upload-pdf] unhandled error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('[POST /api/upload-pdf] error:', err)
+    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 })
   }
 }
