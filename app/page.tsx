@@ -232,9 +232,8 @@ export default function LandingPage() {
         <p style={{ fontSize: '12px', color: '#4B5563', marginTop: '16px' }}>14-day free trial · No credit card required</p>
         <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>Every delayed answer risks a lost lead. Questme responds in real time.</p>
 
-        <div className="hero-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '10px', marginTop: '28px' }}>
+        <div className="hero-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px', marginTop: '28px' }}>
           {[
-            'Trusted by product-led teams',
             'Zero hallucination guarantee',
             '<2s response time',
             'Answers only from your content',
@@ -458,48 +457,6 @@ export default function LandingPage() {
           ))}
         </div>
         <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', marginTop: '24px' }}>All prices in USD. 14-day free trial. Cancel anytime.</p>
-      </section>
-
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 64px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '10px' }}>Customer proof</div>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>Teams using Questme trust the answers</h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
-          {[
-            {
-              initials: 'SL',
-              name: 'Sarah Lim',
-              role: 'Head of Growth, Aster Goods',
-              quote: 'We cut repetitive pre-sales questions and kept buying intent moving on product pages.',
-            },
-            {
-              initials: 'AM',
-              name: 'Ahmed Malik',
-              role: 'Support Lead, Northlane SaaS',
-              quote: 'Questme gave our team breathing room by handling common plan and onboarding questions 24/7.',
-            },
-            {
-              initials: 'TB',
-              name: 'Tom Bradley',
-              role: 'Founder, Fieldstone Services',
-              quote: 'Visitors get immediate answers and we capture better-qualified leads without adding headcount.',
-            },
-          ].map((item) => (
-            <div key={item.name} className="card" style={{ borderColor: '#1E2028' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#AAFF00', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', fontFamily: 'Outfit, sans-serif' }}>
-                  {item.initials}
-                </div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0F0F0' }}>{item.name}</div>
-                  <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{item.role}</div>
-                </div>
-              </div>
-              <p style={{ fontSize: '14px', color: '#D1D5DB', lineHeight: 1.7 }}>{item.quote}</p>
-            </div>
-          ))}
-        </div>
       </section>
 
       <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px 80px' }}>
