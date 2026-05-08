@@ -182,3 +182,26 @@ html, body { overflow-x: hidden; }
     padding-right: 16px !important;
   }
 }
+
+@keyframes mesh-drift {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    transform: scale(1.1) rotate(2deg);
+  }
+  66% {
+    transform: scale(0.95) rotate(-2deg);
+  }
+}
+
+.animate-mesh-drift {
+  animation: mesh-drift 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mesh-drift {
+    animation: none;
+  }
+}

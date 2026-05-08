@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
+import { GradientMesh } from '@/components/effects/GradientMesh'
+import { HeroGlow } from '@/components/effects/HeroGlow'
+import { TiltCard } from '@/components/effects/TiltCard'
 
 const FEATURES = [
   { icon: '⚡', title: 'Fast setup from your website', desc: 'Paste your URLs, FAQs, docs, or text. Questme builds your knowledge bot in minutes.' },
@@ -205,7 +208,10 @@ export default function LandingPage() {
         )}
       </div>
 
-      <section ref={heroRef} style={{ maxWidth: '1100px', margin: '0 auto', padding: '80px 24px 60px', textAlign: 'center' }}>
+      <section ref={heroRef} style={{ position: 'relative', overflow: 'hidden', maxWidth: '1100px', margin: '0 auto', padding: '80px 24px 60px', textAlign: 'center' }}>
+        <GradientMesh accent="lime" />
+        <HeroGlow />
+        <div style={{ position: 'relative' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '6px 16px', fontSize: '12px', color: '#9CA3AF', marginBottom: '32px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
           AI Website Answers for Businesses
@@ -254,6 +260,7 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+        </div>
       </section>
 
       <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 70px' }}>
@@ -265,10 +272,10 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
           {PAIN_POINTS.map((item) => (
-            <div key={item.title} className="card" style={{ borderColor: '#2a2d38' }}>
+            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
               <div style={{ fontSize: '17px', fontWeight: 700, color: '#F0F0F0', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.65 }}>{item.desc}</div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
@@ -308,10 +315,10 @@ export default function LandingPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
             {TRUST_LAYER.map((item) => (
-              <div key={item.title} className="card" style={{ borderColor: '#2a2d38', padding: '18px' }}>
+              <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-[18px]">
                 <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
                 <div style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: 1.6 }}>{item.desc}</div>
-              </div>
+              </TiltCard>
             ))}
           </div>
         </div>
@@ -344,11 +351,11 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
           {FEATURES.map((f) => (
-            <div key={f.title} className="card">
+            <TiltCard key={f.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
               <div style={{ fontSize: '28px', marginBottom: '12px' }}>{f.icon}</div>
               <div style={{ fontWeight: 700, fontSize: '17px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{f.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.6 }}>{f.desc}</div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
@@ -364,11 +371,11 @@ export default function LandingPage() {
             { n: '02', title: 'Review and launch your bot', desc: 'Questme prepares your knowledge base so responses stay aligned with your content.' },
             { n: '03', title: 'Embed and start answering', desc: 'Install one script tag and let visitors get instant answers across your website.' },
           ].map(s => (
-            <div key={s.n} className="card">
+            <TiltCard key={s.n} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
               <div style={{ fontSize: '28px', fontWeight: 900, color: '#AAFF00', marginBottom: '10px', fontFamily: 'Outfit, sans-serif' }}>{s.n}</div>
               <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{s.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.6 }}>{s.desc}</div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
@@ -382,10 +389,10 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
           {USE_CASES.map((item) => (
-            <div key={item.title} className="card" style={{ borderColor: '#1E2028' }}>
+            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
               <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.desc}</div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
@@ -397,11 +404,11 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           {DIFFERENTIATORS.map((item) => (
-            <div key={item.title} className="card" style={{ borderColor: '#1E2028', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5 flex flex-col gap-3">
               <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: '#AAFF00' }}>Differentiator</div>
               <div style={{ fontWeight: 700, fontSize: '20px', color: '#F0F0F0', fontFamily: 'Outfit, sans-serif', lineHeight: 1.3 }}>{item.title}</div>
               <p style={{ fontSize: '15px', color: '#9CA3AF', lineHeight: 1.75 }}>{item.desc}</p>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
@@ -415,10 +422,10 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
           {OUTCOMES.map((item) => (
-            <div key={item.title} className="card" style={{ borderColor: '#1E2028' }}>
+            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
               <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.desc}</div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
@@ -521,10 +528,10 @@ export default function LandingPage() {
               a: 'Yes. Questme offers a 14-day free trial on all plans with no credit card required. You can test the full product before committing.',
             },
           ].map((item) => (
-            <div key={item.q} className="card">
+            <TiltCard key={item.q} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
               <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '10px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' }}>{item.q}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.a}</div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       </section>
