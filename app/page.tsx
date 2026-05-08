@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Check } from 'lucide-react'
 import { GradientMesh } from '@/components/effects/GradientMesh'
 import { HeroGlow } from '@/components/effects/HeroGlow'
+import { PageWash } from '@/components/effects/PageWash'
 import { TiltCard } from '@/components/effects/TiltCard'
 
 const FEATURES = [
@@ -143,7 +144,8 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080A0E', color: '#F0F0F0' }}>
+    <div style={{ minHeight: '100vh', color: '#F0F0F0' }}>
+      <PageWash accent="lime" />
       <style>{`
         .nav-hamburger { display: none; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 4px; color: #F0F0F0; }
         .nav-mobile-signin { display: none; }
