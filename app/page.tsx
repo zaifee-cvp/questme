@@ -210,10 +210,10 @@ export default function LandingPage() {
         )}
       </div>
 
-      <section ref={heroRef} style={{ position: 'relative', overflow: 'hidden', maxWidth: '1100px', margin: '0 auto', padding: '80px 24px 60px', textAlign: 'center' }}>
+      <section ref={heroRef} style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
         <GradientMesh accent="lime" />
         <HeroGlow />
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto', padding: '80px 24px 60px', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '6px 16px', fontSize: '12px', color: '#9CA3AF', marginBottom: '32px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#AAFF00', display: 'inline-block' }}></span>
           AI Website Answers for Businesses
