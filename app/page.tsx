@@ -52,8 +52,8 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <div style={{ position: 'sticky', top: 0, zIndex: 50 }}>
-        <nav className="bg-zinc-950/40 backdrop-blur-md border-b border-zinc-800/30" style={{ padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+      <nav className="fixed top-0 inset-x-0 z-50 bg-zinc-950/20 backdrop-blur-md border-b border-zinc-800/20">
+        <div style={{ padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '32px', height: '32px', background: '#AAFF00', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#080A0E', fontFamily: 'Outfit, sans-serif' }}>Q</div>
             <span style={{ fontWeight: 700, fontSize: '18px', fontFamily: 'Outfit, sans-serif' }}>Questme<span style={{ color: '#AAFF00' }}>.ai</span></span>
@@ -79,20 +79,20 @@ export default function LandingPage() {
             </svg>
             </button>
           </div>
-        </nav>
+        </div>
+      </nav>
 
-        {menuOpen && (
-          <div style={{ background: '#080A0EE8', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1E2028', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <a href="#features" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Features</a>
-            <a href="/blog" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</a>
-            <a href="#pricing" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Pricing</a>
-            <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
-            <Link href="/sign-up" className="btn-accent" onClick={() => setMenuOpen(false)} style={{ padding: '10px 20px', fontSize: '15px', borderRadius: '8px', textAlign: 'center' }}>Start free trial</Link>
-          </div>
-        )}
-      </div>
+      {menuOpen && (
+        <div className="fixed top-16 inset-x-0 z-40" style={{ background: '#080A0EE8', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1E2028', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <a href="#features" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Features</a>
+          <a href="/blog" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Blog</a>
+          <a href="#pricing" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Pricing</a>
+          <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ fontSize: '15px', color: '#9CA3AF', textDecoration: 'none' }}>Sign in</Link>
+          <Link href="/sign-up" className="btn-accent" onClick={() => setMenuOpen(false)} style={{ padding: '10px 20px', fontSize: '15px', borderRadius: '8px', textAlign: 'center' }}>Start free trial</Link>
+        </div>
+      )}
 
-      <section ref={heroRef} className="relative pt-12 md:pt-20 pb-20 md:pb-32 overflow-hidden font-sans">
+      <section ref={heroRef} className="relative pt-24 md:pt-32 pb-20 md:pb-32 overflow-hidden font-sans">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[900px] bg-[radial-gradient(ellipse_at_center,_rgba(170,255,0,0.14)_0%,_rgba(170,255,0,0.04)_30%,_transparent_60%)]" />
         </div>
@@ -135,7 +135,11 @@ export default function LandingPage() {
 
             <div className="relative flex justify-center lg:justify-end">
               <div className="relative w-full max-w-[400px] rotate-[-1.5deg]">
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-lime-400/10 overflow-hidden">
+                <div className="relative rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-lime-400/10 overflow-hidden">
+
+                  <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-lime-400/10 border border-lime-400/30 text-[10px] font-mono text-lime-300 tracking-wide">
+                    Answered in 1.4s
+                  </div>
 
                   <div className="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-800/60 bg-gradient-to-b from-zinc-900 to-zinc-950">
                     <div className="w-9 h-9 rounded-lg bg-[#AAFF00] flex items-center justify-center flex-shrink-0">
@@ -153,7 +157,7 @@ export default function LandingPage() {
                     </button>
                   </div>
 
-                  <div className="px-4 py-5 space-y-3 min-h-[560px] bg-zinc-950">
+                  <div className="px-4 py-5 space-y-3 min-h-[640px] bg-zinc-950">
 
                     <div className="flex">
                       <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-zinc-800/80 px-3.5 py-2.5">
@@ -203,10 +207,6 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="absolute -top-3 -left-3 rounded-full border border-lime-400/30 bg-zinc-950/90 backdrop-blur px-3 py-1.5 flex items-center gap-1.5 rotate-[1.5deg]">
-                  <Zap className="w-3 h-3 text-lime-400" />
-                  <span className="text-[10px] font-mono text-zinc-300 tracking-tight">Answered in 1.4s</span>
-                </div>
               </div>
             </div>
 
