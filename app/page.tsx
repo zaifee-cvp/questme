@@ -576,17 +576,32 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px 80px' }}>
-        <div className="cta-inner" style={{ background: '#0F1117', border: '1px solid #1E2028', borderRadius: '20px', padding: '60px 24px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(24px, 6vw, 40px)', fontWeight: 900, marginBottom: '16px', letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>
-            Ready to answer visitors faster<br /><span style={{ color: '#AAFF00' }}>and capture more intent?</span>
-          </h2>
-          <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px' }}>Launch your business knowledge bot, reduce repetitive support work, and keep your website responsive around the clock.</p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-up" className="btn-accent" style={{ fontSize: '16px', padding: '14px 24px' }}>
-              Capture more leads with AI answers
-            </Link>
-            <a href="#pricing" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 32px' }}>See pricing</a>
+      <section className="py-24 md:py-40 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center">
+
+            <h2 className="font-sans text-4xl md:text-6xl tracking-tight font-semibold text-white leading-[1.02] text-balance">
+              Stop losing visitors to silence. <span className="text-[#AAFF00]">Start answering.</span>
+            </h2>
+
+            <p className="mt-6 text-lg text-zinc-400 leading-relaxed">
+              One script tag. 60-second setup. Every visitor question answered in under 2 seconds, with citations from your own content. Free 14-day trial.
+            </p>
+
+            <div className="mt-10 flex justify-center">
+              <Link
+                href="/sign-up"
+                className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-lg bg-[#AAFF00] hover:bg-lime-300 transition-colors text-zinc-950 font-medium"
+              >
+                Add to my website &mdash; free
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+
+            <p className="mt-5 text-xs text-zinc-500">
+              No credit card &middot; Setup in 60 seconds &middot; Cancel anytime
+            </p>
+
           </div>
         </div>
       </section>
@@ -610,86 +625,123 @@ export default function LandingPage() {
         })}}
       />
 
-      <section id="faq" style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>FAQ</div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>Frequently asked questions</h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '760px', margin: '0 auto' }}>
-          {[
-            {
-              q: 'What is Questme.ai?',
-              a: 'Questme.ai is an AI chatbot platform for business websites. You train it on your own product and service knowledge so visitors get instant answers 24/7.',
-            },
-            {
-              q: 'How does the AI chatbot learn about my business?',
-              a: 'You upload documents, paste website URLs, or add FAQs directly in the dashboard. Questme indexes this content so your bot answers from your business knowledge.',
-            },
-            {
-              q: 'What happens if the chatbot can\'t answer a question?',
-              a: 'If the bot has no matching answer, it can respond transparently and trigger a handoff so your team can follow up and keep the conversation moving.',
-            },
-            {
-              q: 'Can I embed the chatbot on any website?',
-              a: 'Yes. Questme generates a single script tag that works on any website — Shopify, Webflow, WordPress, or custom HTML. No developer needed.',
-            },
-            {
-              q: 'Is there a free trial?',
-              a: 'Yes. Questme offers a 14-day free trial on all plans with no credit card required. You can test the full product before committing.',
-            },
-          ].map((item) => (
-            <TiltCard key={item.q} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
-              <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '10px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' }}>{item.q}</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.a}</div>
-            </TiltCard>
-          ))}
+      <section id="faq" className="py-20 md:py-32 border-y border-zinc-800/50 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-2xl mb-16">
+            <p className="text-xs text-zinc-500 uppercase tracking-[0.18em] font-medium mb-6">
+              FAQ
+            </p>
+            <h2 className="font-sans text-4xl md:text-5xl tracking-tight font-semibold text-white leading-[1.05] text-balance">
+              Questions builders actually ask.
+            </h2>
+          </div>
+
+          <div className="max-w-3xl divide-y divide-zinc-800/60">
+
+            <div className="py-8 first:pt-0">
+              <h3 className="font-sans text-lg font-medium text-white">How does Questme avoid hallucinations?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                Questme only answers from content you give it &mdash; your URL, docs, FAQs, PDFs. If a visitor asks something outside your indexed content, the AI says so and offers to capture the question for you to answer later. Every answer includes a source citation that links back to your own page.
+              </p>
+            </div>
+
+            <div className="py-8">
+              <h3 className="font-sans text-lg font-medium text-white">What platforms does Questme work on?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                Any website that lets you embed a script tag. We&rsquo;ve tested it on Shopify, WordPress, Webflow, Framer, Next.js, and plain HTML. Setup is one line of code &mdash; no backend changes, no plugins, no data migration.
+              </p>
+            </div>
+
+            <div className="py-8">
+              <h3 className="font-sans text-lg font-medium text-white">How does it index my content?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                Point it at your URL or upload PDFs. Questme crawls the pages, extracts the readable content, and builds an embedding index. Re-indexing happens automatically on a schedule, or you can trigger it manually after a content update.
+              </p>
+            </div>
+
+            <div className="py-8">
+              <h3 className="font-sans text-lg font-medium text-white">Can I capture leads from chat conversations?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                Yes. When a visitor shows buying intent &mdash; questions about pricing, demos, integrations, or signup &mdash; Questme prompts them for an email and routes the lead to your inbox. You see the full conversation context with every lead.
+              </p>
+            </div>
+
+            <div className="py-8">
+              <h3 className="font-sans text-lg font-medium text-white">What happens to questions Questme can&rsquo;t answer?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                They get logged in your dashboard as &ldquo;content gaps.&rdquo; You can write a new doc page or FAQ entry, re-index, and the next visitor with the same question gets an instant answer. The bot teaches you what your docs are missing.
+              </p>
+            </div>
+
+            <div className="py-8">
+              <h3 className="font-sans text-lg font-medium text-white">Is my visitors&rsquo; data safe?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                Conversations are stored encrypted on our infrastructure. We don&rsquo;t train on your visitor data. You can delete conversation history anytime, and EU/UK customers can request a data processing addendum.
+              </p>
+            </div>
+
+            <div className="py-8 last:pb-0">
+              <h3 className="font-sans text-lg font-medium text-white">How long does setup take?</h3>
+              <p className="mt-3 text-base text-zinc-400 leading-relaxed">
+                About 60 seconds. Sign up, paste your website URL, drop one script tag in your site&rsquo;s &lt;head&gt;. The first crawl finishes in 2&ndash;5 minutes for most sites. Then you&rsquo;re live.
+              </p>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 56px' }}>
-        <div style={{ borderTop: '1px solid #1E2028', paddingTop: '40px' }}>
-          <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '20px' }}>Resources &amp; Guides</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            <Link href="/blog" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>Blog</Link>
-            <Link href="/ai-customer-support-chatbot" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>AI Customer Support Chatbot</Link>
-            <Link href="/ai-product-knowledge-chatbot" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>AI Product Knowledge Chatbot</Link>
-            <Link href="/website-ai-chatbot-for-lead-generation" style={{ fontSize: '13px', color: '#9CA3AF', textDecoration: 'none', border: '1px solid #1E2028', borderRadius: '8px', padding: '7px 14px', background: '#0F1117' }}>Website Chatbot for Lead Generation</Link>
-          </div>
-        </div>
-      </section>
+      <footer className="border-t border-zinc-800/50 py-16 md:py-20 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <footer style={{ borderTop: '1px solid #1E2028', padding: '44px 24px 28px', maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px', marginBottom: '28px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <div style={{ width: '24px', height: '24px', background: '#AAFF00', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '12px', color: '#080A0E', fontFamily: 'Outfit, sans-serif' }}>Q</div>
-              <span style={{ fontWeight: 700, fontSize: '14px', fontFamily: 'Outfit, sans-serif' }}>Questme<span style={{ color: '#AAFF00' }}>.ai</span></span>
+          <div className="grid md:grid-cols-3 gap-10 md:gap-16">
+
+            <div className="md:max-w-xs">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-md bg-[#AAFF00] flex items-center justify-center">
+                  <span className="text-zinc-950 font-bold text-sm">Q</span>
+                </div>
+                <span className="text-base font-semibold text-white tracking-tight">
+                  Questme<span className="text-[#AAFF00]">.ai</span>
+                </span>
+              </div>
+              <p className="text-sm text-zinc-500 leading-relaxed">
+                AI that answers visitor questions on your website &mdash; grounded in your content, citations on every answer, leads captured automatically.
+              </p>
             </div>
-            <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.7 }}>AI product knowledge bots for businesses</p>
-          </div>
 
-          <div>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#9CA3AF', marginBottom: '10px' }}>Product</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <a href="#features" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Features</a>
-              <a href="#pricing" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Pricing</a>
-              <a href="/blog" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Blog</a>
-              <a href="/sign-up" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Start free</a>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-4">Product</p>
+              <ul className="space-y-3">
+                <li><Link href="/#features" className="text-sm text-zinc-400 hover:text-white transition-colors">Features</Link></li>
+                <li><Link href="/#demo" className="text-sm text-zinc-400 hover:text-white transition-colors">Watch demo</Link></li>
+                <li><Link href="/#pricing" className="text-sm text-zinc-400 hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/#faq" className="text-sm text-zinc-400 hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/blog" className="text-sm text-zinc-400 hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/sign-up" className="text-sm text-zinc-400 hover:text-white transition-colors">Start free trial</Link></li>
+              </ul>
             </div>
-          </div>
 
-          <div>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#9CA3AF', marginBottom: '10px' }}>Resources</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <a href="/ai-customer-support-chatbot" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>AI Customer Support Chatbot</a>
-              <a href="/ai-product-knowledge-chatbot" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>AI Product Knowledge Chatbot</a>
-              <a href="/website-ai-chatbot-for-lead-generation" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none' }}>Website Chatbot for Lead Generation</a>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-4">Company</p>
+              <ul className="space-y-3">
+                <li><Link href="/sign-in" className="text-sm text-zinc-400 hover:text-white transition-colors">Log in</Link></li>
+                <li><a href="mailto:support@cvidsproductions.net" className="text-sm text-zinc-400 hover:text-white transition-colors">Contact</a></li>
+              </ul>
             </div>
-          </div>
-        </div>
 
-        <div style={{ borderTop: '1px solid #1E2028', paddingTop: '16px' }}>
-          <span style={{ fontSize: '13px', color: '#6B7280' }}>© 2026 Questme.ai — Built for product-led businesses · All prices in USD</span>
+          </div>
+
+          <div className="mt-16 pt-8 border-t border-zinc-800/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="font-mono text-xs text-zinc-600 tracking-tight">
+              &copy; 2026 QUESTME.AI &middot; A C-Vids Productions tool &middot; Built in Singapore
+            </p>
+            <p className="font-mono text-xs text-zinc-600 tracking-tight">
+              AI answers v2.0
+            </p>
+          </div>
+
         </div>
       </footer>
 
