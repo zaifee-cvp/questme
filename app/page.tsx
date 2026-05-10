@@ -1,101 +1,9 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, ArrowUp, Check, Minus, Play, Zap } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUp, BarChart3, BookOpen, Check, Code2, MailX, Minus, Play, UserPlus, Zap } from 'lucide-react'
 import { PageWash } from '@/components/effects/PageWash'
 import { TiltCard } from '@/components/effects/TiltCard'
-
-const FEATURES = [
-  { icon: '⚡', title: 'Fast setup from your website', desc: 'Paste your URLs, FAQs, docs, or text. Questme builds your knowledge bot in minutes.' },
-  { icon: '🎯', title: 'Answers from your content', desc: 'Responses are grounded in your uploaded business knowledge, not generic internet guesses.' },
-  { icon: '📊', title: 'See unanswered questions', desc: 'Spot knowledge gaps quickly so your team can improve answers that drive conversions.' },
-  { icon: '💌', title: 'Lead capture in conversation', desc: 'Collect visitor details inside chat while they are engaged and ready to take action.' },
-  { icon: '🔌', title: 'Embed on any website', desc: 'Add one script tag to launch on Shopify, Webflow, WordPress, or a custom site.' },
-  { icon: '🤝', title: 'Smooth human handoff', desc: 'Route high-intent or complex conversations to your team so leads do not get lost.' },
-]
-
-const PAIN_POINTS = [
-  {
-    title: 'Visitors leave with unanswered questions',
-    desc: 'Slow replies create drop-off during high-intent moments.',
-  },
-  {
-    title: 'Support teams repeat the same answers',
-    desc: 'Manual responses consume time that should go to higher-value work.',
-  },
-  {
-    title: 'Forms miss buying intent',
-    desc: 'Static forms collect less context than real conversations.',
-  },
-]
-
-const DIFFERENTIATORS = [
-  {
-    title: 'Built for business websites',
-    desc: 'Questme is designed to answer product and service questions where decisions happen: on your site.',
-  },
-  {
-    title: 'Grounded in your knowledge base',
-    desc: 'Train on your own docs, pages, and FAQs so answers stay aligned with your business.',
-  },
-  {
-    title: 'Supports both service and sales journeys',
-    desc: 'Resolve common questions while capturing intent and routing qualified conversations to your team.',
-  },
-]
-
-const USE_CASES = [
-  {
-    title: 'Ecommerce stores',
-    desc: 'Answer product, shipping, and policy questions instantly so buyers do not drop before checkout.',
-  },
-  {
-    title: 'SaaS and product companies',
-    desc: 'Resolve feature, plan, and onboarding questions quickly to keep sign-up intent moving.',
-  },
-  {
-    title: 'Service teams with repeat enquiries',
-    desc: 'Cut repetitive support workload so your team can focus on high-value, human conversations.',
-  },
-]
-
-const TRUST_LAYER = [
-  {
-    title: 'Answers from your content only',
-    desc: 'Questme responds from your uploaded docs, URLs, FAQs, and product information.',
-  },
-  {
-    title: 'Transparent when unsure',
-    desc: 'If the answer is not in your knowledge base, the bot can say so instead of guessing.',
-  },
-  {
-    title: 'Human handoff when needed',
-    desc: 'Escalate high-intent or sensitive conversations to your team without losing context.',
-  },
-  {
-    title: 'Launch quickly, no code-heavy setup',
-    desc: 'Get live with a simple embed and start answering visitors in minutes.',
-  },
-]
-
-const OUTCOMES = [
-  {
-    title: 'Convert more visitors',
-    desc: 'Answer buying questions in real time before prospects leave your site.',
-  },
-  {
-    title: 'Reduce repetitive support load',
-    desc: 'Automate common questions so your team can focus on complex, revenue-impact work.',
-  },
-  {
-    title: 'Capture more qualified leads',
-    desc: 'Collect lead details inside active conversations, not after intent has dropped.',
-  },
-  {
-    title: 'Stay responsive after hours',
-    desc: 'Keep customer conversations moving 24/7 across time zones and business hours.',
-  },
-]
 
 const PRICING = [
   {
@@ -345,20 +253,95 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 70px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '10px' }}>Why this matters</div>
-          <h2 className="section-h2" style={{ fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>
-            Why visitors leave before they buy
-          </h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
-          {PAIN_POINTS.map((item) => (
-            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
-              <div style={{ fontSize: '17px', fontWeight: 700, color: '#F0F0F0', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.65 }}>{item.desc}</div>
-            </TiltCard>
-          ))}
+      <section className="py-20 md:py-32 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+            <div>
+              <p className="text-xs text-zinc-500 uppercase tracking-[0.18em] font-medium mb-6">
+                The cost of silence
+              </p>
+              <h2 className="font-sans text-4xl md:text-5xl tracking-tight font-semibold text-white leading-[1.05] text-balance">
+                Visitors don&rsquo;t email you. They <span className="text-[#AAFF00]">leave</span>.
+              </h2>
+              <p className="mt-6 text-lg text-zinc-400 leading-relaxed max-w-xl">
+                Most product questions arrive at 11pm on a Sunday. Your support team is offline. Your docs are buried four clicks deep. The visitor closes the tab and buys from someone whose website actually answered them.
+              </p>
+
+              <ul className="mt-10 space-y-6">
+                <li className="flex gap-5">
+                  <span className="font-mono text-sm text-zinc-600 pt-1 flex-shrink-0">01</span>
+                  <div>
+                    <h3 className="font-sans text-base font-medium text-white">Visitors don&rsquo;t fill out contact forms</h3>
+                    <p className="mt-1 text-sm text-zinc-400 leading-relaxed">If they have to type their email to ask a question, 90% bounce. They came to research, not commit.</p>
+                  </div>
+                </li>
+                <li className="flex gap-5">
+                  <span className="font-mono text-sm text-zinc-600 pt-1 flex-shrink-0">02</span>
+                  <div>
+                    <h3 className="font-sans text-base font-medium text-white">Your docs are not the answer</h3>
+                    <p className="mt-1 text-sm text-zinc-400 leading-relaxed">Even great documentation requires the visitor to search, scan, and synthesize. They want a 1-line answer to a 1-line question.</p>
+                  </div>
+                </li>
+                <li className="flex gap-5">
+                  <span className="font-mono text-sm text-zinc-600 pt-1 flex-shrink-0">03</span>
+                  <div>
+                    <h3 className="font-sans text-base font-medium text-white">Generic chatbots hallucinate &mdash; and lose trust</h3>
+                    <p className="mt-1 text-sm text-zinc-400 leading-relaxed">A bot that confidently invents a feature you don&rsquo;t have is worse than no bot. Trust gets burned, returns spike.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(170,255,0,0.10)_0%,_transparent_70%)] pointer-events-none" />
+
+              <div className="relative space-y-3">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 opacity-70">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-zinc-800/50 flex items-center justify-center flex-shrink-0">
+                      <MailX className="w-5 h-5 text-zinc-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-zinc-500 uppercase tracking-[0.18em]">Without Questme</p>
+                      <p className="text-sm font-medium text-zinc-300">Contact form &amp; email</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Visitor question &rarr; contact form ignored &rarr; visitor leaves
+                  </p>
+                  <div className="mt-5 pt-4 border-t border-zinc-800/50 flex items-baseline justify-between">
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-[0.18em]">Time to answer</span>
+                    <span className="font-mono text-3xl font-semibold text-zinc-400">Hours</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-center py-1">
+                  <ArrowDown className="w-4 h-4 text-zinc-700" />
+                </div>
+
+                <div className="rounded-2xl border border-lime-400/30 bg-lime-400/[0.04] ring-1 ring-lime-400/20 p-6 shadow-2xl shadow-lime-400/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-lime-400/15 flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-5 h-5 text-lime-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-lime-400 uppercase tracking-[0.18em]">With Questme</p>
+                      <p className="text-sm font-medium text-white">AI grounded in your content</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Visitor asks &rarr; AI answers from your docs &rarr; lead captured if relevant
+                  </p>
+                  <div className="mt-5 pt-4 border-t border-lime-400/20 flex items-baseline justify-between">
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-[0.18em]">Time to answer</span>
+                    <span className="font-mono text-3xl font-semibold text-lime-400">&lt;2s</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
@@ -389,23 +372,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ borderTop: '1px solid #1E2028', borderBottom: '1px solid #1E2028', background: '#0F1117', padding: '34px 24px' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '10px' }}>Trust layer</div>
-            <h2 style={{ fontSize: '30px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>Built for reliable business answers</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-            {TRUST_LAYER.map((item) => (
-              <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-[18px]">
-                <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
-                <div style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: 1.6 }}>{item.desc}</div>
-              </TiltCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section style={{ padding: '64px 24px', background: '#0F1117' }}>
         <div style={{ maxWidth: '896px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -426,19 +392,79 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Features</div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>Built to answer, qualify, and convert</h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-          {FEATURES.map((f) => (
-            <TiltCard key={f.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
-              <div style={{ fontSize: '28px', marginBottom: '12px' }}>{f.icon}</div>
-              <div style={{ fontWeight: 700, fontSize: '17px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{f.title}</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.6 }}>{f.desc}</div>
-            </TiltCard>
-          ))}
+      <section id="features" className="py-20 md:py-32 border-y border-zinc-800/50 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-2xl mb-16">
+            <p className="text-xs text-zinc-500 uppercase tracking-[0.18em] font-medium mb-6">
+              What you get
+            </p>
+            <h2 className="font-sans text-4xl md:text-5xl tracking-tight font-semibold text-white leading-[1.05] text-balance">
+              Everything your support team does &mdash; instantly, on every page.
+            </h2>
+            <p className="mt-6 text-lg text-zinc-400 leading-relaxed">
+              Read your content, answer any question, capture lead intent, integrate with your stack. One widget on every page that actually closes the answer loop.
+            </p>
+          </div>
+
+          <div className="space-y-4 md:space-y-6">
+
+            <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 md:p-10 hover:border-zinc-700 transition-colors overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(170,255,0,0.06)_0%,_transparent_60%)] pointer-events-none" />
+
+              <div className="relative max-w-2xl">
+                <div className="w-14 h-14 rounded-xl bg-lime-400/10 flex items-center justify-center mb-6">
+                  <BookOpen className="w-7 h-7 text-lime-400" />
+                </div>
+                <h3 className="font-sans text-2xl md:text-3xl font-semibold text-white tracking-tight leading-[1.15]">
+                  Grounded in your content. Zero hallucinations.
+                </h3>
+                <p className="mt-4 text-base text-zinc-400 leading-relaxed">
+                  Point Questme at your URL, docs site, FAQs, or PDFs. We index everything, then answer visitor questions with citations from your own content. The AI never invents features, prices, or policies. Every answer traces back to a source you control.
+                </p>
+                <ul className="mt-6 grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
+                  <li className="flex items-start gap-2 text-sm text-zinc-400"><Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />Answers under 2 seconds</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-400"><Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />Source citations on every answer</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-400"><Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />Re-indexes on content updates</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-400"><Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />Refuses out-of-scope questions</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 hover:border-zinc-700 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-lime-400/10 flex items-center justify-center mb-4">
+                  <Code2 className="w-5 h-5 text-lime-400" />
+                </div>
+                <h3 className="font-sans text-lg font-medium text-white">One-line install</h3>
+                <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+                  Drop one script tag. Works on Shopify, WordPress, Webflow, Framer, Next.js, plain HTML. No backend changes, no plugins.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 hover:border-zinc-700 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-lime-400/10 flex items-center justify-center mb-4">
+                  <UserPlus className="w-5 h-5 text-lime-400" />
+                </div>
+                <h3 className="font-sans text-lg font-medium text-white">Capture qualified leads</h3>
+                <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+                  When a visitor shows buying intent (&ldquo;how do I subscribe?&rdquo;, &ldquo;what&rsquo;s the API limit?&rdquo;), Questme captures their email and routes the lead to your inbox.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 hover:border-zinc-700 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-lime-400/10 flex items-center justify-center mb-4">
+                  <BarChart3 className="w-5 h-5 text-lime-400" />
+                </div>
+                <h3 className="font-sans text-lg font-medium text-white">See what visitors actually ask</h3>
+                <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+                  Every question is logged. Spot content gaps, ship better docs, and watch Questme answer 95%+ of repeat questions automatically.
+                </p>
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
 
@@ -457,56 +483,6 @@ export default function LandingPage() {
               <div style={{ fontSize: '28px', fontWeight: 900, color: '#AAFF00', marginBottom: '10px', fontFamily: 'Outfit, sans-serif' }}>{s.n}</div>
               <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{s.title}</div>
               <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.6 }}>{s.desc}</div>
-            </TiltCard>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 60px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '34px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Who it is for</div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>
-            Built for teams that cannot afford missed website conversations
-          </h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-          {USE_CASES.map((item) => (
-            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
-              <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.desc}</div>
-            </TiltCard>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Why Questme</div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>More than a generic chatbot</h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          {DIFFERENTIATORS.map((item) => (
-            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5 flex flex-col gap-3">
-              <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: '#AAFF00' }}>Differentiator</div>
-              <div style={{ fontWeight: 700, fontSize: '20px', color: '#F0F0F0', fontFamily: 'Outfit, sans-serif', lineHeight: 1.3 }}>{item.title}</div>
-              <p style={{ fontSize: '15px', color: '#9CA3AF', lineHeight: 1.75 }}>{item.desc}</p>
-            </TiltCard>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 60px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '34px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Business outcomes</div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>
-            Built to drive commercial results, not just conversations
-          </h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          {OUTCOMES.map((item) => (
-            <TiltCard key={item.title} className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-2xl shadow-black/40 transition-colors hover:border-lime-400/30 hover:bg-white/[0.04] p-5">
-              <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>{item.title}</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', lineHeight: 1.7 }}>{item.desc}</div>
             </TiltCard>
           ))}
         </div>
