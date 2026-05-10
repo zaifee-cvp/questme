@@ -53,7 +53,7 @@ export default function LandingPage() {
       `}</style>
 
       <div style={{ position: 'sticky', top: 0, zIndex: 50 }}>
-        <nav style={{ borderBottom: '1px solid #1E2028', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto', background: '#080A0EE8', backdropFilter: 'blur(12px)', width: '100%' }}>
+        <nav className="bg-zinc-950/40 backdrop-blur-md border-b border-zinc-800/30" style={{ padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '32px', height: '32px', background: '#AAFF00', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '16px', color: '#080A0E', fontFamily: 'Outfit, sans-serif' }}>Q</div>
             <span style={{ fontWeight: 700, fontSize: '18px', fontFamily: 'Outfit, sans-serif' }}>Questme<span style={{ color: '#AAFF00' }}>.ai</span></span>
@@ -134,7 +134,7 @@ export default function LandingPage() {
             </div>
 
             <div className="relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[380px] rotate-[-1.5deg]">
+              <div className="relative w-full max-w-[400px] rotate-[-1.5deg]">
                 <div className="rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-lime-400/10 overflow-hidden">
 
                   <div className="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-800/60 bg-gradient-to-b from-zinc-900 to-zinc-950">
@@ -153,7 +153,7 @@ export default function LandingPage() {
                     </button>
                   </div>
 
-                  <div className="px-4 py-5 space-y-3 min-h-[440px] bg-zinc-950">
+                  <div className="px-4 py-5 space-y-3 min-h-[560px] bg-zinc-950">
 
                     <div className="flex">
                       <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-zinc-800/80 px-3.5 py-2.5">
