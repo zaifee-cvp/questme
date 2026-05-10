@@ -1,7 +1,7 @@
 type Accent = 'lime' | 'blue' | 'indigo' | 'cyan' | 'teal' | 'violet' | 'emerald';
 
 const PALETTE: Record<Accent, { top: string; bottom: string }> = {
-  lime:    { top: 'rgba(170, 255, 0, 0.05)',  bottom: 'rgba(132, 204, 22, 0.04)' },
+  lime:    { top: 'rgba(170, 255, 0, 0.09)',  bottom: 'rgba(132, 204, 22, 0.07)' },
   blue:    { top: 'rgba(59, 130, 246, 0.07)', bottom: 'rgba(99, 102, 241, 0.05)' },
   indigo:  { top: 'rgba(99, 102, 241, 0.07)', bottom: 'rgba(139, 92, 246, 0.05)' },
   cyan:    { top: 'rgba(6, 182, 212, 0.07)',  bottom: 'rgba(59, 130, 246, 0.05)' },
