@@ -5,30 +5,6 @@ import { ArrowDown, ArrowRight, ArrowUp, BarChart3, BookOpen, Check, Code2, Mail
 import { PageWash } from '@/components/effects/PageWash'
 import { TiltCard } from '@/components/effects/TiltCard'
 
-const PRICING = [
-  {
-    name: 'Starter', price: '$68', period: '/mo',
-    bestFor: 'Best for solo operators and early-stage teams',
-    features: ['1 bot', '500 chats/month', '50 pages indexed', 'Embeddable widget', 'URL, text, FAQ sources', 'Shareable link'],
-    cta: 'Start free trial',
-    popular: false,
-  },
-  {
-    name: 'Pro', price: '$128', period: '/mo',
-    bestFor: 'Best for growing teams handling lead and support volume',
-    features: ['3 bots', '2,000 chats/month', '200 pages indexed', 'Lead capture', 'Knowledge gap analytics', 'Human handoff email', 'PDF file upload'],
-    cta: 'Start free trial',
-    popular: true,
-  },
-  {
-    name: 'Scale', price: '$248', period: '/mo',
-    bestFor: 'Best for multi-brand or high-traffic businesses',
-    features: ['Unlimited bots', '10,000 chats/month', 'Unlimited pages', 'All Pro features', 'Weekly digest email', 'Priority support'],
-    cta: 'Start free trial',
-    popular: false,
-  },
-]
-
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showMobileCta, setShowMobileCta] = useState(false)
@@ -372,16 +348,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ padding: '64px 24px', background: '#0F1117' }}>
-        <div style={{ maxWidth: '896px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>See it in action</p>
-            <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' }}>Watch how Questme works</h2>
-            <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>From uploading your docs to answering customer questions — under 2 minutes</p>
+      <section id="demo" className="py-20 md:py-32 border-y border-zinc-800/50 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-2xl mb-12">
+            <p className="text-xs text-zinc-500 uppercase tracking-[0.18em] font-medium mb-6">
+              Walkthrough
+            </p>
+            <h2 className="font-sans text-4xl md:text-5xl tracking-tight font-semibold text-white leading-[1.05] text-balance">
+              See it answer a real product question.
+            </h2>
+            <p className="mt-6 text-lg text-zinc-400 leading-relaxed">
+              Watch Questme read a docs site, answer a visitor&rsquo;s question with citations, and capture the lead &mdash; in under 90 seconds.
+            </p>
           </div>
-          <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '16px', overflow: 'hidden', border: '1px solid #1E2028', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+
+          <div className="rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl shadow-lime-400/10">
             <iframe
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+              className="w-full aspect-video block"
               src="https://www.youtube.com/embed/p5UDyeLil6I?rel=0&modestbranding=1"
               title="Questme.ai Demo — AI Product Knowledge Bot"
               frameBorder="0"
@@ -389,6 +373,7 @@ export default function LandingPage() {
               allowFullScreen
             />
           </div>
+
         </div>
       </section>
 
@@ -488,40 +473,107 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="pricing" style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: '#9CA3AF', marginBottom: '12px' }}>Pricing</div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'Outfit, sans-serif' }}>Pricing that scales with conversations</h2>
-          <p style={{ marginTop: '10px', color: '#9CA3AF', fontSize: '15px' }}>Choose the plan that fits your traffic, support load, and growth stage.</p>
-          <p style={{ marginTop: '8px', color: '#6B7280', fontSize: '13px' }}>For many teams, a few recovered conversations or saved support hours can cover the monthly plan.</p>
-        </div>
-        <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-          {PRICING.map((plan) => (
-            <div key={plan.name} className="card" style={{ border: plan.popular ? '2px solid #AAFF00' : undefined, position: 'relative', paddingTop: plan.popular ? '32px' : '20px' }}>
-              {plan.popular && (
-                <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: '#AAFF00', color: '#080A0E', fontSize: '10px', fontWeight: 900, padding: '4px 16px', borderRadius: '20px', whiteSpace: 'nowrap', fontFamily: 'Outfit, sans-serif' }}>
-                  MOST POPULAR
-                </div>
-              )}
-              <div style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '8px' }}>{plan.name}</div>
-              <div style={{ fontSize: '12px', color: '#D1D5DB', marginBottom: '14px' }}>{plan.bestFor}</div>
-              <div style={{ fontSize: '42px', fontWeight: 900, marginBottom: '24px', letterSpacing: '-2px', fontFamily: 'Outfit, sans-serif' }}>
-                {plan.price}<span style={{ fontSize: '16px', fontWeight: 400, color: '#9CA3AF' }}>{plan.period}</span>
+      <section id="pricing" className="py-20 md:py-32 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-2xl mb-16">
+            <p className="text-xs text-zinc-500 uppercase tracking-[0.18em] font-medium mb-6">
+              Pricing
+            </p>
+            <h2 className="font-sans text-4xl md:text-5xl tracking-tight font-semibold text-white leading-[1.05] text-balance">
+              One closed answer covers the cost.
+            </h2>
+            <p className="mt-6 text-lg text-zinc-400 leading-relaxed">
+              14-day free trial. No credit card. Cancel anytime in one click.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+
+            <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 flex flex-col">
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-3">Starter</p>
+                <h3 className="font-sans text-2xl font-semibold text-white tracking-tight">Solo operators</h3>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
-                {plan.features.map((f) => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#D1D5DB' }}>
-                    <Check size={15} style={{ color: '#AAFF00', flexShrink: 0 }} />{f}
-                  </div>
+              <div className="mb-8 flex items-baseline gap-1">
+                <span className="text-sm text-zinc-500">$</span>
+                <span className="font-mono text-5xl font-semibold text-white">68</span>
+                <span className="text-sm text-zinc-500 ml-1">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                {['1 bot', '500 chats/month', '50 pages indexed', 'Embeddable widget', 'URL, text, FAQ sources', 'Shareable link'].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-zinc-400">
+                    <Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
+                    {f}
+                  </li>
                 ))}
-              </div>
-              <Link href="/sign-up" className={plan.popular ? 'btn-accent' : 'btn-ghost'} style={{ width: '100%', justifyContent: 'center', display: 'flex' }}>
-                {plan.cta}
+              </ul>
+              <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 text-white font-medium text-sm w-full">
+                Start free trial
               </Link>
             </div>
-          ))}
+
+            <div className="relative rounded-2xl border border-zinc-800 ring-2 ring-lime-400/40 bg-zinc-900/60 p-8 flex flex-col">
+              <div className="absolute -top-3 left-6 px-2.5 py-1 rounded-full bg-[#AAFF00] text-[10px] uppercase tracking-[0.18em] font-medium text-zinc-950">
+                Recommended
+              </div>
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-[0.18em] text-lime-400 font-medium mb-3">Pro</p>
+                <h3 className="font-sans text-2xl font-semibold text-white tracking-tight">Growing teams</h3>
+              </div>
+              <div className="mb-8 flex items-baseline gap-1">
+                <span className="text-sm text-zinc-500">$</span>
+                <span className="font-mono text-5xl font-semibold text-white">128</span>
+                <span className="text-sm text-zinc-500 ml-1">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                {['3 bots', '2,000 chats/month', '200 pages indexed', 'Lead capture', 'Knowledge gap analytics', 'Human handoff email', 'PDF file upload'].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-zinc-400">
+                    <Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg bg-[#AAFF00] hover:bg-lime-300 text-zinc-950 font-medium text-sm w-full">
+                Start free trial
+              </Link>
+            </div>
+
+            <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 flex flex-col">
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-3">Scale</p>
+                <h3 className="font-sans text-2xl font-semibold text-white tracking-tight">Multi-brand sites</h3>
+              </div>
+              <div className="mb-8 flex items-baseline gap-1">
+                <span className="text-sm text-zinc-500">$</span>
+                <span className="font-mono text-5xl font-semibold text-white">248</span>
+                <span className="text-sm text-zinc-500 ml-1">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                {['Unlimited bots', '10,000 chats/month', 'Unlimited pages', 'All Pro features', 'Weekly digest email', 'Priority support'].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-zinc-400">
+                    <Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 text-white font-medium text-sm w-full">
+                Start free trial
+              </Link>
+            </div>
+
+          </div>
+
+          <div className="mt-12 text-center space-y-3">
+            <p className="text-sm text-zinc-500">
+              All plans include zero-hallucination guarantee, source citations on every answer, and unlimited content re-indexing.
+            </p>
+            <p className="text-xs text-zinc-600">
+              All prices in USD &middot; 14-day free trial on all plans &middot; No credit card required
+            </p>
+          </div>
+
         </div>
-        <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', marginTop: '24px' }}>All prices in USD. 14-day free trial. Cancel anytime.</p>
       </section>
 
       <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px 80px' }}>
