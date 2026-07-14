@@ -15,7 +15,7 @@ export async function embedText(text: string): Promise<number[]> {
   return data.data[0].embedding
 }
 
-export async function searchKnowledge(botId: string, query: string, threshold = 0.65, limit = 5): Promise<{ id: string; content: string; similarity: number }[]> {
+export async function searchKnowledge(botId: string, query: string, threshold = 0.30, limit = 8): Promise<{ id: string; content: string; similarity: number }[]> {
   const supabase = createSupabaseServiceClient()
   const embedding = await embedText(query)
   const { data, error } = await supabase.rpc('match_knowledge_chunks', {
