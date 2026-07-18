@@ -81,7 +81,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <script src="https://callys.ai/t.js" data-site="questme" defer></script>
+      </body>
     </html>
   )
 }
