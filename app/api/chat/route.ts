@@ -73,12 +73,20 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('[chat] generateAnswer error:', err)
-    return NextResponse.json({ answer: bot.fallback_message || 'Sorry, I had trouble responding. Please try again.' })
+    // Bot fell back due to an error — surface capture too when a fallback exists.
+    return NextResponse.json({ answer: bot.fallback_message || 'Sorry, I had trouble responding. Please try again.', cannot_answer: !!bot.fallback_message })
   }
 
-  const isAnswered = chunks.length > 0 || !bot.restrict_to_knowledge
+  // Explicit "can't answer" signal for the client's inline lead form. The bot's
+  // fallback_message is customizable per bot, so we must NEVER phrase-match it. The
+  // fallback path fires when the bot is knowledge-restricted and either found no
+  // relevant knowledge or the model returned the configured fallback verbatim.
+  const fallbackText = (bot.fallback_message || '').trim()
+  const cannotAnswer = !!bot.restrict_to_knowledge &&
+    (chunks.length === 0 || (fallbackText.length > 0 && answer.trim() === fallbackText))
+  const isAnswered = !cannotAnswer
   if (sessionId) trackMessages(supabase, sessionId, botId, message, answer, isAnswered)
-  return NextResponse.json({ answer, isAnswered })
+  return NextResponse.json({ answer, isAnswered, cannot_answer: cannotAnswer })
   } catch (err: any) {
     console.error('[POST /api/chat] unhandled error:', err)
     return NextResponse.json({ answer: 'Sorry, something went wrong. Please try again.' }, { status: 500 })

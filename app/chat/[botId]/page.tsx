@@ -23,6 +23,7 @@ export default function ChatPage() {
   const [leadSubmitted, setLeadSubmitted] = useState(false)
   const [leadError, setLeadError] = useState('')
   const [triggerMessage, setTriggerMessage] = useState('')
+  const [lastCannotAnswer, setLastCannotAnswer] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -57,25 +58,17 @@ export default function ChatPage() {
     setMessages([{ role: 'assistant', content: bot?.welcome_message || 'Hi! How can I help?' }])
   }
 
-  const cannotAnswerPhrases = [
-    "i don't have information",
-    "i don't know",
-    "i cannot find",
-    "not sure about",
-    "don't have details",
-    "unable to find",
-    "no information",
-    "cannot answer",
-    "outside my knowledge",
-    "not in my knowledge",
-    "recommend contacting",
-    "please contact",
-    "reach out to",
-  ]
-
-  function checkIfBotCantAnswer(response: string): boolean {
-    const lower = response.toLowerCase()
-    return cannotAnswerPhrases.some(phrase => lower.includes(phrase))
+  // Short affirmation to a "would you like to reach our team?" prompt. Normalized and
+  // kept generous so a typed "Yes" / "sure" / "ok please" never bypasses lead capture.
+  function isAffirmation(text: string): boolean {
+    const t = text.trim().toLowerCase().replace(/[.!,]+$/g, '')
+    const exact = new Set([
+      'yes', 'yeah', 'yep', 'yup', 'sure', 'ok', 'okay', 'y', 'please', 'yes please',
+      'sure thing', 'ok please', 'okay please', 'please do', 'go ahead', 'sounds good',
+      'yes thanks', 'ok thanks', 'definitely', 'absolutely',
+    ])
+    if (exact.has(t)) return true
+    return t.length <= 15 && /^(yes|yeah|yep|yup|sure|ok|okay)\b/.test(t)
   }
 
   async function sendMessage(e: React.FormEvent | React.MouseEvent) {
@@ -83,6 +76,20 @@ export default function ChatPage() {
     if (!input.trim() || loading) return
     const userMsg = input.trim()
     setInput('')
+
+    // If the bot just said it couldn't answer and the visitor affirms, capture the
+    // lead inline instead of calling the LLM (which would leak contact info and let
+    // the "Yes" bypass capture entirely).
+    if (lastCannotAnswer && !leadSubmitted && isAffirmation(userMsg)) {
+      setMessages(prev => [...prev,
+        { role: 'user', content: userMsg },
+        { role: 'assistant', content: 'Great — leave your details below and our team will reach out shortly.' },
+      ])
+      setLastCannotAnswer(false)
+      setShowLeadForm(true)
+      return
+    }
+
     const newMessages: Message[] = [...messages, { role: 'user', content: userMsg }]
     setMessages(newMessages)
     setLoading(true)
@@ -95,9 +102,14 @@ export default function ChatPage() {
     const botAnswer = data.answer || 'Sorry, I had trouble responding. Please try again.'
     setMessages(prev => [...prev, { role: 'assistant', content: botAnswer }])
     setLoading(false)
-    if (!showLeadForm && !leadSubmitted && checkIfBotCantAnswer(botAnswer)) {
+
+    // Explicit server flag — never phrase-match the (customizable) fallback message.
+    if (data.cannot_answer && !leadSubmitted) {
       setTriggerMessage(userMsg)
-      setTimeout(() => setShowLeadForm(true), 1500)
+      setLastCannotAnswer(true)
+      if (!showLeadForm) setShowLeadForm(true)
+    } else {
+      setLastCannotAnswer(false)
     }
   }
 
