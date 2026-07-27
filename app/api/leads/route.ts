@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const authClient = createSupabaseServerClient()
@@ -16,6 +18,9 @@ export async function GET() {
   }
 }
 
+// "Can't answer" fallback: fired when the bot couldn't answer a question and the
+// visitor leaves their details. This UPDATES the lead the gate already created for
+// this session (attaching the trigger_message), or creates one if the gate was skipped.
 export async function POST(request: NextRequest) {
   try {
     const supabase = createSupabaseServiceClient()
@@ -33,15 +38,33 @@ export async function POST(request: NextRequest) {
 
     if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
 
-    await supabase.from('leads').insert({
+    // Upsert keyed on session_id (manual, since there's no unique constraint on the
+    // column): update the visitor's existing gate lead, otherwise create one.
+    const leadRow = {
       bot_id,
       user_id: bot.user_id,
-      session_id,
+      session_id: session_id || null,
       name,
       email: email || null,
       phone: phone || null,
       trigger_message: trigger_message || null,
-    })
+    }
+    let leadError
+    const existing = session_id
+      ? (await supabase.from('leads').select('id').eq('session_id', session_id).is('deleted_at', null).maybeSingle()).data
+      : null
+    if (existing) {
+      ;({ error: leadError } = await supabase
+        .from('leads')
+        .update({ name, email: email || null, phone: phone || null, trigger_message: trigger_message || null })
+        .eq('id', existing.id))
+    } else {
+      ;({ error: leadError } = await supabase.from('leads').insert(leadRow))
+    }
+    if (leadError) {
+      console.error('[POST /api/leads] lead capture failed', leadError)
+      return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 })
+    }
 
     if (bot.handoff_email) {
       const resend = new Resend(process.env.RESEND_API_KEY)

@@ -56,7 +56,7 @@ export default function LeadsPage() {
         <div style={{ color: '#6B7280', textAlign: 'center', padding: '40px' }}>Loading...</div>
       ) : leads.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px', border: '1px dashed #1E2028', borderRadius: '12px', color: '#6B7280', fontSize: '14px' }}>
-          No leads yet — leads appear here when visitors ask questions your bot can't answer.
+          No leads yet — leads appear here when visitors share their contact details with your bot.
         </div>
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>

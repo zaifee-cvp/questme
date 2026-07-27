@@ -50,10 +50,11 @@ export default function ChatPage() {
     if (!leadEmail && !leadPhone) { setLeadError('Please provide an email or phone number'); return }
     setLeadError('')
     setSubmittingLead(true)
-    await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail || null, name: leadName, phone: leadPhone || null, trigger_message: triggerMessage || null, sessionId }) })
+    const res = await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail || null, name: leadName, phone: leadPhone || null, trigger_message: triggerMessage || null, sessionId }) })
+    setSubmittingLead(false)
+    if (!res.ok) { setLeadError('Something went wrong saving your details. Please try again.'); return }
     setLeadCaptured(true)
     setMessages([{ role: 'assistant', content: bot?.welcome_message || 'Hi! How can I help?' }])
-    setSubmittingLead(false)
   }
 
   const cannotAnswerPhrases = [
