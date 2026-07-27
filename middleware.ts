@@ -2,6 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // A bare /chat (no botId) has no bot to render and would 404 through this edge
+  // middleware. The valid chat route is /chat/[botId]; never dead-end a visitor on
+  // /chat — send them home instead of returning a 404.
+  if (request.nextUrl.pathname === '/chat' || request.nextUrl.pathname === '/chat/') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

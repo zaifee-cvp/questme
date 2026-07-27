@@ -430,16 +430,17 @@ export default function ChatPage() {
                       if (!leadName.trim()) { setLeadError('Please enter your name'); return }
                       if (!leadEmail.trim() && !leadPhone.trim()) { setLeadError('Please enter your email or phone number'); return }
                       setLeadError('')
-                      const res = await fetch('/api/leads', {
+                      // Same upsert route as the pre-chat gate — keyed on session_id,
+                      // so this attaches the trigger_message (and phone) to the lead.
+                      const res = await fetch(`/api/leads/${botId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          bot_id: botId,
-                          session_id: sessionId,
                           name: leadName,
                           email: leadEmail || null,
                           phone: leadPhone || null,
-                          trigger_message: triggerMessage,
+                          trigger_message: triggerMessage || null,
+                          sessionId,
                         })
                       })
                       if (res.ok) {
