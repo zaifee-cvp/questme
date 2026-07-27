@@ -6,6 +6,26 @@ import ChromeBanner from '@/components/ChromeBanner'
 interface Message { role: 'user' | 'assistant'; content: string }
 interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string; white_label?: boolean }
 
+// Visitor identity is scoped PER BOT (qm_visitor_<botId>) so filling one bot's gate
+// never silently skips another bot's gate.
+const visitorKey = (botId: string) => `qm_visitor_${botId}`
+
+function readStoredVisitor(botId: string): { name?: string; email?: string; phone?: string } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(visitorKey(botId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    // Only a usable identity (has a contact method) is allowed to skip the gate.
+    return parsed && (parsed.email || parsed.phone) ? parsed : null
+  } catch { return null }
+}
+
+function storeVisitor(botId: string, data: { name?: string; email?: string; phone?: string }) {
+  if (typeof window === 'undefined') return
+  try { window.localStorage.setItem(visitorKey(botId), JSON.stringify(data)) } catch { /* ignore quota / private mode */ }
+}
+
 export default function ChatPage() {
   const { botId } = useParams<{ botId: string }>()
   const [bot, setBot] = useState<Bot | null>(null)
@@ -34,10 +54,29 @@ export default function ChatPage() {
       setBot(botData)
       const sessRes = await fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId }) })
       const sessData = await sessRes.json()
-      setSessionId(sessData.sessionId)
+      const newSessionId = sessData.sessionId
+      setSessionId(newSessionId)
+
       if (!botData.lead_capture_enabled) {
         setLeadCaptured(true)
         setMessages([{ role: 'assistant', content: botData.welcome_message }])
+      } else {
+        // Returning visitor to THIS bot: skip the gate, but still attach the stored
+        // identity to this NEW session and upsert the lead. A skipped gate must never
+        // mean lost contact data (previously the skip path saved nothing).
+        const stored = readStoredVisitor(botId)
+        if (stored) {
+          setLeadName(stored.name || '')
+          setLeadEmail(stored.email || '')
+          setLeadPhone(stored.phone || '')
+          fetch(`/api/leads/${botId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: stored.name || null, email: stored.email || null, phone: stored.phone || null, sessionId: newSessionId }),
+          }).catch(() => {})
+          setLeadCaptured(true)
+          setMessages([{ role: 'assistant', content: botData.welcome_message }])
+        }
       }
       setBotLoading(false)
     }
@@ -54,6 +93,7 @@ export default function ChatPage() {
     const res = await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail || null, name: leadName, phone: leadPhone || null, trigger_message: triggerMessage || null, sessionId }) })
     setSubmittingLead(false)
     if (!res.ok) { setLeadError('Something went wrong saving your details. Please try again.'); return }
+    storeVisitor(botId, { name: leadName, email: leadEmail, phone: leadPhone })
     setLeadCaptured(true)
     setMessages([{ role: 'assistant', content: bot?.welcome_message || 'Hi! How can I help?' }])
   }
