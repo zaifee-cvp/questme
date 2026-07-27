@@ -159,7 +159,7 @@ export const posts: BlogPost[] = [
   },
   {
     slug: 'reduce-customer-support-tickets',
-    title: 'How to Reduce Customer Support Tickets by 60% With AI',
+    title: 'How to Reduce Customer Support Tickets With AI',
     description: 'Learn how businesses are using AI product knowledge bots to deflect the majority of repetitive customer support tickets and free up their teams for high-value work.',
     date: '2025-03-12',
     readTime: 6,
