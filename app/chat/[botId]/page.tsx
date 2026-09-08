@@ -10,6 +10,148 @@ interface Bot { id: string; name: string; welcome_message: string; lead_capture_
 // never silently skips another bot's gate.
 const visitorKey = (botId: string) => `qm_visitor_${botId}`
 
+/**
+ * Dial codes offered on the lead form.
+ *
+ * Curated rather than exhaustive: a 200-entry country list is a worse experience
+ * than twelve on a widget this narrow, and these are the markets the bots
+ * actually serve. `regions` exists only to match a browser locale — +1 covers
+ * both US and CA, and en-UK is a tag people really send even though GB is the
+ * correct region subtag.
+ */
+const DIAL_CODES: { code: string; flag: string; label: string; regions: string[] }[] = [
+  { code: '+65', flag: '🇸🇬', label: 'SG', regions: ['SG'] },
+  { code: '+60', flag: '🇲🇾', label: 'MY', regions: ['MY'] },
+  { code: '+62', flag: '🇮🇩', label: 'ID', regions: ['ID'] },
+  { code: '+63', flag: '🇵🇭', label: 'PH', regions: ['PH'] },
+  { code: '+66', flag: '🇹🇭', label: 'TH', regions: ['TH'] },
+  { code: '+84', flag: '🇻🇳', label: 'VN', regions: ['VN'] },
+  { code: '+852', flag: '🇭🇰', label: 'HK', regions: ['HK'] },
+  { code: '+61', flag: '🇦🇺', label: 'AU', regions: ['AU'] },
+  { code: '+91', flag: '🇮🇳', label: 'IN', regions: ['IN'] },
+  { code: '+44', flag: '🇬🇧', label: 'UK', regions: ['GB', 'UK'] },
+  { code: '+1', flag: '🇺🇸', label: 'US/CA', regions: ['US', 'CA'] },
+  { code: '+971', flag: '🇦🇪', label: 'AE', regions: ['AE'] },
+]
+
+const DEFAULT_DIAL_CODE = '+65'
+
+/** The region subtag of a BCP-47 tag: en-SG -> SG, zh-Hans-SG -> SG, en -> null. */
+function regionOf(tag: string): string | null {
+  const parts = tag.split('-')
+  for (let i = 1; i < parts.length; i++) {
+    if (/^[A-Za-z]{2}$/.test(parts[i])) return parts[i].toUpperCase()
+  }
+  return null
+}
+
+/**
+ * Best dial code for this browser, falling back to Singapore.
+ *
+ * Deliberately NOT used as the initial useState value: this reads navigator,
+ * which does not exist while the page is server-rendered, and a value that
+ * differs between server and client is a hydration mismatch. It runs in an
+ * effect after mount instead.
+ */
+function detectDialCode(): string {
+  try {
+    const tags = [navigator.language, ...(navigator.languages || [])].filter(Boolean)
+    for (const tag of tags) {
+      const region = regionOf(tag)
+      if (!region) continue
+      const hit = DIAL_CODES.find(d => d.regions.includes(region))
+      if (hit) return hit.code
+    }
+  } catch { /* no navigator, or a locked-down browser */ }
+  return DEFAULT_DIAL_CODE
+}
+
+/**
+ * Combine the selected dial code with what was typed, for storage in E.164.
+ *
+ * Returns null for an empty field, because phone stays optional — the select
+ * has a value at all times and must never on its own count as a phone number.
+ *
+ * A number the visitor typed in full international form wins over the select:
+ * someone who writes +44... after leaving the box on +65 means the +44.
+ */
+function composePhone(dialCode: string, raw: string): string | null {
+  const input = raw.trim()
+  if (!input) return null
+
+  if (input.startsWith('+')) {
+    const digits = input.slice(1).replace(/\D/g, '')
+    return digits ? `+${digits}` : null
+  }
+
+  let digits = input.replace(/\D/g, '')
+  if (!digits) return null
+
+  // 00 is the international access prefix — 0065 9123 4567 is a full number,
+  // not a local one with leading zeros.
+  if (digits.startsWith('00')) {
+    const rest = digits.slice(2)
+    return rest ? `+${rest}` : null
+  }
+
+  // Trunk prefix. MY, ID and UK visitors habitually type it and it is not part
+  // of the international form.
+  digits = digits.replace(/^0+/, '')
+  if (!digits) return null
+
+  return `${dialCode}${digits}`
+}
+
+/**
+ * The dial-code select joined to the number box.
+ *
+ * Shared by both lead forms on purpose. They write the same leadPhone state and
+ * post to the same route, so a country code offered on one and not the other
+ * would store some numbers international and some bare, in one column, with no
+ * way to tell them apart afterwards.
+ */
+function PhoneField({
+  dialCode,
+  onDialCode,
+  phone,
+  onPhone,
+  compact,
+}: {
+  dialCode: string
+  onDialCode: (v: string) => void
+  phone: string
+  onPhone: (v: string) => void
+  compact?: boolean
+}) {
+  return (
+    <div className={compact ? 'qm-phone-row qm-phone-row--sm' : 'qm-phone-row'}>
+      <select
+        className="qm-dial"
+        aria-label="Country dialling code"
+        value={dialCode}
+        onChange={e => onDialCode(e.target.value)}
+      >
+        {DIAL_CODES.map(d => (
+          <option key={d.code + d.label} value={d.code}>
+            {d.flag} {d.code}
+          </option>
+        ))}
+      </select>
+      <input
+        className={compact ? 'qm-num' : 'lead-input qm-num'}
+        type="tel"
+        inputMode="tel"
+        autoComplete="tel-national"
+        aria-label="Phone number"
+        // National format only — the country is the box to the left.
+        placeholder="9123 4567"
+        value={phone}
+        onChange={e => onPhone(e.target.value)}
+      />
+    </div>
+  )
+}
+
 function readStoredVisitor(botId: string): { name?: string; email?: string; phone?: string } | null {
   if (typeof window === 'undefined') return null
   try {
@@ -40,6 +182,8 @@ export default function ChatPage() {
   const [submittingLead, setSubmittingLead] = useState(false)
   const [showLeadForm, setShowLeadForm] = useState(false)
   const [leadPhone, setLeadPhone] = useState('')
+  // Starts on the fallback and is corrected after mount — see detectDialCode.
+  const [dialCode, setDialCode] = useState(DEFAULT_DIAL_CODE)
   const [leadSubmitted, setLeadSubmitted] = useState(false)
   const [leadError, setLeadError] = useState('')
   const [triggerMessage, setTriggerMessage] = useState('')
@@ -83,6 +227,9 @@ export default function ChatPage() {
     init()
   }, [botId])
 
+  // Locale-based default, after mount so server and client render the same thing.
+  useEffect(() => { setDialCode(detectDialCode()) }, [])
+
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, loading])
 
   async function submitLead(e: React.FormEvent) {
@@ -90,10 +237,14 @@ export default function ChatPage() {
     if (!leadEmail && !leadPhone) { setLeadError('Please provide an email or phone number'); return }
     setLeadError('')
     setSubmittingLead(true)
-    const res = await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail || null, name: leadName, phone: leadPhone || null, trigger_message: triggerMessage || null, sessionId }) })
+    // Stored in E.164 so a number is dialable without knowing where it was typed.
+    const phone = composePhone(dialCode, leadPhone)
+    const res = await fetch(`/api/leads/${botId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: leadEmail || null, name: leadName, phone, trigger_message: triggerMessage || null, sessionId }) })
     setSubmittingLead(false)
     if (!res.ok) { setLeadError('Something went wrong saving your details. Please try again.'); return }
-    storeVisitor(botId, { name: leadName, email: leadEmail, phone: leadPhone })
+    // The composed form is what comes back on the next visit, and composePhone
+    // passes a leading + through untouched, so this round-trips.
+    storeVisitor(botId, { name: leadName, email: leadEmail, phone: phone || '' })
     setLeadCaptured(true)
     setMessages([{ role: 'assistant', content: bot?.welcome_message || 'Hi! How can I help?' }])
   }
@@ -365,6 +516,61 @@ export default function ChatPage() {
         }
         .lead-input:focus { border-color: var(--accent); }
         .lead-input::placeholder { color: #4B5563; }
+
+        /* Dial code + number, joined into one control.
+           min-width: 0 on the number input is load-bearing: a flex item's
+           default min-width is its intrinsic size, and a text input's intrinsic
+           size is wide enough to push the select onto a second line inside the
+           ~320px the widget actually has. */
+        .qm-phone-row { display: flex; align-items: stretch; margin-bottom: 10px; }
+        .qm-phone-row > .qm-num { flex: 1 1 auto; min-width: 0; margin-bottom: 0; border-left: none; border-radius: 0 10px 10px 0; }
+        .qm-dial {
+          flex: 0 0 auto;
+          background-color: #161820;
+          border: 1px solid #1E2028;
+          border-radius: 10px 0 0 10px;
+          color: #F0F0F0;
+          font-family: inherit;
+          font-size: 16px;
+          line-height: 1.2;
+          padding: 12px 22px 12px 12px;
+          outline: none;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2 4.5l4 4 4-4' fill='none' stroke='%239CA3AF' stroke-width='1.6' stroke-linecap='round'/></svg>");
+          background-repeat: no-repeat;
+          background-position: right 7px center;
+          background-size: 11px 11px;
+        }
+        .qm-dial:focus { border-color: var(--accent); }
+        /* The select's own dropdown list is drawn by the OS and does not inherit
+           the dark theme, so the options set their own colours. */
+        .qm-dial option { background: #161820; color: #F0F0F0; }
+
+        /* Compact variant, matching the in-conversation lead form. */
+        .qm-phone-row--sm { margin-bottom: 12px; }
+        .qm-phone-row--sm .qm-dial {
+          font-size: 13px;
+          padding: 8px 19px 8px 10px;
+          border-radius: 6px 0 0 6px;
+          background-color: #080A0E;
+          border-color: #1A1A2E;
+          color: #E2E2F0;
+        }
+        .qm-phone-row--sm .qm-dial option { background: #080A0E; color: #E2E2F0; }
+        .qm-phone-row--sm > .qm-num {
+          background: #080A0E;
+          border: 1px solid #1A1A2E;
+          border-left: none;
+          border-radius: 0 6px 6px 0;
+          padding: 8px 10px;
+          color: #E2E2F0;
+          font-size: 13px;
+          font-family: inherit;
+          outline: none;
+        }
+        .qm-phone-row--sm > .qm-num::placeholder { color: #4B5563; }
         .lead-btn {
           width: 100%;
           padding: 13px;
@@ -411,7 +617,7 @@ export default function ChatPage() {
               <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', marginBottom: '20px' }}>Takes less than 10 seconds</p>
               <input className="lead-input" placeholder="Your name (optional)" value={leadName} onChange={e => setLeadName(e.target.value)} />
               <input className="lead-input" type="email" inputMode="email" placeholder="Your email address" value={leadEmail} onChange={e => setLeadEmail(e.target.value)} />
-              <input className="lead-input" type="tel" inputMode="tel" placeholder="+65 9123 4567" value={leadPhone} onChange={e => setLeadPhone(e.target.value)} />
+              <PhoneField dialCode={dialCode} onDialCode={setDialCode} phone={leadPhone} onPhone={setLeadPhone} />
               <p style={{ fontSize: '12px', color: '#4B5563', marginBottom: '10px', marginTop: '-4px' }}>Phone (optional if email provided)</p>
               {leadError && <p style={{ fontSize: '12px', color: '#f87171', marginBottom: '8px' }}>{leadError}</p>}
               <button className="lead-btn" onClick={submitLead} disabled={submittingLead || (!leadEmail && !leadPhone)} style={{ background: accent, color: '#080A0E' }}>
@@ -469,13 +675,7 @@ export default function ChatPage() {
                     type="email"
                     style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
                   />
-                  <input
-                    value={leadPhone}
-                    onChange={e => setLeadPhone(e.target.value)}
-                    placeholder="Phone / WhatsApp"
-                    type="tel"
-                    style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 12, boxSizing: 'border-box', outline: 'none' }}
-                  />
+                  <PhoneField compact dialCode={dialCode} onDialCode={setDialCode} phone={leadPhone} onPhone={setLeadPhone} />
                   <p style={{ color: '#4B5563', fontSize: 11, margin: '0 0 10px' }}>* Email or phone required</p>
                   <button
                     onClick={async () => {
@@ -490,7 +690,9 @@ export default function ChatPage() {
                         body: JSON.stringify({
                           name: leadName,
                           email: leadEmail || null,
-                          phone: leadPhone || null,
+                          // Same E.164 composition as the gate, from the same
+                          // selected dial code.
+                          phone: composePhone(dialCode, leadPhone),
                           trigger_message: triggerMessage || null,
                           sessionId,
                         })
