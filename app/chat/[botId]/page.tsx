@@ -885,36 +885,56 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Contact bar */}
+            {/*
+              Contact bar.
+
+              EVERY LINK HERE OPENS A NEW BROWSING CONTEXT. The chat's primary
+              mode is an iframe on someone else's site, and an anchor without a
+              target navigates the IFRAME DOCUMENT. For mailto: and tel: Chrome
+              refuses that outright and replaces the chat with "This content is
+              blocked" — the visitor's conversation is simply gone, and the only
+              way back is reloading the host page. An external https: link is
+              worse in a quieter way: it loads a whole site inside a 380x600 box
+              with no chrome and no back button.
+
+              So target="_blank" is not a preference here, it is the only
+              correct value, and rel="noopener noreferrer" goes with it so the
+              opened page gets neither a window.opener handle back into the
+              chat nor a Referer naming the bot.
+
+              Nothing sandboxes this frame — not public/widget.js, which sets
+              only allow="clipboard-write" — so no allow-popups is needed for
+              these to work.
+            */}
             {(bot.contact_whatsapp || bot.contact_phone || bot.contact_email || bot.contact_website || bot.contact_instagram || bot.contact_facebook) && (
               <div className="contact-bar">
                 {bot.contact_whatsapp && (
-                  <a href={`https://wa.me/${bot.contact_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a1f0a', color: '#4ade80', border: '1px solid #166534' }}>
+                  <a href={`https://wa.me/${bot.contact_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#0a1f0a', color: '#4ade80', border: '1px solid #166534' }}>
                     💬 WhatsApp
                   </a>
                 )}
                 {bot.contact_phone && (
-                  <a href={`tel:${bot.contact_phone}`} className="contact-btn" style={{ background: '#0a1628', color: '#60a5fa', border: '1px solid #1e3a5f' }}>
+                  <a href={`tel:${bot.contact_phone}`} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#0a1628', color: '#60a5fa', border: '1px solid #1e3a5f' }}>
                     📞 Call
                   </a>
                 )}
                 {bot.contact_email && (
-                  <a href={`mailto:${bot.contact_email}`} className="contact-btn" style={{ background: '#150a28', color: '#c084fc', border: '1px solid #4c1d95' }}>
+                  <a href={`mailto:${bot.contact_email}`} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#150a28', color: '#c084fc', border: '1px solid #4c1d95' }}>
                     ✉️ Email
                   </a>
                 )}
                 {bot.contact_website && (
-                  <a href={bot.contact_website} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a1400', color: '#AAFF00', border: '1px solid #365314' }}>
+                  <a href={bot.contact_website} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#0a1400', color: '#AAFF00', border: '1px solid #365314' }}>
                     🌐 Website
                   </a>
                 )}
                 {bot.contact_instagram && (
-                  <a href={bot.contact_instagram} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#1a0a1a', color: '#f472b6', border: '1px solid #831843' }}>
+                  <a href={bot.contact_instagram} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#1a0a1a', color: '#f472b6', border: '1px solid #831843' }}>
                     📸 Instagram
                   </a>
                 )}
                 {bot.contact_facebook && (
-                  <a href={bot.contact_facebook} target="_blank" rel="noreferrer" className="contact-btn" style={{ background: '#0a0f28', color: '#818cf8', border: '1px solid #312e81' }}>
+                  <a href={bot.contact_facebook} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#0a0f28', color: '#818cf8', border: '1px solid #312e81' }}>
                     👍 Facebook
                   </a>
                 )}
