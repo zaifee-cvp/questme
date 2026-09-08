@@ -3,7 +3,15 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import ChromeBanner from '@/components/ChromeBanner'
 
-interface Message { role: 'user' | 'assistant'; content: string }
+/**
+ * `system` is a LOCAL, PRESENTATIONAL role — the "✓ Got it!" confirmation and
+ * nothing else. It is not an OpenAI system message and must never reach the
+ * model: POST /api/chat forwards whatever it is handed straight into the
+ * completion, where a mid-conversation system turn would sit alongside the
+ * bot's real instructions. sendMessage strips these before sending; see
+ * `forModel` below.
+ */
+interface Message { role: 'user' | 'assistant' | 'system'; content: string }
 interface Bot { id: string; name: string; welcome_message: string; lead_capture_enabled: boolean; lead_capture_prompt: string; color: string; contact_phone?: string; contact_whatsapp?: string; contact_email?: string; contact_address?: string; contact_website?: string; contact_instagram?: string; contact_facebook?: string; white_label?: boolean }
 
 // Visitor identity is scoped PER BOT (qm_visitor_<botId>) so filling one bot's gate
@@ -426,10 +434,14 @@ export default function ChatPage() {
     const newMessages: Message[] = [...messages, { role: 'user', content: userMsg }]
     setMessages(newMessages)
     setLoading(true)
+    // Drop the local presentational entries BEFORE the slice, not after: taking
+    // the last 10 first and filtering second would send fewer than 10 real turns
+    // and silently shorten the bot's memory once a lead is captured.
+    const forModel = newMessages.filter(m => m.role !== 'system').slice(-10)
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ botId, sessionId, message: userMsg, messages: newMessages.slice(-10) }),
+      body: JSON.stringify({ botId, sessionId, message: userMsg, messages: forModel }),
     })
     const data = await res.json()
     const botAnswer = data.answer || 'Sorry, I had trouble responding. Please try again.'
@@ -437,6 +449,11 @@ export default function ChatPage() {
     setLoading(false)
 
     // Explicit server flag — never phrase-match the (customizable) fallback message.
+    //
+    // !leadSubmitted is what makes a captured lead final. Once one exists a
+    // later cannot_answer falls to the else, so the visitor gets the bot's
+    // fallback text and nothing more — no second form, no second confirmation.
+    // Updates are already covered: /api/leads/[botId] upserts on session_id.
     if (data.cannot_answer && !leadSubmitted) {
       setTriggerMessage(userMsg)
       setLastCannotAnswer(true)
@@ -935,14 +952,23 @@ export default function ChatPage() {
             {/* Messages */}
             <div className="chat-messages">
               {messages.map((m, i) => (
-                <div key={i} className={`msg-row ${m.role === 'user' ? 'user' : 'bot'}`}>
-                  {m.role === 'assistant' && (
-                    <div className="msg-avatar" style={{ background: accent }}>{bot.name[0].toUpperCase()}</div>
-                  )}
-                  <div className={`msg-bubble ${m.role === 'user' ? 'user' : 'bot'}`}>
-                    {m.content}
+                m.role === 'system' ? (
+                  // Rendered in place, in conversation order, so it scrolls away
+                  // with the turn it belongs to instead of trailing the list.
+                  <div key={i} style={{ background: '#0A1A0A', border: '1px solid #1A3A1A', borderRadius: 12, padding: 16, margin: '8px 0' }}>
+                    <p style={{ color: accent, fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>✓ Got it!</p>
+                    <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0 }}>{m.content}</p>
                   </div>
-                </div>
+                ) : (
+                  <div key={i} className={`msg-row ${m.role === 'user' ? 'user' : 'bot'}`}>
+                    {m.role === 'assistant' && (
+                      <div className="msg-avatar" style={{ background: accent }}>{bot.name[0].toUpperCase()}</div>
+                    )}
+                    <div className={`msg-bubble ${m.role === 'user' ? 'user' : 'bot'}`}>
+                      {m.content}
+                    </div>
+                  </div>
+                )
               ))}
               {loading && (
                 <div className="msg-row bot">
@@ -1003,7 +1029,15 @@ export default function ChatPage() {
                         })
                       })
                       if (res.ok) {
+                        // One entry, at the point in the conversation where it
+                        // actually happened. leadSubmitted still latches, but
+                        // only to keep the FORM from being offered again this
+                        // session — it no longer draws anything itself.
                         setLeadSubmitted(true)
+                        setMessages(prev => [...prev, {
+                          role: 'system',
+                          content: "We'll be in touch shortly. Thanks for reaching out!",
+                        }])
                       } else {
                         setLeadError('Something went wrong. Please try again.')
                       }
@@ -1014,12 +1048,12 @@ export default function ChatPage() {
                   </button>
                 </div>
               )}
-              {leadSubmitted && (
-                <div style={{ background: '#0A1A0A', border: '1px solid #1A3A1A', borderRadius: 12, padding: 16, margin: '8px 0' }}>
-                  <p style={{ color: accent, fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>✓ Got it!</p>
-                  <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0 }}>We'll be in touch shortly. Thanks for reaching out!</p>
-                </div>
-              )}
+              {/* The confirmation used to live HERE, as `{leadSubmitted && ...}`
+                  after the map. leadSubmitted never goes back to false, so the
+                  block stayed welded to the bottom of the scroller and slid down
+                  below every subsequent message — the visitor saw it re-announce
+                  itself on every turn. It is now a message entry instead, so it
+                  stays where it happened. */}
               <div ref={messagesEndRef} />
             </div>
 
