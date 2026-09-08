@@ -46,14 +46,75 @@ function regionOf(tag: string): string | null {
 }
 
 /**
+ * Dial code by IANA time zone, checked BEFORE language.
+ *
+ * WHERE THE VISITOR IS BEATS WHERE THEIR PHONE IS FROM. An expat in Singapore
+ * carrying an en-GB handset is the common case on these bots, and language
+ * alone hands them +44 — a number they have to correct on a form we just
+ * promised would take ten seconds. Their time zone is Asia/Singapore, which is
+ * the better guess by a distance. Language stays as the fallback for the
+ * reverse case: a visitor whose zone we do not recognise.
+ *
+ * Only zones whose dial code exists in DIAL_CODES appear here — a default the
+ * select cannot display is worse than no default at all.
+ */
+const TIMEZONE_DIAL_CODES: Record<string, string> = {
+  'Asia/Singapore': '+65',
+  'Asia/Kuala_Lumpur': '+60',
+  // Indonesia spans three zones and all three are one dialling country.
+  'Asia/Jakarta': '+62',
+  'Asia/Makassar': '+62',
+  'Asia/Jayapura': '+62',
+  'Asia/Manila': '+63',
+  'Asia/Bangkok': '+66',
+  'Asia/Ho_Chi_Minh': '+84',
+  'Asia/Hong_Kong': '+852',
+  'Asia/Kolkata': '+91',
+  'Europe/London': '+44',
+  'Asia/Dubai': '+971',
+}
+
+/**
+ * Whole regions that map to one code, matched by prefix.
+ *
+ * America/ -> +1 is a deliberate over-reach: right for the US and Canada, wrong
+ * for Latin America. The curated list has no +55 or +52 to be right with, so
+ * the real choice for a Sao Paulo visitor is +1 or falling through to Singapore.
+ * Both are wrong; +1 is at least the correct hemisphere and the shorter
+ * correction. Revisit if those markets ever get a row in DIAL_CODES.
+ */
+const TIMEZONE_PREFIX_DIAL_CODES: [string, string][] = [
+  ['Australia/', '+61'],
+  ['America/', '+1'],
+]
+
+/** The visitor's dial code from their time zone, or null if we cannot tell. */
+function dialCodeFromTimeZone(): string | null {
+  try {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    if (!zone) return null
+    if (TIMEZONE_DIAL_CODES[zone]) return TIMEZONE_DIAL_CODES[zone]
+    for (const [prefix, code] of TIMEZONE_PREFIX_DIAL_CODES) {
+      if (zone.startsWith(prefix)) return code
+    }
+  } catch { /* no Intl, or a browser that refuses to resolve the zone */ }
+  return null
+}
+
+/**
  * Best dial code for this browser, falling back to Singapore.
  *
- * Deliberately NOT used as the initial useState value: this reads navigator,
- * which does not exist while the page is server-rendered, and a value that
- * differs between server and client is a hydration mismatch. It runs in an
- * effect after mount instead.
+ * Order is time zone, then language, then +65 — see TIMEZONE_DIAL_CODES for why
+ * that way round and not the other.
+ *
+ * Deliberately NOT used as the initial useState value: this reads navigator and
+ * Intl, and a value that differs between server and client is a hydration
+ * mismatch. It runs in an effect after mount instead.
  */
 function detectDialCode(): string {
+  const byZone = dialCodeFromTimeZone()
+  if (byZone) return byZone
+
   try {
     const tags = [navigator.language, ...(navigator.languages || [])].filter(Boolean)
     for (const tag of tags) {
@@ -525,6 +586,21 @@ export default function ChatPage() {
           border-radius: 16px;
           padding: 24px 20px;
         }
+        /* These four were inline styles. They are classes now because the
+           compact rules below live in a media query, and a media query cannot
+           override an inline style — the gate would have ignored every one of
+           them. Values are unchanged at full height. */
+        .lead-emoji { font-size: 28px; text-align: center; margin-bottom: 10px; }
+        .lead-title {
+          font-size: 17px;
+          font-weight: 700;
+          text-align: center;
+          color: #F0F0F0;
+          margin: 0 0 6px;
+          font-family: 'Outfit', sans-serif;
+        }
+        .lead-sub { font-size: 13px; color: #6B7280; text-align: center; margin: 0 0 20px; }
+        .lead-hint { font-size: 12px; color: #4B5563; margin: -4px 0 10px; }
         .lead-input {
           width: 100%;
           background: #161820;
@@ -612,12 +688,42 @@ export default function ChatPage() {
           .chat-header { padding: 10px 14px; }
           .chat-messages { padding: 12px; gap: 10px; }
         }
-        /* Short embeds. A 320px frame leaves about 260px under the header, so
-           give that space to the form rather than to decoration. It still
-           scrolls below this — this only decides how much scrolling there is. */
-        @media (max-height: 560px) {
+        /* ── COMPACT GATE ──────────────────────────────────────────────────
+           Under 640px of viewport the gate spends its height on fields rather
+           than on decoration. Budget at the 480px target: 61px of header
+           (min-height 60 plus its border) leaves 419, and the rules below bring
+           the whole card including the submit button to roughly 345 — so it
+           fits unscrolled with room left for a three-line custom prompt.
+
+           Height only, no width, and no JS: this is about the frame a host gave
+           us, which we do not control and cannot measure without a resize
+           observer nobody needs.
+
+           REPLACES the old max-height:560px rule, whose entire content was the
+           two paddings repeated on the first line here. Keeping both would have
+           left a dead block restating what this one already says.
+
+           The Batch 13 scroller is still the floor: .lead-card keeps its
+           overflow-y, so below 480px — or with a very long prompt — the card
+           scrolls exactly as before. Compact mode decides how MUCH scrolling
+           there is, never whether it is possible. */
+        @media (max-height: 639.98px) {
           .lead-card { padding: 12px; }
           .lead-inner { padding: 16px; border-radius: 12px; }
+          .lead-emoji { font-size: 24px; line-height: 1; margin-bottom: 6px; }
+          .lead-title { font-size: 15px; margin-bottom: 5px; }
+          /* "Takes less than 10 seconds" is reassurance. The submit button
+             being on screen reassures harder. */
+          .lead-sub { display: none; }
+          .lead-input { padding: 10px 14px; margin-bottom: 8px; }
+          .lead-hint { margin: -3px 0 8px; }
+          .lead-btn { padding: 11px; }
+          /* Scoped to the gate. .qm-phone-row is also worn by the
+             in-conversation form's --sm variant, which is not on this screen
+             and keeps its own smaller metrics. The select's vertical padding
+             has to track .lead-input or the joined control stops lining up. */
+          .lead-inner .qm-phone-row { margin-bottom: 8px; }
+          .lead-inner .qm-dial { padding: 10px 22px 10px 12px; }
         }
       `}</style>
       <div className="chat-page" style={{ '--accent': accent } as React.CSSProperties}>
@@ -641,15 +747,15 @@ export default function ChatPage() {
         {!leadCaptured ? (
           <div className="lead-card">
             <div className="lead-inner">
-              <div style={{ fontSize: '28px', textAlign: 'center', marginBottom: '10px' }}>👋</div>
-              <h2 style={{ fontSize: '17px', fontWeight: 700, textAlign: 'center', color: '#F0F0F0', marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>
+              <div className="lead-emoji">👋</div>
+              <h2 className="lead-title">
                 {bot.lead_capture_prompt || 'Enter your details to start chatting'}
               </h2>
-              <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', marginBottom: '20px' }}>Takes less than 10 seconds</p>
+              <p className="lead-sub">Takes less than 10 seconds</p>
               <input className="lead-input" placeholder="Your name (optional)" value={leadName} onChange={e => setLeadName(e.target.value)} />
               <input className="lead-input" type="email" inputMode="email" placeholder="Your email address" value={leadEmail} onChange={e => setLeadEmail(e.target.value)} />
               <PhoneField dialCode={dialCode} onDialCode={setDialCode} phone={leadPhone} onPhone={setLeadPhone} />
-              <p style={{ fontSize: '12px', color: '#4B5563', marginBottom: '10px', marginTop: '-4px' }}>Phone (optional if email provided)</p>
+              <p className="lead-hint">Phone (optional if email provided)</p>
               {leadError && <p style={{ fontSize: '12px', color: '#f87171', marginBottom: '8px' }}>{leadError}</p>}
               <button className="lead-btn" onClick={submitLead} disabled={submittingLead || (!leadEmail && !leadPhone)} style={{ background: accent, color: '#080A0E' }}>
                 {submittingLead ? 'Starting...' : 'Start chatting →'}
