@@ -11,6 +11,82 @@ interface Bot { id: string; name: string; welcome_message: string; lead_capture_
 const visitorKey = (botId: string) => `qm_visitor_${botId}`
 
 /**
+ * The accent when a bot has no colour of its own.
+ *
+ * Deliberately NEUTRAL, not Questme lime. This page is a bot-facing surface —
+ * it renders on a customer's site, under a customer's name — so an unset
+ * colour must not quietly paint their widget in our brand. A bot created
+ * through the dashboard is given a colour at insert time, so in practice this
+ * shows only while the bot record is still loading, or if the column is null.
+ */
+const NEUTRAL_ACCENT = '#9CA3AF'
+
+/**
+ * Accents are author-supplied and range from #AAFF00 to #1B4F72, so nothing
+ * here may assume the text sitting on one is dark.
+ *
+ * All three tolerate rubbish. `color` is free text: it can hold a short hex, a
+ * CSS colour name, an rgb() string, or the empty string left by a cleared
+ * input. Anything unparseable falls back rather than throwing, because a bad
+ * colour must degrade to a plain-looking widget, never to a blank one.
+ */
+function parseHex(color: string): { r: number; g: number; b: number } | null {
+  const hex = color.trim().replace(/^#/, '')
+  const full = hex.length === 3 ? hex.replace(/./g, c => c + c) : hex
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null
+  return {
+    r: parseInt(full.slice(0, 2), 16),
+    g: parseInt(full.slice(2, 4), 16),
+    b: parseInt(full.slice(4, 6), 16),
+  }
+}
+
+const INK_DARK = '#080A0E'
+const INK_LIGHT = '#FFFFFF'
+
+/** WCAG relative luminance. Gamma-corrected, not a raw channel average. */
+function luminance(rgb: { r: number; g: number; b: number }): number {
+  const channel = (v: number) => {
+    const s = v / 255
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+  }
+  return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b)
+}
+
+function contrastRatio(a: number, b: number): number {
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+}
+
+/**
+ * Readable ink for a button filled with `color`.
+ *
+ * This COMPARES BOTH CANDIDATES rather than testing luminance against a fixed
+ * threshold, because no single threshold is correct. A mid-tone accent — the
+ * neutral grey above, a #E05A2B orange, a #4F6FFF indigo — sits close enough
+ * to the middle that a cutoff has to guess, and every cutoff guesses wrong
+ * somewhere: at 0.4 the neutral grey takes white text at 2.54:1, under the
+ * 4.5:1 that AA asks for, when dark text on the same grey scores 7.8:1.
+ *
+ * Measuring both and keeping the winner has no such blind spot, and it costs
+ * one extra ratio. Unparseable colours get the dark ink used everywhere else.
+ */
+function contrastInk(color: string): string {
+  const rgb = parseHex(color)
+  if (!rgb) return INK_DARK
+  const bg = luminance(rgb)
+  const onDark = contrastRatio(bg, luminance(parseHex(INK_DARK)!))
+  const onLight = contrastRatio(bg, luminance(parseHex(INK_LIGHT)!))
+  return onDark >= onLight ? INK_DARK : INK_LIGHT
+}
+
+/** The accent at low opacity, for tinted fills and borders. */
+function accentAlpha(color: string, alpha: number): string {
+  const rgb = parseHex(color)
+  if (!rgb) return `rgba(156, 163, 175, ${alpha})`
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`
+}
+
+/**
  * Dial codes offered on the lead form.
  *
  * Curated rather than exhaustive: a 200-entry country list is a worse experience
@@ -249,6 +325,11 @@ export default function ChatPage() {
   const [leadError, setLeadError] = useState('')
   const [triggerMessage, setTriggerMessage] = useState('')
   const [lastCannotAnswer, setLastCannotAnswer] = useState(false)
+  // Email fallback notice — see the handler below for why it exists.
+  const [emailNotice, setEmailNotice] = useState(false)
+  const [emailCopied, setEmailCopied] = useState(false)
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -365,7 +446,54 @@ export default function ChatPage() {
     }
   }
 
-  const accent = bot?.color || '#AAFF00'
+  const accent = bot?.color?.trim() || NEUTRAL_ACCENT
+  const accentInk = contrastInk(accent)
+
+  // Both timers are cleared on unmount. The widget destroys this document when
+  // the bubble is closed, and a pending timeout firing into a gone component is
+  // a React warning at best.
+  useEffect(() => () => {
+    if (noticeTimer.current) clearTimeout(noticeTimer.current)
+    if (copiedTimer.current) clearTimeout(copiedTimer.current)
+  }, [])
+
+  /**
+   * Tapping Email opens mailto: in a new context (Batch 22) — but on a device
+   * with no mail handler registered, that new context is a blank tab that
+   * closes itself, and the visitor is left with nothing. They came to the
+   * contact bar wanting the address; a mailto: that silently does nothing is
+   * the one outcome that fails them completely.
+   *
+   * So the mailto still fires, via the anchor's own default action, and this
+   * only ADDS a notice carrying the address in plain text. Whichever path
+   * works for that visitor, they end up with a way to reach the bot's owner.
+   */
+  const onEmailClick = () => {
+    setEmailNotice(true)
+    setEmailCopied(false)
+    if (noticeTimer.current) clearTimeout(noticeTimer.current)
+    // Long enough to read a sentence and decide to tap it, short enough not to
+    // sit on top of the conversation.
+    noticeTimer.current = setTimeout(() => setEmailNotice(false), 12000)
+  }
+
+  const copyEmail = async () => {
+    const address = bot?.contact_email
+    if (!address) return
+    try {
+      // The widget's iframe carries allow="clipboard-write", so this is
+      // permitted embedded as well as standalone. It still rejects outside a
+      // secure context or when the user has denied the permission, hence the
+      // catch: the address stays on screen and selectable either way, so a
+      // failed copy costs the visitor a tap, not the information.
+      await navigator.clipboard.writeText(address)
+      setEmailCopied(true)
+      if (copiedTimer.current) clearTimeout(copiedTimer.current)
+      copiedTimer.current = setTimeout(() => setEmailCopied(false), 2000)
+    } catch {
+      setEmailCopied(false)
+    }
+  }
 
   if (botLoading) return (
     <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080A0E', color: '#6B7280' }}>Loading...</div>
@@ -671,6 +799,46 @@ export default function ChatPage() {
           outline: none;
         }
         .qm-phone-row--sm > .qm-num::placeholder { color: #4B5563; }
+        /* Same accent focus treatment as the fields above and below it — the
+           joined dial+number control is part of this form too. */
+        .qm-phone-row--sm > .qm-num:focus { border-color: var(--accent); }
+        .qm-phone-row--sm .qm-dial:focus { border-color: var(--accent); }
+
+        /* The in-conversation lead form's text inputs. Same compact metrics as
+           .qm-phone-row--sm above so the name, email and phone controls line
+           up, and the same accent focus rule as the full-size .lead-input.
+           These were inline-styled with outline:none and no :focus at all, so
+           the fields gave no sign of which one had the caret. */
+        .lead-input-sm {
+          width: 100%;
+          background: #080A0E;
+          border: 1px solid #1A1A2E;
+          border-radius: 6px;
+          padding: 8px 10px;
+          color: #E2E2F0;
+          font-size: 13px;
+          font-family: inherit;
+          margin-bottom: 8px;
+          box-sizing: border-box;
+          outline: none;
+          -webkit-appearance: none;
+        }
+        .lead-input-sm:focus { border-color: var(--accent); }
+        .lead-input-sm::placeholder { color: #4B5563; }
+
+        /* The transient "or email us at ..." notice. */
+        .email-notice {
+          width: 100%;
+          text-align: left;
+          display: block;
+          border-radius: 8px;
+          padding: 9px 11px;
+          font-family: inherit;
+          font-size: 12px;
+          line-height: 1.45;
+          cursor: pointer;
+          margin-bottom: 8px;
+        }
         .lead-btn {
           width: 100%;
           padding: 13px;
@@ -757,7 +925,7 @@ export default function ChatPage() {
               <PhoneField dialCode={dialCode} onDialCode={setDialCode} phone={leadPhone} onPhone={setLeadPhone} />
               <p className="lead-hint">Phone (optional if email provided)</p>
               {leadError && <p style={{ fontSize: '12px', color: '#f87171', marginBottom: '8px' }}>{leadError}</p>}
-              <button className="lead-btn" onClick={submitLead} disabled={submittingLead || (!leadEmail && !leadPhone)} style={{ background: accent, color: '#080A0E' }}>
+              <button className="lead-btn" onClick={submitLead} disabled={submittingLead || (!leadEmail && !leadPhone)} style={{ background: accent, color: accentInk }}>
                 {submittingLead ? 'Starting...' : 'Start chatting →'}
               </button>
             </div>
@@ -789,8 +957,8 @@ export default function ChatPage() {
                 </div>
               )}
               {showLeadForm && !leadSubmitted && (
-                <div style={{ background: '#0F0F1A', border: '1px solid #AAFF00', borderRadius: 12, padding: 16, margin: '8px 0' }}>
-                  <p style={{ color: '#AAFF00', fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>
+                <div style={{ background: '#0F0F1A', border: `1px solid ${accent}`, borderRadius: 12, padding: 16, margin: '8px 0' }}>
+                  <p style={{ color: accent, fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>
                     Want us to follow up with you?
                   </p>
                   <p style={{ color: '#9CA3AF', fontSize: 12, margin: '0 0 12px' }}>
@@ -800,17 +968,17 @@ export default function ChatPage() {
                     <p style={{ color: '#F87171', fontSize: 12, margin: '0 0 8px' }}>{leadError}</p>
                   )}
                   <input
+                    className="lead-input-sm"
                     value={leadName}
                     onChange={e => setLeadName(e.target.value)}
                     placeholder="Your name *"
-                    style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
                   />
                   <input
+                    className="lead-input-sm"
                     value={leadEmail}
                     onChange={e => setLeadEmail(e.target.value)}
                     placeholder="Email address"
                     type="email"
-                    style={{ width: '100%', background: '#080A0E', border: '1px solid #1A1A2E', borderRadius: 6, padding: '8px 10px', color: '#E2E2F0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
                   />
                   <PhoneField compact dialCode={dialCode} onDialCode={setDialCode} phone={leadPhone} onPhone={setLeadPhone} />
                   <p style={{ color: '#4B5563', fontSize: 11, margin: '0 0 10px' }}>* Email or phone required</p>
@@ -840,7 +1008,7 @@ export default function ChatPage() {
                         setLeadError('Something went wrong. Please try again.')
                       }
                     }}
-                    style={{ width: '100%', background: '#AAFF00', border: 'none', borderRadius: 6, padding: '9px', color: '#080A0E', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                    style={{ width: '100%', background: accent, border: 'none', borderRadius: 6, padding: '9px', color: accentInk, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                   >
                     Send My Details →
                   </button>
@@ -848,7 +1016,7 @@ export default function ChatPage() {
               )}
               {leadSubmitted && (
                 <div style={{ background: '#0A1A0A', border: '1px solid #1A3A1A', borderRadius: 12, padding: 16, margin: '8px 0' }}>
-                  <p style={{ color: '#AAFF00', fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>✓ Got it!</p>
+                  <p style={{ color: accent, fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>✓ Got it!</p>
                   <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0 }}>We'll be in touch shortly. Thanks for reaching out!</p>
                 </div>
               )}
@@ -879,7 +1047,7 @@ export default function ChatPage() {
                   style={{ background: input.trim() ? accent : '#1E2028' }}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 5l7 7-7 7M5 12h14" stroke={input.trim() ? '#080A0E' : '#4B5563'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 5l7 7-7 7M5 12h14" stroke={input.trim() ? accentInk : '#4B5563'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
               </div>
@@ -906,6 +1074,30 @@ export default function ChatPage() {
               only allow="clipboard-write" — so no allow-popups is needed for
               these to work.
             */}
+            {/*
+              The address in plain text, for the visitor whose mailto: went
+              nowhere. A <button>, not a link — it navigates nothing, and a
+              screen reader should announce an action rather than a
+              destination. aria-live lets it announce itself when it appears
+              without stealing focus from the composer.
+            */}
+            {emailNotice && bot.contact_email && (
+              <button
+                type="button"
+                className="email-notice"
+                onClick={copyEmail}
+                aria-live="polite"
+                style={{
+                  background: accentAlpha(accent, 0.1),
+                  border: `1px solid ${accentAlpha(accent, 0.35)}`,
+                  color: '#E2E2F0',
+                }}
+              >
+                Or email us at <span style={{ color: accent, fontWeight: 600 }}>{bot.contact_email}</span>
+                {' — '}
+                <span style={{ color: '#9CA3AF' }}>{emailCopied ? 'copied ✓' : 'tap to copy'}</span>
+              </button>
+            )}
             {(bot.contact_whatsapp || bot.contact_phone || bot.contact_email || bot.contact_website || bot.contact_instagram || bot.contact_facebook) && (
               <div className="contact-bar">
                 {bot.contact_whatsapp && (
@@ -919,12 +1111,16 @@ export default function ChatPage() {
                   </a>
                 )}
                 {bot.contact_email && (
-                  <a href={`mailto:${bot.contact_email}`} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#150a28', color: '#c084fc', border: '1px solid #4c1d95' }}>
+                  <a href={`mailto:${bot.contact_email}`} target="_blank" rel="noopener noreferrer" onClick={onEmailClick} className="contact-btn" style={{ background: '#150a28', color: '#c084fc', border: '1px solid #4c1d95' }}>
                     ✉️ Email
                   </a>
                 )}
+                {/* The only contact button without a brand of its own, so it
+                    wears the bot's accent rather than Questme's lime. The rest
+                    keep their platform colours — a green WhatsApp pill is
+                    recognised faster than a themed one. */}
                 {bot.contact_website && (
-                  <a href={bot.contact_website} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: '#0a1400', color: '#AAFF00', border: '1px solid #365314' }}>
+                  <a href={bot.contact_website} target="_blank" rel="noopener noreferrer" className="contact-btn" style={{ background: accentAlpha(accent, 0.1), color: accent, border: `1px solid ${accentAlpha(accent, 0.4)}` }}>
                     🌐 Website
                   </a>
                 )}
