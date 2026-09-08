@@ -322,9 +322,14 @@ export default function ChatPage() {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-6px); }
         }
+        /* position:fixed + inset:0 sizes to THIS document's viewport, which
+           inside an iframe is the iframe box itself, at whatever height the
+           host gave it. That part was always right. What was missing was an
+           inner scroller, so anything taller than the frame simply vanished. */
         .chat-page {
           position: fixed;
           inset: 0;
+          overflow: hidden;
           display: flex;
           flex-direction: column;
           background: #080A0E;
@@ -486,14 +491,33 @@ export default function ChatPage() {
           white-space: nowrap;
           min-height: 36px;
         }
+        /* THE SCROLLER FOR THE GATE.
+           This used to centre the card with align-items/justify-content and no
+           overflow. A centred flex item that outgrows its container overflows
+           equally in BOTH directions, and with the page sealed to the viewport
+           there was nothing to scroll: in a 500px frame the submit button was
+           simply cut off and unreachable.
+           overflow-y makes the automatic minimum size of this flex item zero,
+           so it shrinks to the space available instead of pushing past it. */
         .lead-card {
           flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
           display: flex;
-          align-items: center;
-          justify-content: center;
           padding: 24px 16px;
         }
         .lead-inner {
+          /* margin:auto, NOT the parent centring it. An auto margin takes the
+             spare room when there is some and collapses to zero when there is
+             not, so a card taller than the frame starts at the top and every
+             pixel of it can be scrolled to. Centring on the parent would clip
+             the overflow past the start edge, which is the bug this replaces.
+             It also disables the default align-items:stretch, so the card keeps
+             its content height. */
+          margin: auto;
+          flex-shrink: 0;
           width: 100%;
           max-width: 360px;
           background: #0F1117;
@@ -587,6 +611,13 @@ export default function ChatPage() {
           .msg-bubble { max-width: 85%; font-size: 14px; }
           .chat-header { padding: 10px 14px; }
           .chat-messages { padding: 12px; gap: 10px; }
+        }
+        /* Short embeds. A 320px frame leaves about 260px under the header, so
+           give that space to the form rather than to decoration. It still
+           scrolls below this — this only decides how much scrolling there is. */
+        @media (max-height: 560px) {
+          .lead-card { padding: 12px; }
+          .lead-inner { padding: 16px; border-radius: 12px; }
         }
       `}</style>
       <div className="chat-page" style={{ '--accent': accent } as React.CSSProperties}>
