@@ -1,3 +1,5 @@
+import { EMBED_ALLOWED_ORIGINS } from './lib/embed-origins.mjs'
+
 /** @type {import('next').NextConfig} */
 
 /**
@@ -42,27 +44,27 @@ const securityHeaders = [
  *
  * public/widget.js — the embed snippet handed to every customer — mounts a
  * bubble that iframes /chat/<botId>. Under the app's own DENY + frame-ancestors
- * 'none' the browser refused that frame on every customer site, so the product's
- * embed script was blocked by the product's own headers.
+ * 'none' the browser refused that frame on every site, so the product's embed
+ * script was blocked by the product's own headers.
  *
- * X-Frame-Options is ABSENT here rather than set to a permissive value. There
- * is no standard "allow any origin" value for it — ALLOWALL is not in the spec
- * and browsers disagree on what an unrecognised value means — so absence is the
- * only deterministic state. frame-ancestors is what actually grants framing in
- * every browser that matters, and it takes precedence where both are present.
+ * X-Frame-Options is ABSENT here rather than set to a permissive value. It
+ * cannot express an allowlist — the spec has no multi-origin form, ALLOW-FROM
+ * is dead, and browsers disagree on what an unrecognised value means — and in
+ * older browsers that honour it but not frame-ancestors it would override the
+ * CSP below and block every embed. Absence is the only deterministic state;
+ * frame-ancestors is what grants framing in every browser that matters.
  *
- * `*` because the widget's whole premise is arbitrary customer domains. A
- * per-bot allowlist is the right long-term answer and needs the origin resolved
- * per request; it is not this change.
+ * The allowlist is EMBED_ALLOWED_ORIGINS — the portfolio's own product domains,
+ * not arbitrary third-party sites. 'self' is kept so questme.ai can frame its
+ * own chat page regardless of what the list holds.
  *
  * Safe by design: /chat/[botId] is public, is excluded from the middleware
  * matcher, and carries no authenticated session — there is nothing for a
- * clickjacker to trick a logged-in user into clicking. Same model as
- * Intercom and Crisp.
+ * clickjacker to trick a logged-in user into clicking.
  */
 const embeddableChatHeaders = [
   ...baseHeaders,
-  { key: 'Content-Security-Policy', value: csp('*') },
+  { key: 'Content-Security-Policy', value: csp(["'self'", ...EMBED_ALLOWED_ORIGINS].join(' ')) },
 ]
 
 const nextConfig = {
