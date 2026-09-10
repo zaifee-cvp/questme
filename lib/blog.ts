@@ -7,7 +7,15 @@ export interface BlogPost {
   slug: string
   title: string
   description: string
+  /** When the post was first published. This is what readers see. */
   date: string
+  /**
+   * When the post's PAGE last changed, if later than publication: copy, metadata,
+   * or page furniture such as the canonical or the related-capabilities block.
+   * Feeds sitemap lastModified only. Set it by hand when a post's page changes;
+   * never derive it from the build.
+   */
+  updated?: string
   readTime: number
   category: string
   sections: BlogSection[]
@@ -19,6 +27,7 @@ export const posts: BlogPost[] = [
     title: 'What Is a Product Knowledge Bot and Why Does Your Business Need One?',
     description: 'A product knowledge bot is an AI assistant trained on your product documentation that answers customer questions instantly. Learn how it works and why your business needs one.',
     date: '2025-03-10',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'Guides',
     sections: [
@@ -162,6 +171,7 @@ export const posts: BlogPost[] = [
     title: 'How to Reduce Customer Support Tickets With AI',
     description: 'Learn how businesses are using AI product knowledge bots to deflect the majority of repetitive customer support tickets and free up their teams for high-value work.',
     date: '2025-03-12',
+    updated: '2026-09-10',
     readTime: 6,
     category: 'Customer Support',
     sections: [
@@ -282,6 +292,7 @@ export const posts: BlogPost[] = [
     title: 'How to Embed an AI Chat Widget on Any Website',
     description: 'Step-by-step guide to embedding an AI chat widget on your website — whether you\'re on Shopify, WordPress, Webflow, or custom HTML. Takes under 5 minutes.',
     date: '2025-03-14',
+    updated: '2026-09-10',
     readTime: 5,
     category: 'How-To',
     sections: [
@@ -406,6 +417,7 @@ export const posts: BlogPost[] = [
     title: 'Why E-commerce Brands Are Replacing Static FAQs With AI',
     description: 'Static FAQ pages are outdated, hard to navigate, and don\'t answer the specific questions shoppers actually have. Here\'s why AI-powered FAQs are replacing them.',
     date: '2025-03-16',
+    updated: '2026-09-10',
     readTime: 6,
     category: 'E-commerce',
     sections: [
@@ -513,6 +525,7 @@ export const posts: BlogPost[] = [
     title: 'Product Knowledge Management: The Modern Approach',
     description: 'Product knowledge management is how businesses capture, organise, and deliver product information to customers and teams. Here\'s how AI is changing the approach.',
     date: '2025-03-18',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'Strategy',
     sections: [
@@ -634,6 +647,7 @@ export const posts: BlogPost[] = [
     title: 'The Best AI Customer Support Tools for Small Businesses in 2025',
     description: 'A practical guide to the best AI customer support tools available for small businesses in 2025, including how to choose the right one for your needs.',
     date: '2025-03-20',
+    updated: '2026-09-10',
     readTime: 8,
     category: 'Tools',
     sections: [
@@ -754,6 +768,7 @@ export const posts: BlogPost[] = [
     title: 'Chatbot vs Knowledge Bot: What\'s the Difference?',
     description: 'Chatbots follow scripts. Knowledge bots answer from your actual content. Understanding the difference will help you choose the right AI tool for your business.',
     date: '2025-03-22',
+    updated: '2026-09-10',
     readTime: 6,
     category: 'Guides',
     sections: [
@@ -860,6 +875,7 @@ export const posts: BlogPost[] = [
     title: 'How AI Chat Widgets Increase Conversion on Product Pages',
     description: 'AI chat widgets answer the last-mile questions that prevent shoppers from buying. Learn how placing an AI chat widget on product pages drives measurable conversion lifts.',
     date: '2025-03-24',
+    updated: '2026-09-10',
     readTime: 6,
     category: 'Conversion',
     sections: [
@@ -965,6 +981,7 @@ export const posts: BlogPost[] = [
     title: 'Building a Self-Service Support System With AI',
     description: 'Self-service customer support powered by AI lets customers find answers instantly, 24/7, without waiting for a human. Here\'s how to build one for your business.',
     date: '2025-03-26',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'Customer Support',
     sections: [
@@ -1084,6 +1101,7 @@ export const posts: BlogPost[] = [
     title: 'How Product Sellers Use AI to Answer Customer Questions at Scale',
     description: 'From marketplaces to direct-to-consumer stores, product sellers are using AI knowledge bots to handle customer questions at scale without growing their support team.',
     date: '2025-03-28',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'E-commerce',
     sections: [
@@ -1195,6 +1213,7 @@ export const posts: BlogPost[] = [
     title: 'How AI Chatbots Help Businesses Respond Instantly to Customers',
     description: 'Slow response times cost businesses customers. Here\'s how AI chatbots help businesses respond to customer questions instantly, around the clock.',
     date: '2026-03-01',
+    updated: '2026-09-10',
     readTime: 8,
     category: 'Guides',
     sections: [
@@ -1319,6 +1338,7 @@ export const posts: BlogPost[] = [
     title: 'WhatsApp AI Chatbots for Customer Support: A Practical Guide',
     description: 'A practical guide for business owners on using WhatsApp AI chatbots for customer support — what they do, how they work, and how to get started.',
     date: '2026-03-02',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'Customer Support',
     sections: [
@@ -1434,6 +1454,7 @@ export const posts: BlogPost[] = [
     title: 'Why Businesses Lose Leads Without Instant Response Systems',
     description: 'Most businesses lose leads because they respond too slowly. Here\'s why instant response matters and how AI chatbots fix the problem.',
     date: '2026-03-03',
+    updated: '2026-09-10',
     readTime: 6,
     category: 'Strategy',
     sections: [
@@ -1548,6 +1569,7 @@ export const posts: BlogPost[] = [
     title: 'How AI Can Answer Customer Questions Using Your Own Product Data',
     description: 'Generic chatbots give generic answers. Here\'s how AI trained on your own product knowledge gives accurate, on-brand responses to customer questions.',
     date: '2026-03-04',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'Guides',
     sections: [
@@ -1680,6 +1702,7 @@ export const posts: BlogPost[] = [
     title: 'AI Chatbots vs Human Support: Cost and Efficiency Breakdown',
     description: 'Comparing AI chatbots and human customer support: what each costs, where each performs best, and how to find the right balance for your business.',
     date: '2026-03-05',
+    updated: '2026-09-10',
     readTime: 8,
     category: 'Strategy',
     sections: [
@@ -1801,6 +1824,7 @@ export const posts: BlogPost[] = [
     title: 'How to Turn Website Visitors into Leads Using AI Chatbots',
     description: 'Most website visitors leave without converting. Here\'s how AI chatbots engage visitors, answer their questions, and capture leads automatically.',
     date: '2026-03-06',
+    updated: '2026-09-10',
     readTime: 7,
     category: 'Conversion',
     sections: [

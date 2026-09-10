@@ -6,9 +6,13 @@ import { getAllPosts } from '@/lib/blog'
  * URLs claimed to change on every deploy. Google learns to distrust that and
  * stops using lastmod as a recrawl signal at all.
  *
- * Blog posts now carry their own published date; the marketing pages carry a
- * fixed literal that is bumped by hand when the copy actually changes. Neither
- * must ever be derived from the build.
+ * Blog posts carry an explicit modified date (post.updated in lib/blog.ts),
+ * falling back to their published date; the marketing pages carry a fixed
+ * literal that is bumped by hand when the copy actually changes. None of these
+ * may ever be derived from the build.
+ *
+ * The published date alone is not enough: a post whose page changed today but
+ * was written 18 months ago would tell Google it has nothing new.
  */
 const MARKETING_LAST_MODIFIED = new Date('2026-09-10')
 
@@ -40,10 +44,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // sitemap cannot drift from what /blog actually publishes.
   const blogPosts = getAllPosts()
 
-  // The index changes when its newest post does.
+  const modifiedOf = (post: (typeof blogPosts)[number]) => post.updated ?? post.date
+
+  // The index changes when its most recently modified post does.
   const newestPostDate = blogPosts.reduce(
-    (latest, post) => (post.date > latest ? post.date : latest),
-    blogPosts[0].date,
+    (latest, post) => (modifiedOf(post) > latest ? modifiedOf(post) : latest),
+    modifiedOf(blogPosts[0]),
   )
 
   return [
@@ -63,7 +69,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...blogPosts.map(post => ({
       url: `${base}/blog/${post.slug}`,
-      lastModified: new Date(post.date),
+      lastModified: new Date(modifiedOf(post)),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
