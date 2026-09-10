@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import { csp } from './lib/embed-origins.mjs'
+
 
 /**
  * Everything except the two directives that decide whether a page may be
@@ -13,22 +15,6 @@ const baseHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
 ]
-
-const cspDirectives = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: *.supabase.co lh3.googleusercontent.com cdnjs.cloudflare.com",
-  "connect-src 'self' *.supabase.co wss://*.supabase.co accounts.google.com",
-  "font-src 'self'",
-  "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-]
-
-const csp = (frameAncestors) =>
-  [...cspDirectives, `frame-ancestors ${frameAncestors}`].join('; ')
 
 /** The app: dashboard, auth, billing, marketing. Never framed by anyone. */
 const securityHeaders = [

@@ -2,7 +2,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Globe, Save, Trash2, X } from 'lucide-react'
+import { normalizeOriginInput } from '@/lib/embed-origins.mjs'
 
 interface Bot {
   id: string
@@ -24,6 +25,7 @@ interface Bot {
   contact_instagram: string
   contact_facebook: string
   contact_address: string
+  allowed_origins: string[]
 }
 
 const EMPTY_BOT: Bot = {
@@ -32,12 +34,13 @@ const EMPTY_BOT: Bot = {
   handoff_enabled: false, handoff_email: '', handoff_trigger_keywords: [],
   restrict_to_knowledge: true, contact_phone: '', contact_whatsapp: '',
   contact_email: '', contact_website: '', contact_instagram: '',
-  contact_facebook: '', contact_address: '',
+  contact_facebook: '', contact_address: '', allowed_origins: [],
 }
 
 const INPUT = { background: '#0F1117', border: '1px solid #2D3148', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', color: '#F0F0F0', width: '100%', outline: 'none', fontFamily: 'DM Sans, sans-serif' } as const
 const LABEL = { fontSize: '13px', fontWeight: 600, color: '#9CA3AF', marginBottom: '6px', display: 'block' } as const
 const SECTION = { background: '#0F1117', border: '1px solid #1E2028', borderRadius: '14px', padding: '28px', marginBottom: '20px' } as const
+const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]'
 const SECTION_TITLE = { fontSize: '16px', fontWeight: 700, marginBottom: '20px', fontFamily: 'Outfit, sans-serif', color: '#F0F0F0' } as const
 
 export default function BotSettingsPage() {
@@ -51,13 +54,21 @@ export default function BotSettingsPage() {
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [keywordsInput, setKeywordsInput] = useState('')
+  const [originInput, setOriginInput] = useState('')
+  const [originError, setOriginError] = useState('')
+  // The allowed_origins migration may not have been applied yet. GET returns
+  // select('*'), so the key's presence is the honest signal — and sending the
+  // field before the column exists would fail every save on this page, not just
+  // this setting.
+  const [originsSupported, setOriginsSupported] = useState(false)
 
   const fetchBot = useCallback(async () => {
     const res = await fetch(`/api/bots/${botId}`)
     if (res.ok) {
       const data = await res.json()
-      setBot({ ...EMPTY_BOT, ...data })
+      setBot({ ...EMPTY_BOT, ...data, allowed_origins: data.allowed_origins || [] })
       setKeywordsInput((data.handoff_trigger_keywords || []).join(', '))
+      setOriginsSupported('allowed_origins' in data)
     }
     setLoading(false)
   }, [botId])
@@ -68,11 +79,31 @@ export default function BotSettingsPage() {
     setBot(prev => ({ ...prev, [field]: value }))
   }
 
+  function addOrigin() {
+    const normalised = normalizeOriginInput(originInput)
+    if (!normalised) {
+      setOriginError('Enter a domain like example.com or shop.example.com — no paths or query strings.')
+      return
+    }
+    if (bot.allowed_origins.includes(normalised)) {
+      setOriginError('That domain is already on the list.')
+      return
+    }
+    setOriginError('')
+    setOriginInput('')
+    set('allowed_origins', [...bot.allowed_origins, normalised])
+  }
+
+  function removeOrigin(origin: string) {
+    set('allowed_origins', bot.allowed_origins.filter(o => o !== origin))
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true); setSaved(false); setError(null)
     const keywords = keywordsInput.split(',').map(k => k.trim()).filter(Boolean)
-    const payload = { ...bot, handoff_trigger_keywords: keywords }
+    const payload: Record<string, unknown> = { ...bot, handoff_trigger_keywords: keywords }
+    if (!originsSupported) delete payload.allowed_origins
     const res = await fetch(`/api/bots/${botId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -209,6 +240,67 @@ export default function BotSettingsPage() {
             </div>
           )}
         </div>
+
+        {/* Allowed domains */}
+        {originsSupported && (
+        <div style={SECTION}>
+          <div style={SECTION_TITLE}>Where this widget can be embedded</div>
+          <div className="flex items-start gap-2.5 mb-4">
+            <Globe className="h-4 w-4 text-zinc-500 mt-0.5 shrink-0" aria-hidden="true" />
+            <p className="text-[13px] leading-relaxed text-zinc-400">
+              {bot.allowed_origins.length === 0
+                ? 'This widget currently works on any website. Add a domain to allow it only on the sites you list.'
+                : 'This widget works only on the domains below. Remove them all to allow it on any website again.'}
+            </p>
+          </div>
+
+          <label htmlFor="allowed-origin" className="block text-[13px] font-semibold text-zinc-400 mb-1.5">
+            Add a domain
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              id="allowed-origin"
+              value={originInput}
+              onChange={e => { setOriginInput(e.target.value); setOriginError('') }}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrigin() } }}
+              placeholder="example.com"
+              aria-describedby="allowed-origin-hint"
+              className={`h-11 w-full rounded-lg border border-[#2D3148] bg-[#0F1117] px-3.5 text-sm text-[#F0F0F0] placeholder:text-zinc-600 ${FOCUS}`}
+            />
+            <button
+              type="button"
+              onClick={addOrigin}
+              className={`h-11 shrink-0 rounded-lg bg-[#AAFF00] px-5 text-sm font-bold text-[#080A0E] ${FOCUS}`}
+            >
+              Add
+            </button>
+          </div>
+          <p id="allowed-origin-hint" className="mt-2 text-xs text-zinc-500">
+            Subdomains count separately: shop.example.com does not cover www.example.com.
+          </p>
+          {originError && <p className="mt-2 text-xs text-red-400">{originError}</p>}
+
+          {bot.allowed_origins.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {bot.allowed_origins.map(origin => (
+                <li key={origin}>
+                  <span className="inline-flex items-center gap-2 rounded-lg border border-[#2D3148] bg-[#161820] py-1.5 pl-3 pr-1.5 text-[13px] text-zinc-300">
+                    {origin}
+                    <button
+                      type="button"
+                      onClick={() => removeOrigin(origin)}
+                      aria-label={`Remove ${origin}`}
+                      className={`rounded p-1 text-zinc-500 transition-colors hover:text-white ${FOCUS}`}
+                    >
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        )}
 
         {/* Contact Info */}
         <div style={SECTION}>
