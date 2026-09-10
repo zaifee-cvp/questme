@@ -129,11 +129,14 @@ export const config = {
   // /chat/<id>, so the middleware silently never ran. Verified in
   // .next/server/middleware-manifest.json. One matcher, no params, no ambiguity.
   //
-  // _vercel/ is excluded for Web Analytics. Its script and beacons live at
-  // /_vercel/insights/* and are NOT intercepted by the platform ahead of this
-  // app — measured on production, those paths come back as this app's own 404
-  // carrying its X-Frame-Options and CSP. Without the exclusion every pageview
-  // beacon would build a Supabase client and call getUser() for a request that
-  // needs no auth at all.
-  matcher: ['/((?!_next/static|_next/image|_vercel/|favicon.ico|api/).*)'],
+  // _vercel/ is deliberately NOT excluded. It looks like it should be — the
+  // matcher does cover /_vercel/insights/* — but with Web Analytics active the
+  // platform answers those paths before this app is reached: script.js comes
+  // back as application/javascript and the beacon as a Fastify validation error,
+  // neither carrying the X-Frame-Options or CSP that next.config stamps on every
+  // response Next serves. Middleware never runs on them, so an exclusion would be
+  // a guard that guards nothing. Measured on production after 489d6ef deployed;
+  // before analytics was emitting, the same paths fell through to the app's 404,
+  // which is what makes this easy to get wrong.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/).*)'],
 }
