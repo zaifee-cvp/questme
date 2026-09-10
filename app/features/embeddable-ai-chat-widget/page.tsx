@@ -3,11 +3,11 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Embeddable AI Chat Widget',
-  description: 'Add an AI chat widget to any website in 5 minutes with one line of code. Works on Shopify, WordPress, Webflow, and any HTML site.',
+  description: 'Add an AI chat widget to any website in under 2 minutes with one line of code. Works on Shopify, WordPress, Webflow, and any HTML site.',
   alternates: { canonical: 'https://questme.ai/features/embeddable-ai-chat-widget' },
   openGraph: {
     title: 'Embeddable AI Chat Widget | Questme.ai',
-    description: 'Add an AI chat widget to any website in 5 minutes with one line of code.',
+    description: 'Add an AI chat widget to any website in under 2 minutes with one line of code.',
     url: 'https://questme.ai/features/embeddable-ai-chat-widget',
     type: 'website',
   },
@@ -25,7 +25,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
   name: 'Embeddable AI Chat Widget | Questme.ai',
-  description: 'Add an AI chat widget to any website in 5 minutes with one line of code.',
+  description: 'Add an AI chat widget to any website in under 2 minutes with one line of code.',
   url: 'https://questme.ai/features/embeddable-ai-chat-widget',
   mainEntity: {
     '@type': 'FAQPage',
@@ -50,7 +50,7 @@ export default function EmbeddableAIChatWidgetPage() {
             Embeddable AI Chat Widget
           </div>
           <h1 style={{ fontSize: '54px', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', fontFamily: 'Outfit, sans-serif' }}>
-            Add an AI Chat Widget to <span style={{ color: '#AAFF00' }}>Any Website in 5 Minutes</span>
+            Add an AI Chat Widget to <span style={{ color: '#AAFF00' }}>Any Website in Under 2 Minutes</span>
           </h1>
           <p style={{ fontSize: '20px', color: '#9CA3AF', lineHeight: 1.7, marginBottom: '36px' }}>
             One line of code. Works on Shopify, WordPress, Webflow, and any HTML site. Your AI is live before your coffee finishes brewing.
@@ -136,7 +136,7 @@ export default function EmbeddableAIChatWidgetPage() {
         {/* CTA */}
         <div style={{ background: 'linear-gradient(135deg, #AAFF0010, #0F1117)', border: '1px solid #AAFF0030', borderRadius: '20px', padding: '64px', textAlign: 'center' }}>
           <h2 style={{ fontSize: '36px', fontWeight: 800, marginBottom: '16px', fontFamily: 'Outfit, sans-serif' }}>
-            Your AI widget is 5 minutes from live
+            Your AI widget is under 2 minutes from live
           </h2>
           <p style={{ color: '#9CA3AF', fontSize: '16px', marginBottom: '36px', maxWidth: '480px', margin: '0 auto 36px' }}>
             Create your bot, upload your knowledge, copy one line of code. That&apos;s it.

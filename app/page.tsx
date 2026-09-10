@@ -129,7 +129,7 @@ export default function LandingPage() {
               </div>
 
               <p className="mt-6 text-xs text-zinc-500">
-                14-day free trial &middot; No credit card &middot; Install in 60 seconds
+                14-day free trial &middot; No credit card &middot; Install in under 2 minutes
               </p>
             </div>
 
@@ -167,7 +167,7 @@ export default function LandingPage() {
 
                     <div className="flex justify-end">
                       <div className="max-w-[88%] rounded-2xl rounded-tr-sm bg-lime-400/10 border border-lime-400/20 px-3.5 py-2.5">
-                        <p className="text-[13px] text-zinc-100 leading-snug">Yes &mdash; Questme installs on Shopify with one line of code in your theme.liquid file. Setup takes ~2 minutes. Want the install snippet?</p>
+                        <p className="text-[13px] text-zinc-100 leading-snug">Yes &mdash; Questme installs on Shopify with one line of code in your theme.liquid file. Setup takes under 2 minutes. Want the install snippet?</p>
                         <div className="mt-2.5 pt-2.5 border-t border-lime-400/15 flex flex-wrap items-center gap-1.5">
                           <span className="text-[9px] uppercase tracking-[0.18em] text-lime-400/80 font-semibold">Sources</span>
                           <span className="text-[10px] text-zinc-400 px-1.5 py-0.5 rounded bg-zinc-800/60 border border-zinc-700/50">docs.questme.ai/shopify</span>
@@ -249,7 +249,7 @@ export default function LandingPage() {
                   <span className="font-mono text-sm text-zinc-600 pt-1 flex-shrink-0">01</span>
                   <div>
                     <h3 className="font-sans text-base font-medium text-white">Visitors don&rsquo;t fill out contact forms</h3>
-                    <p className="mt-1 text-sm text-zinc-400 leading-relaxed">If they have to type their email to ask a question, 90% bounce. They came to research, not commit.</p>
+                    <p className="mt-1 text-sm text-zinc-400 leading-relaxed">Most visitors won&rsquo;t type their email just to ask a question. They close the tab instead.</p>
                   </div>
                 </li>
                 <li className="flex gap-5">
@@ -444,7 +444,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="font-sans text-lg font-medium text-white">See what visitors actually ask</h3>
                 <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
-                  Every question is logged. Spot content gaps, ship better docs, and watch Questme answer 95%+ of repeat questions automatically.
+                  Every question is logged. Spot content gaps, ship better docs, and let Questme handle the questions your docs already answer.
                 </p>
               </div>
 
@@ -585,7 +585,7 @@ export default function LandingPage() {
             </h2>
 
             <p className="mt-6 text-lg text-zinc-400 leading-relaxed">
-              One script tag. 60-second setup. Every visitor question answered in under 2 seconds, with citations from your own content. Free 14-day trial.
+              One script tag. Setup in under 2 minutes. Every visitor question answered in under 2 seconds, with citations from your own content. Free 14-day trial.
             </p>
 
             <div className="mt-10 flex justify-center">
@@ -599,7 +599,7 @@ export default function LandingPage() {
             </div>
 
             <p className="mt-5 text-xs text-zinc-500">
-              No credit card &middot; Setup in 60 seconds &middot; Cancel anytime
+              No credit card &middot; Setup in under 2 minutes &middot; Cancel anytime
             </p>
 
           </div>
@@ -684,7 +684,7 @@ export default function LandingPage() {
             <div className="py-8 last:pb-0">
               <h3 className="font-sans text-lg font-medium text-white">How long does setup take?</h3>
               <p className="mt-3 text-base text-zinc-400 leading-relaxed">
-                About 60 seconds. Sign up, paste your website URL, drop one script tag in your site&rsquo;s &lt;head&gt;. The first crawl finishes in 2&ndash;5 minutes for most sites. Then you&rsquo;re live.
+                Under 2 minutes. Sign up, paste your website URL, drop one script tag in your site&rsquo;s &lt;head&gt;. The first crawl finishes in 2&ndash;5 minutes for most sites. Then you&rsquo;re live.
               </p>
             </div>
 
