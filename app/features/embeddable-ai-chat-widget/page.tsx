@@ -4,6 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'Embeddable AI Chat Widget',
   description: 'Add an AI chat widget to any website in 5 minutes with one line of code. Works on Shopify, WordPress, Webflow, and any HTML site.',
+  alternates: { canonical: 'https://questme.ai/features/embeddable-ai-chat-widget' },
   openGraph: {
     title: 'Embeddable AI Chat Widget | Questme.ai',
     description: 'Add an AI chat widget to any website in 5 minutes with one line of code.',

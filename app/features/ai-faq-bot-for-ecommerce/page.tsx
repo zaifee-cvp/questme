@@ -4,6 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'AI FAQ Bot for E-commerce',
   description: 'Replace your static FAQ page with an AI that answers shoppers\' product questions instantly. Reduce cart abandonment and support tickets at the same time.',
+  alternates: { canonical: 'https://questme.ai/features/ai-faq-bot-for-ecommerce' },
   openGraph: {
     title: 'AI FAQ Bot for E-commerce | Questme.ai',
     description: 'Replace your static FAQ page with an AI that answers product questions instantly.',

@@ -5,11 +5,13 @@ import { getAllPosts } from '@/lib/blog'
 export const metadata: Metadata = {
   title: 'Blog — AI Product Knowledge & Customer Support',
   description: 'Practical guides on AI product knowledge bots, customer support automation, and e-commerce conversion. Written for product businesses.',
+  alternates: { canonical: 'https://questme.ai/blog' },
   openGraph: {
     title: 'Questme.ai Blog — AI Product Knowledge & Customer Support',
     description: 'Practical guides on AI product knowledge bots, customer support automation, and e-commerce conversion.',
     url: 'https://questme.ai/blog',
     type: 'website',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Questme.ai Blog' }],
   },
 }
 

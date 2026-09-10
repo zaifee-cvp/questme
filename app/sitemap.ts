@@ -1,8 +1,19 @@
 import { MetadataRoute } from 'next'
+import { getAllPosts } from '@/lib/blog'
+
+/**
+ * Every entry used to be stamped with `new Date()` — the build time — so all 32
+ * URLs claimed to change on every deploy. Google learns to distrust that and
+ * stops using lastmod as a recrawl signal at all.
+ *
+ * Blog posts now carry their own published date; the marketing pages carry a
+ * fixed literal that is bumped by hand when the copy actually changes. Neither
+ * must ever be derived from the build.
+ */
+const MARKETING_LAST_MODIFIED = new Date('2026-09-10')
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://questme.ai'
-  const now = new Date().toISOString()
 
   const featurePages = [
     'ai-product-knowledge-bot',
@@ -10,26 +21,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'ai-faq-bot-for-ecommerce',
     'customer-support-automation',
     'product-catalog-ai-assistant',
-  ]
-
-  const blogSlugs = [
-    'what-is-a-product-knowledge-bot',
-    'reduce-customer-support-tickets',
-    'embed-ai-chat-on-website',
-    'ai-faq-for-ecommerce',
-    'product-knowledge-management',
-    'ai-customer-support-tools',
-    'chatbot-vs-knowledge-bot',
-    'increase-conversion-with-ai-chat',
-    'self-service-customer-support',
-    'ai-for-product-sellers',
-    // Added: SEO-targeted blog posts
-    'how-ai-chatbots-help-businesses-respond-instantly',
-    'whatsapp-ai-chatbots-for-customer-support',
-    'why-businesses-lose-leads-without-instant-response',
-    'how-ai-answers-customer-questions-using-product-data',
-    'ai-chatbots-vs-human-support-cost-efficiency',
-    'how-to-turn-website-visitors-into-leads-using-ai',
   ]
 
   // SEO landing pages
@@ -45,24 +36,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'chatbot-for-lead-generation',
   ]
 
+  // Driven off the post data rather than a parallel hardcoded list, so the
+  // sitemap cannot drift from what /blog actually publishes.
+  const blogPosts = getAllPosts()
+
+  // The index changes when its newest post does.
+  const newestPostDate = blogPosts.reduce(
+    (latest, post) => (post.date > latest ? post.date : latest),
+    blogPosts[0].date,
+  )
+
   return [
-    { url: base, lastModified: now, changeFrequency: 'weekly', priority: 1 },
-{ url: `${base}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: base, lastModified: MARKETING_LAST_MODIFIED, changeFrequency: 'weekly', priority: 1 },
+    { url: `${base}/blog`, lastModified: new Date(newestPostDate), changeFrequency: 'weekly', priority: 0.8 },
     ...landingPages.map(slug => ({
       url: `${base}/${slug}`,
-      lastModified: now,
+      lastModified: MARKETING_LAST_MODIFIED,
       changeFrequency: 'monthly' as const,
       priority: 0.9,
     })),
     ...featurePages.map(slug => ({
       url: `${base}/features/${slug}`,
-      lastModified: now,
+      lastModified: MARKETING_LAST_MODIFIED,
       changeFrequency: 'monthly' as const,
       priority: 0.9,
     })),
-    ...blogSlugs.map(slug => ({
-      url: `${base}/blog/${slug}`,
-      lastModified: now,
+    ...blogPosts.map(post => ({
+      url: `${base}/blog/${post.slug}`,
+      lastModified: new Date(post.date),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),

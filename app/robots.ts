@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard/', '/api/', '/auth/', '/_next/'],
+        disallow: ['/dashboard/', '/api/', '/auth/'],
       },
     ],
     sitemap: 'https://questme.ai/sitemap.xml',

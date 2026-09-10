@@ -4,6 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'Customer Support Automation with AI',
   description: 'Automate up to 60% of customer support with an AI that answers from your own documentation. Free your team for high-value work.',
+  alternates: { canonical: 'https://questme.ai/features/customer-support-automation' },
   openGraph: {
     title: 'Customer Support Automation with AI | Questme.ai',
     description: 'Automate up to 60% of customer support with AI trained on your documentation.',

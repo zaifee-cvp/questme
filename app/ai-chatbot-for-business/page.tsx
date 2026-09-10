@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'AI Chatbot for Business | Questme.ai',
+  title: 'AI Chatbot for Business',
   description: 'Questme.ai is an AI chatbot for business that answers customer questions instantly — trained on your own data, available 24/7 on your website and WhatsApp.',
   alternates: { canonical: 'https://questme.ai/ai-chatbot-for-business' },
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'AI Assistant for Product Catalogues',
   description: 'Make your entire product catalogue searchable by AI. Customers ask any question about any product and get an instant, accurate answer.',
+  alternates: { canonical: 'https://questme.ai/features/product-catalog-ai-assistant' },
   openGraph: {
     title: 'AI Assistant for Product Catalogues | Questme.ai',
     description: 'Make your entire product catalogue searchable by AI.',

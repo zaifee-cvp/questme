@@ -4,6 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'AI Product Knowledge Bot',
   description: 'Turn your product docs, FAQs, and URLs into a 24/7 AI assistant that answers every customer question instantly and accurately. No coding required.',
+  alternates: { canonical: 'https://questme.ai/features/ai-product-knowledge-bot' },
   openGraph: {
     title: 'AI Product Knowledge Bot | Questme.ai',
     description: 'Turn your product docs, FAQs, and URLs into a 24/7 AI assistant.',

@@ -10,9 +10,6 @@ export const metadata: Metadata = {
     template: '%s | Questme.ai',
   },
   description: 'Questme.ai lets businesses deploy an AI chatbot trained on their own product knowledge. Instantly answer customer questions on WhatsApp, your website, and more.',
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: 'website',
     locale: 'en_SG',

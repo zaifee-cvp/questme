@@ -68,6 +68,9 @@ const embeddableChatHeaders = [
 const nextConfig = {
   async redirects() {
     return [
+      // /pricing was linked externally but never existed as a route; the nav
+      // points at the homepage anchor.
+      { source: '/pricing', destination: '/#pricing', permanent: true },
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'www.questme.ai' }],
