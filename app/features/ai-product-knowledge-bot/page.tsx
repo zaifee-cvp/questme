@@ -90,7 +90,7 @@ export default function AIProductKnowledgeBotPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
             {[
               { icon: '📄', title: 'Multi-Format Knowledge Sources', desc: 'Upload PDFs, crawl website URLs, paste text snippets, add FAQ pairs, and include images with AI-readable descriptions. Your bot learns from all of it.' },
-              { icon: '⚡', title: 'Instant, Accurate Answers', desc: 'Retrieval-Augmented Generation (RAG) ensures every answer comes directly from your content — no hallucinations, no going off-script.' },
+              { icon: '⚡', title: 'Instant, Accurate Answers', desc: 'Retrieval-Augmented Generation (RAG) draws every answer directly from your content — and when it finds nothing relevant, the bot says so instead of improvising.' },
               { icon: '🌐', title: 'Embeddable on Any Website', desc: 'One line of code. Works on Shopify, WordPress, Webflow, custom HTML, or any other platform. No developer needed.' },
               { icon: '📊', title: 'Conversation Analytics', desc: 'See every question customers ask, how the bot responded, and where knowledge gaps exist. Continuously improve your coverage.' },
               { icon: '🎯', title: 'Lead Capture Built In', desc: 'Optionally capture customer emails before the conversation starts. Turn every engaged visitor into a qualified lead.' },

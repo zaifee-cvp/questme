@@ -73,7 +73,7 @@ export default function AIProductKnowledgeChatbot() {
             A product knowledge chatbot is built on your content — not the internet. It only knows what you've told it, which means it can only answer from the information you've provided. This is actually a feature, not a limitation. Your customers get precise answers drawn from your product documentation, your pricing pages, your return policies, and your service terms.
           </p>
           <p style={{ fontSize: '16px', color: '#9CA3AF', lineHeight: 1.8 }}>
-            When someone asks "what sizes does this come in?" or "how long does delivery take?" or "is this product compatible with X?" — the bot pulls the answer directly from your uploaded content and responds in seconds. No hallucinations. No irrelevant information. Just accurate, helpful answers that reflect your business.
+            When someone asks "what sizes does this come in?" or "how long does delivery take?" or "is this product compatible with X?" — the bot pulls the answer directly from your uploaded content and responds in seconds. It answers from your content or not at all. No irrelevant information. Just accurate, helpful answers that reflect your business.
           </p>
         </section>
 
@@ -111,7 +111,7 @@ export default function AIProductKnowledgeChatbot() {
             One of the biggest concerns business owners have about AI is accuracy. What if it says the wrong thing? Questme.ai addresses this directly: if the answer isn't in your knowledge base, the bot says it doesn't know and offers to connect the customer with your team. It will never fabricate an answer.
           </p>
           <p style={{ fontSize: '16px', color: '#9CA3AF', lineHeight: 1.8 }}>
-            This zero-hallucination approach means you can trust what the bot tells your customers. You also get a knowledge gap dashboard — a view of which questions customers are asking that the bot couldn't answer, so you can fill those gaps over time and keep improving the experience.
+            Because every answer comes from content you supplied, you can check what the bot tells your customers. You also get a knowledge gap dashboard — a view of which questions customers are asking that the bot couldn't answer, so you can fill those gaps over time and keep improving the experience.
           </p>
         </section>
 

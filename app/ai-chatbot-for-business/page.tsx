@@ -139,7 +139,7 @@ export default function AIChatbotForBusiness() {
             The most important quality of a useful business chatbot is accuracy — and accuracy comes from training on your actual content, not generic internet data. Questme.ai trains the AI exclusively on what you provide: your product pages, service descriptions, pricing documents, FAQs, and policies.
           </p>
           <p style={{ fontSize: '16px', color: '#9CA3AF', lineHeight: 1.8 }}>
-            When a customer asks a question, the bot searches your uploaded content for the most relevant answer. It does not guess or improvise. If the answer is in your knowledge base, it delivers it accurately. If not, it says so. This zero-hallucination approach means you can trust what the bot tells your customers.
+            When a customer asks a question, the bot searches your uploaded content for the most relevant answer. It does not guess or improvise. If the answer is in your knowledge base, it delivers it accurately. If not, it says so. Because every answer comes from content you supplied, you can check what the bot tells your customers.
           </p>
           <p style={{ fontSize: '16px', color: '#9CA3AF', lineHeight: 1.8, marginTop: '16px' }}>
             You can update your content at any time. Add a new product, change a pricing plan, update a policy — the bot reflects those changes immediately without any retraining process.

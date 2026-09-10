@@ -114,7 +114,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-7 text-lg md:text-xl text-zinc-400 leading-relaxed max-w-xl">
-                Questme reads your docs, FAQs, and product pages, then answers visitor questions on your website in under 2 seconds &mdash; with citations from your own content. No hallucinations. No support ticket backlog.
+                Questme reads your docs, FAQs, and product pages, then answers visitor questions on your website in under 2 seconds &mdash; with citations from your own content. It answers from your content or not at all. No support ticket backlog.
               </p>
 
               <div className="mt-10 flex flex-col sm:flex-row gap-3">
@@ -326,7 +326,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '14px', borderBottom: '1px solid #1E2028', marginBottom: '16px' }}>
             <div style={{ width: '34px', height: '34px', background: '#AAFF00', borderRadius: '50%', fontWeight: 900, fontSize: '14px', color: '#080A0E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>A</div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '14px' }}>Questme Demo Bot</div>
+              <div style={{ fontWeight: 600, fontSize: '14px' }}>Demo Bot &middot; sample store</div>
               <div style={{ fontSize: '11px', color: '#AAFF00' }}>● Online now</div>
             </div>
           </div>
@@ -402,7 +402,7 @@ export default function LandingPage() {
                   <BookOpen className="w-7 h-7 text-lime-400" />
                 </div>
                 <h3 className="font-sans text-2xl md:text-3xl font-semibold text-white tracking-tight leading-[1.15]">
-                  Grounded in your content. Zero hallucinations.
+                  Grounded in your content. Nothing else.
                 </h3>
                 <p className="mt-4 text-base text-zinc-400 leading-relaxed">
                   Point Questme at your URL, docs site, FAQs, or PDFs. We index everything, then answer visitor questions with citations from your own content. The AI never invents features, prices, or policies. Every answer traces back to a source you control.
@@ -566,7 +566,7 @@ export default function LandingPage() {
 
           <div className="mt-12 text-center space-y-3">
             <p className="text-sm text-zinc-500">
-              All plans include zero-hallucination guarantee, source citations on every answer, and unlimited content re-indexing.
+              All plans answer from your indexed content only, cite the source on every answer, and re-index without limit.
             </p>
             <p className="text-xs text-zinc-600">
               All prices in USD &middot; 14-day free trial on all plans &middot; No credit card required

@@ -94,7 +94,7 @@ export default function AICustomerSupportChatbot() {
             Questme.ai works differently. You upload the knowledge — product documentation, FAQs, website pages, PDFs, or plain text — and the AI indexes it. When a customer asks a question, the bot searches your content for the most relevant answer and responds from that context. It won't make things up. If the answer isn't in your knowledge base, the bot says so and can route the customer to your team.
           </p>
           <p style={{ fontSize: '16px', color: '#9CA3AF', lineHeight: 1.8 }}>
-            This means your customers always get accurate, on-brand answers — not hallucinated or generic responses that erode trust.
+            This means your customers get answers drawn from your own content rather than generic responses that erode trust.
           </p>
         </section>
 
