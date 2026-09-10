@@ -128,5 +128,12 @@ export const config = {
   // handling into ^/chat(?:/(.json))?$, which matches /chat and never
   // /chat/<id>, so the middleware silently never ran. Verified in
   // .next/server/middleware-manifest.json. One matcher, no params, no ambiguity.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/).*)'],
+  //
+  // _vercel/ is excluded for Web Analytics. Its script and beacons live at
+  // /_vercel/insights/* and are NOT intercepted by the platform ahead of this
+  // app — measured on production, those paths come back as this app's own 404
+  // carrying its X-Frame-Options and CSP. Without the exclusion every pageview
+  // beacon would build a Supabase client and call getUser() for a request that
+  // needs no auth at all.
+  matcher: ['/((?!_next/static|_next/image|_vercel/|favicon.ico|api/).*)'],
 }
