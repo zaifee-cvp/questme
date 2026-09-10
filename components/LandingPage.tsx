@@ -28,7 +28,7 @@ export default function LandingPage() {
   return (
     <div style={{ minHeight: '100vh', color: '#F0F0F0' }}>
       <PageWash accent="lime" />
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .nav-hamburger { display: none; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 4px; color: #F0F0F0; }
         .nav-mobile-signin { display: none; }
         @media (max-width: 639px) {
@@ -50,7 +50,7 @@ export default function LandingPage() {
         @media (max-width: 767px) {
           .mobile-sticky-cta { display: flex; }
         }
-      `}</style>
+      ` }} />
 
       <nav className="fixed top-0 inset-x-0 z-50 bg-zinc-950/20 backdrop-blur-md border-b border-zinc-800/20">
         <div style={{ padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
