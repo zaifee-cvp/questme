@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { getPost, getAllSlugs, getAllPosts, BlogSection } from '@/lib/blog'
 
 interface Props {
@@ -32,6 +33,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   }
 }
+
+// The five capability pages, and which three each post category should surface.
+// Keyed off post.category, the field the post data actually carries — every
+// category below exists in lib/blog.ts, and DEFAULT_CAPABILITIES covers any
+// category added later.
+const CAPABILITIES = {
+  knowledge: { href: '/features/ai-product-knowledge-bot', label: 'AI product knowledge bot', blurb: 'Turn your docs, FAQs and URLs into answers customers can ask for directly.' },
+  widget: { href: '/features/embeddable-ai-chat-widget', label: 'Embeddable chat widget', blurb: 'One line of code puts the assistant on any page of your site.' },
+  faq: { href: '/features/ai-faq-bot-for-ecommerce', label: 'AI FAQ bot for e-commerce', blurb: 'Answer product questions at the moment they would otherwise cause a bounce.' },
+  support: { href: '/features/customer-support-automation', label: 'Customer support automation', blurb: 'Let repeat questions resolve themselves and keep your team on the rest.' },
+  catalog: { href: '/features/product-catalog-ai-assistant', label: 'Product catalog AI assistant', blurb: 'Make an entire catalogue searchable in plain language.' },
+} as const
+
+type CapabilityKey = keyof typeof CAPABILITIES
+
+const DEFAULT_CAPABILITIES: readonly CapabilityKey[] = ['knowledge', 'widget', 'support']
+
+const CAPABILITIES_BY_CATEGORY: Record<string, readonly CapabilityKey[]> = {
+  'Guides': ['knowledge', 'catalog', 'support'],
+  'Customer Support': ['support', 'knowledge', 'widget'],
+  'How-To': ['widget', 'knowledge', 'support'],
+  'E-commerce': ['faq', 'catalog', 'widget'],
+  'Strategy': ['knowledge', 'support', 'widget'],
+  'Tools': ['knowledge', 'support', 'widget'],
+  'Conversion': ['widget', 'faq', 'catalog'],
+}
+
+const CARD_FOCUS =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] ' +
+  'focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]'
 
 function renderSection(section: BlogSection, index: number) {
   const baseStyle = { lineHeight: 1.8 }
@@ -110,6 +141,8 @@ export default function BlogPostPage({ params }: Props) {
   if (!post) notFound()
 
   const allPosts = getAllPosts()
+  const capabilityKeys = CAPABILITIES_BY_CATEGORY[post.category] ?? DEFAULT_CAPABILITIES
+  const capabilities = capabilityKeys.map(key => CAPABILITIES[key])
   const related = allPosts.filter(p => p.slug !== post.slug).slice(0, 3)
 
   const jsonLd = {
@@ -180,6 +213,32 @@ export default function BlogPostPage({ params }: Props) {
             </div>
           </main>
           <div />
+        </div>
+
+        {/* Related capabilities */}
+        <div className="mt-20 pt-14 border-t border-[#1E2028]">
+          <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-4">Related</p>
+          <h2 className="text-[22px] font-bold font-display mb-8">Capabilities mentioned in this post</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {capabilities.map(capability => (
+              <Link
+                key={capability.href}
+                href={capability.href}
+                className={`group block rounded-xl border border-[#1E2028] bg-[#0F1117] p-6 transition-colors hover:border-[#AAFF0030] ${CARD_FOCUS}`}
+              >
+                <h3 className="text-[15px] font-semibold text-[#F0F0F0] font-display leading-snug">
+                  {capability.label}
+                </h3>
+                <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+                  {capability.blurb}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#AAFF00]">
+                  Learn more
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Related Posts */}

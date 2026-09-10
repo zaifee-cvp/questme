@@ -695,9 +695,9 @@ export default function LandingPage() {
       <footer className="border-t border-zinc-800/50 py-16 md:py-20 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="grid md:grid-cols-3 gap-10 md:gap-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-16">
 
-            <div className="md:max-w-xs">
+            <div className="sm:col-span-2 lg:col-span-4 md:max-w-xs">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded-md bg-[#AAFF00] flex items-center justify-center">
                   <span className="text-zinc-950 font-bold text-sm">Q</span>
@@ -728,6 +728,32 @@ export default function LandingPage() {
               <ul className="space-y-3">
                 <li><Link href="/sign-in" className="text-sm text-zinc-400 hover:text-white transition-colors">Log in</Link></li>
                 <li><a href="mailto:support@cvidsproductions.net" className="text-sm text-zinc-400 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-4">Use cases</p>
+              <ul className="space-y-3">
+                <li><Link href="/ai-chatbot-for-business" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">AI chatbot for business</Link></li>
+                <li><Link href="/ai-chatbot-for-small-business" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">AI chatbot for small business</Link></li>
+                <li><Link href="/ai-customer-support-chatbot" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">AI customer support chatbot</Link></li>
+                <li><Link href="/ai-product-knowledge-chatbot" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">AI product knowledge chatbot</Link></li>
+                <li><Link href="/website-ai-chatbot" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Website AI chatbot</Link></li>
+                <li><Link href="/website-ai-chatbot-for-lead-generation" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Website chatbot for lead generation</Link></li>
+                <li><Link href="/chatbot-for-lead-generation" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Chatbot for lead generation</Link></li>
+                <li><Link href="/whatsapp-ai-chatbot-for-business" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">WhatsApp AI chatbot</Link></li>
+                <li><Link href="/automated-customer-enquiry-system" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Automated customer enquiry system</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500 font-medium mb-4">Capabilities</p>
+              <ul className="space-y-3">
+                <li><Link href="/features/ai-product-knowledge-bot" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">AI product knowledge bot</Link></li>
+                <li><Link href="/features/embeddable-ai-chat-widget" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Embeddable chat widget</Link></li>
+                <li><Link href="/features/ai-faq-bot-for-ecommerce" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">AI FAQ bot for e-commerce</Link></li>
+                <li><Link href="/features/customer-support-automation" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Customer support automation</Link></li>
+                <li><Link href="/features/product-catalog-ai-assistant" className="text-sm text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AAFF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A0E]">Product catalog AI assistant</Link></li>
               </ul>
             </div>
 
