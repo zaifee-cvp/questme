@@ -43,7 +43,7 @@ const orgSchema = {
   '@type': 'Organization',
   name: 'Questme.ai',
   url: 'https://questme.ai',
-  logo: 'https://questme.ai/logo.png',
+  logo: 'https://questme.ai/icon-512.png',
   description: 'AI product knowledge chatbot SaaS. Train your AI on your own business data and answer customer questions instantly.',
   contactPoint: {
     '@type': 'ContactPoint',
@@ -61,7 +61,7 @@ const softwareSchema = {
   offers: {
     '@type': 'Offer',
     priceCurrency: 'USD',
-    price: '88',
+    price: '68',
   },
   description: 'AI chatbot trained on your own product knowledge. Deploy on WhatsApp and your website to answer customer questions 24/7.',
 }
