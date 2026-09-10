@@ -34,11 +34,11 @@ export async function POST(req: NextRequest) {
     const triggered = bot.handoff_trigger_keywords.some((kw: string) => lower.includes(kw.toLowerCase()))
     if (triggered) {
       if (bot.handoff_email) {
-        sendHandoffEmail({ to: bot.handoff_email, botName: bot.name, message })
+        await sendHandoffEmail({ to: bot.handoff_email, botName: bot.name, message })
           .catch(err => console.error('[chat] Handoff email failed:', err))
       }
       const answer = "I will connect you with our team right away. Someone will get back to you shortly!"
-      if (sessionId) trackMessages(supabase, sessionId, botId, message, answer, true)
+      if (sessionId) await trackMessages(supabase, sessionId, botId, message, answer, true)
       return NextResponse.json({ answer, isHandoff: true })
     }
   }
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
   const cannotAnswer = !!bot.restrict_to_knowledge &&
     (chunks.length === 0 || (fallbackText.length > 0 && answer.trim() === fallbackText))
   const isAnswered = !cannotAnswer
-  if (sessionId) trackMessages(supabase, sessionId, botId, message, answer, isAnswered)
+  if (sessionId) await trackMessages(supabase, sessionId, botId, message, answer, isAnswered)
   return NextResponse.json({ answer, isAnswered, cannot_answer: cannotAnswer })
   } catch (err: any) {
     console.error('[POST /api/chat] unhandled error:', err)
@@ -93,10 +93,41 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function trackMessages(supabase: any, sessionId: string, botId: string, userMsg: string, botMsg: string, isAnswered: boolean) {
-  await supabase.from('chat_messages').insert([
-    { session_id: sessionId, bot_id: botId, role: 'user', content: userMsg, is_answered: true },
-    { session_id: sessionId, bot_id: botId, role: 'assistant', content: botMsg, is_answered: isAnswered },
-  ])
-  await supabase.rpc('increment_bot_chat_count', { p_bot_id: botId }).catch(console.error)
+/**
+ * Awaited by both call sites, and it must stay that way. Vercel freezes the
+ * instance the moment the response is sent, so anything still in flight here is
+ * abandoned: the two inserts run first and mostly landed, the RPC runs last and
+ * never once did — every bot's chat_count sat at 0 across 116 messages while the
+ * plans meter on that number.
+ *
+ * Never throws. Now that it is awaited, an uncaught error here would reach the
+ * visitor as a failed chat; a tracking problem is ours, not theirs.
+ */
+async function trackMessages(
+  supabase: ReturnType<typeof createSupabaseServiceClient>,
+  sessionId: string,
+  botId: string,
+  userMsg: string,
+  botMsg: string,
+  isAnswered: boolean,
+) {
+  try {
+    const { error: insertError } = await supabase.from('chat_messages').insert([
+      { session_id: sessionId, bot_id: botId, role: 'user', content: userMsg, is_answered: true },
+      { session_id: sessionId, bot_id: botId, role: 'assistant', content: botMsg, is_answered: isAnswered },
+    ])
+    if (insertError) {
+      console.error('[chat] chat_messages insert failed', { sessionId, botId, error: insertError })
+    }
+
+    // supabase-js resolves with { error } instead of rejecting, so the
+    // .catch(console.error) that used to sit here could never fire for a
+    // database failure — it read as error handling that wasn't there.
+    const { error: rpcError } = await supabase.rpc('increment_bot_chat_count', { p_bot_id: botId })
+    if (rpcError) {
+      console.error('[chat] increment_bot_chat_count failed', { sessionId, botId, error: rpcError })
+    }
+  } catch (err: unknown) {
+    console.error('[chat] trackMessages failed', { sessionId, botId, err })
+  }
 }
