@@ -405,7 +405,7 @@ export default function LandingPage() {
                   Grounded in your content. Nothing else.
                 </h3>
                 <p className="mt-4 text-base text-zinc-400 leading-relaxed">
-                  Point Questme at your URL, docs site, FAQs, or PDFs. We index everything, then answer visitor questions with citations from your own content. The AI never invents features, prices, or policies. Every answer traces back to a source you control.
+                  Point Questme at your URL, docs site, FAQs, or PDFs. We index everything, then answer visitor questions with citations from your own content. It answers from that content or tells the visitor it can&rsquo;t. Every answer traces back to a source you control.
                 </p>
                 <ul className="mt-6 grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
                   <li className="flex items-start gap-2 text-sm text-zinc-400"><Check className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />Answers under 2 seconds</li>

@@ -9,7 +9,7 @@ const sections = [
     items: [
       {
         q: 'What is Questme.ai?',
-        a: 'Questme.ai is an AI knowledge bot platform. You upload your product information once, and your customers can ask questions and get instant accurate answers — 24/7. No hallucinations. The bot only answers from what you provide.'
+        a: 'Questme.ai is an AI knowledge bot platform. You upload your product information once, and your customers can ask questions and get instant accurate answers — 24/7. The bot only answers from what you provide.'
       },
       {
         q: 'How do I create my first bot?',
