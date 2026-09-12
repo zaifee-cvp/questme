@@ -78,12 +78,16 @@ export async function POST(req: NextRequest) {
   }
 
   // Explicit "can't answer" signal for the client's inline lead form. The bot's
-  // fallback_message is customizable per bot, so we must NEVER phrase-match it. The
-  // fallback path fires when the bot is knowledge-restricted and either found no
-  // relevant knowledge or the model returned the configured fallback verbatim.
+  // fallback_message is customizable per bot, so we must NEVER phrase-match it.
   const fallbackText = (bot.fallback_message || '').trim()
+  // A greeting legitimately matches no knowledge, so "no chunks" alone is not a
+  // failure — it was marking "hi" as an unanswered question. When the bot has a
+  // fallback configured, the bot returning it verbatim is the precise signal.
+  // The chunk test stays only for bots with no fallback, where nothing else exists.
   const cannotAnswer = !!bot.restrict_to_knowledge &&
-    (chunks.length === 0 || (fallbackText.length > 0 && answer.trim() === fallbackText))
+    (fallbackText.length > 0
+      ? answer.trim() === fallbackText
+      : chunks.length === 0)
   const isAnswered = !cannotAnswer
   if (sessionId) await trackMessages(supabase, sessionId, botId, message, answer, isAnswered)
   return NextResponse.json({ answer, isAnswered, cannot_answer: cannotAnswer })
