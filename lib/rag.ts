@@ -15,14 +15,27 @@ export async function embedText(text: string): Promise<number[]> {
   return data.data[0].embedding
 }
 
-export const KNOWLEDGE_THRESHOLD = 0.30
+/**
+ * A sanity floor, NOT an answer gate.
+ *
+ * It used to be an answer gate at 0.30, and that made the dentalys bot deny
+ * having pricing it demonstrably has. Measured in production: questions the
+ * knowledge base genuinely answers score 0.24-0.69; questions it genuinely
+ * does not score 0.02-0.15. 0.18 sits in the empty band between those two
+ * populations with roughly 0.09 of margin on each side.
+ *
+ * Anything above this floor is handed to the model, which decides whether it
+ * actually answers the question. That decision belongs to the model: it can
+ * read the chunk, and a cosine score cannot.
+ */
+export const RETRIEVAL_FLOOR = 0.18
 
 export type KnowledgeHit = { id: string; content: string; similarity: number }
 
 export async function searchKnowledge(
   botId: string,
   query: string,
-  threshold = KNOWLEDGE_THRESHOLD,
+  floor = RETRIEVAL_FLOOR,
   limit = 8,
 ): Promise<{ chunks: KnowledgeHit[]; topSimilarity: number | null }> {
   const supabase = createSupabaseServiceClient()
@@ -31,7 +44,8 @@ export async function searchKnowledge(
     query_embedding: embedding,
     match_bot_id: botId,
     // Fetched unfiltered and filtered below, so a near miss is still visible.
-    // Without this, "nothing matched" and "matched at 0.29" look identical.
+    // Without this, "nothing matched" and "matched at 0.17" look identical
+    // in the logs, and that ambiguity is what hid this bug for months.
     match_threshold: 0,
     match_count: limit,
   })
@@ -41,7 +55,7 @@ export async function searchKnowledge(
   }
   const all = (data || []) as KnowledgeHit[]
   return {
-    chunks: all.filter((c) => c.similarity > threshold),
+    chunks: all.filter((c) => c.similarity > floor),
     topSimilarity: all.length > 0 ? all[0].similarity : null,
   }
 }
@@ -57,8 +71,8 @@ export async function generateAnswer(opts: {
   const systemPrompt = restrictToKnowledge
     ? `You are the AI assistant for ${botName}.
 STRICT RULE: Answer ONLY using the CONTEXT provided below. Do not use any outside knowledge whatsoever.
-If the context does not contain the answer, respond with exactly: "${fallbackMessage}"
-Never mention "the context" or "the document" — just answer naturally.
+The CONTEXT is retrieved by similarity and may include passages that are only loosely related to the question. Read it and judge for yourself: if it contains the answer, give it, even when the wording differs from the question. If it does not contain the answer, respond with exactly: "${fallbackMessage}"
+Never invent, estimate, or extrapolate a fact that is not written in the CONTEXT. Never mention "the context" or "the document" — just answer naturally.
 Keep answers concise (under 150 words). Be helpful, warm, and professional.
 
 CONTEXT:

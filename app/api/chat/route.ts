@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServiceClient } from '@/lib/supabase/server'
-import { searchKnowledge, generateAnswer, KNOWLEDGE_THRESHOLD } from '@/lib/rag'
+import { searchKnowledge, generateAnswer, RETRIEVAL_FLOOR } from '@/lib/rag'
 import { sendHandoffEmail } from '@/lib/resend'
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       question: message.slice(0, 120),
       topSimilarity,
       chunksOverThreshold: chunks.length,
-      threshold: KNOWLEDGE_THRESHOLD,
+      floor: RETRIEVAL_FLOOR,
     }))
   }
   const isAnswered = !cannotAnswer
