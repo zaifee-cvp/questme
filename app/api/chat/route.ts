@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServiceClient } from '@/lib/supabase/server'
-import { searchKnowledge, generateAnswer, RETRIEVAL_FLOOR } from '@/lib/rag'
+import { searchKnowledge, generateAnswer, RETRIEVAL_FLOOR, type SalesConfig } from '@/lib/rag'
 import { sendHandoffEmail } from '@/lib/resend'
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -64,6 +64,19 @@ export async function POST(req: NextRequest) {
   const contactContext = contactParts.length ? `\n\n[Contact Information]:\n${contactParts.join('\n')}` : ''
   const context = knowledgeContext + contactContext
 
+  // Sales mode needs a goal and a destination to be meaningful. A bot switched
+  // on but left unconfigured would ask for a next step it cannot name, so it
+  // stays in plain support mode until both are set.
+  const sales: SalesConfig | null =
+    bot.sales_mode && bot.cta_url && bot.sales_goal
+      ? {
+          goal: bot.sales_goal,
+          ctaLabel: bot.cta_label || 'Book a call',
+          ctaUrl: bot.cta_url,
+          qualifyingQuestions: Array.isArray(bot.qualifying_questions) ? bot.qualifying_questions : [],
+        }
+      : null
+
   let answer: string
   try {
     answer = await generateAnswer({
@@ -72,6 +85,7 @@ export async function POST(req: NextRequest) {
       restrictToKnowledge: bot.restrict_to_knowledge,
       context,
       messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
+      sales,
     })
   } catch (err) {
     console.error('[chat] generateAnswer error:', err)
@@ -88,7 +102,7 @@ export async function POST(req: NextRequest) {
   // The chunk test stays only for bots with no fallback, where nothing else exists.
   const cannotAnswer = !!bot.restrict_to_knowledge &&
     (fallbackText.length > 0
-      ? answer.trim() === fallbackText
+      ? answer.trim().startsWith(fallbackText)
       : chunks.length === 0)
   // One line per fallback, so "why did it not answer" is a number rather than a
   // theory. Question is truncated; it is a visitor's words, not payload.

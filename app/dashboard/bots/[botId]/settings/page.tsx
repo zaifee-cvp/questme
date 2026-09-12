@@ -18,6 +18,11 @@ interface Bot {
   handoff_email: string
   handoff_trigger_keywords: string[]
   restrict_to_knowledge: boolean
+  sales_mode: boolean
+  sales_goal: string
+  cta_label: string
+  cta_url: string
+  qualifying_questions: string[]
   contact_phone: string
   contact_whatsapp: string
   contact_email: string
@@ -32,7 +37,9 @@ const EMPTY_BOT: Bot = {
   id: '', name: '', description: '', welcome_message: '', fallback_message: '',
   color: '#AAFF00', lead_capture_enabled: false, lead_capture_prompt: '',
   handoff_enabled: false, handoff_email: '', handoff_trigger_keywords: [],
-  restrict_to_knowledge: true, contact_phone: '', contact_whatsapp: '',
+  restrict_to_knowledge: true,
+  sales_mode: false, sales_goal: '', cta_label: '', cta_url: '', qualifying_questions: [],
+  contact_phone: '', contact_whatsapp: '',
   contact_email: '', contact_website: '', contact_instagram: '',
   contact_facebook: '', contact_address: '', allowed_origins: [],
 }
@@ -54,6 +61,7 @@ export default function BotSettingsPage() {
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [keywordsInput, setKeywordsInput] = useState('')
+  const [questionsInput, setQuestionsInput] = useState('')
   const [originInput, setOriginInput] = useState('')
   const [originError, setOriginError] = useState('')
   // The allowed_origins migration may not have been applied yet. GET returns
@@ -68,6 +76,7 @@ export default function BotSettingsPage() {
       const data = await res.json()
       setBot({ ...EMPTY_BOT, ...data, allowed_origins: data.allowed_origins || [] })
       setKeywordsInput((data.handoff_trigger_keywords || []).join(', '))
+      setQuestionsInput((data.qualifying_questions || []).join('\n'))
       setOriginsSupported('allowed_origins' in data)
     }
     setLoading(false)
@@ -102,7 +111,10 @@ export default function BotSettingsPage() {
     e.preventDefault()
     setSaving(true); setSaved(false); setError(null)
     const keywords = keywordsInput.split(',').map(k => k.trim()).filter(Boolean)
-    const payload: Record<string, unknown> = { ...bot, handoff_trigger_keywords: keywords }
+    // Parsed on save, not per keystroke: splitting while typing would drop the
+    // empty line Enter creates, so a second question could never be started.
+    const questions = questionsInput.split('\n').map(q => q.trim()).filter(Boolean).slice(0, 3)
+    const payload: Record<string, unknown> = { ...bot, handoff_trigger_keywords: keywords, qualifying_questions: questions }
     if (!originsSupported) delete payload.allowed_origins
     const res = await fetch(`/api/bots/${botId}`, {
       method: 'PATCH',
@@ -209,6 +221,43 @@ export default function BotSettingsPage() {
             <div>
               <label style={LABEL}>Lead Capture Prompt</label>
               <input style={INPUT} value={bot.lead_capture_prompt} onChange={e => set('lead_capture_prompt', e.target.value)} placeholder="Enter your email to continue chatting" />
+            </div>
+          )}
+        </div>
+
+        {/* Sales Mode */}
+        <div style={SECTION}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <div style={SECTION_TITLE as any}>Sales Mode <span style={{ fontSize: '12px', fontWeight: 400, color: '#6B7280' }}>(the assistant qualifies and offers a next step, instead of only answering)</span></div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <div style={{ position: 'relative', width: '36px', height: '20px' }}>
+                <input type="checkbox" checked={bot.sales_mode} onChange={e => set('sales_mode', e.target.checked)} style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }} />
+                <div style={{ position: 'absolute', inset: 0, borderRadius: '20px', background: bot.sales_mode ? '#AAFF00' : '#2D3148', transition: 'background 0.2s', cursor: 'pointer' }} onClick={() => set('sales_mode', !bot.sales_mode)} />
+                <div style={{ position: 'absolute', top: '2px', left: bot.sales_mode ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: bot.sales_mode ? '#080A0E' : '#6B7280', transition: 'left 0.2s', pointerEvents: 'none' }} />
+              </div>
+              <span style={{ fontSize: '13px', color: '#9CA3AF' }}>{bot.sales_mode ? 'On' : 'Off'}</span>
+            </label>
+          </div>
+          {bot.sales_mode && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>The assistant will not invent prices, statistics, customers or discounts, and will not ask twice if a visitor declines.</p>
+              <div>
+                <label style={LABEL}>What should the assistant get visitors to do?</label>
+                <input style={INPUT} value={bot.sales_goal || ''} onChange={e => set('sales_goal', e.target.value)} placeholder="Get the visitor to book a 30-minute demo call" />
+              </div>
+              <div>
+                <label style={LABEL}>Button / link text</label>
+                <input style={INPUT} value={bot.cta_label || ''} onChange={e => set('cta_label', e.target.value)} placeholder="Book a 30-min demo" />
+              </div>
+              <div>
+                <label style={LABEL}>Link</label>
+                <input type="url" style={INPUT} value={bot.cta_url || ''} onChange={e => set('cta_url', e.target.value)} placeholder="https://cal.com/your-account/demo" />
+                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '6px' }}>The only link the assistant is allowed to offer. It will never invent one.</p>
+              </div>
+              <div>
+                <label style={LABEL}>Qualifying questions <span style={{ fontWeight: 400, color: '#6B7280' }}>(one per line, max 3)</span></label>
+                <textarea style={{ ...INPUT, minHeight: '80px', resize: 'vertical' }} value={questionsInput} onChange={e => setQuestionsInput(e.target.value)} placeholder={'How many technicians are on your team?\nWhat are you using today?'} />
+              </div>
             </div>
           )}
         </div>

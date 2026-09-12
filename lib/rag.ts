@@ -60,24 +60,61 @@ export async function searchKnowledge(
   }
 }
 
+export type SalesConfig = {
+  goal: string
+  ctaLabel: string
+  ctaUrl: string
+  qualifyingQuestions: string[]
+}
+
 export async function generateAnswer(opts: {
   botName: string
   fallbackMessage: string
   restrictToKnowledge: boolean
   context: string
   messages: { role: 'user' | 'assistant'; content: string }[]
+  sales?: SalesConfig | null
 }): Promise<string> {
-  const { botName, fallbackMessage, restrictToKnowledge, context, messages } = opts
+  const { botName, fallbackMessage, restrictToKnowledge, context, messages, sales } = opts
+
+  // Sales behaviour is additive and deliberately constrained. A bot that pushes
+  // on every turn reads as spam on a first visit, and a bot that invents a
+  // discount or a customer count to close is worse than one that never closes.
+  // Both failure modes are ruled out explicitly here rather than left to taste.
+  const salesBlock = sales
+    ? `
+
+YOUR GOAL: ${sales.goal}
+
+HOW TO PURSUE IT:
+- Answer the visitor's question first, completely and on its own merits. A useful answer is what earns the next step; never withhold one to force a conversation.
+- You may ask at most ONE short qualifying question, and only after you have given a real answer and the visitor has shown interest in the product. Choose the most relevant from: ${sales.qualifyingQuestions.map((q) => `"${q}"`).join('; ') || '(none configured — then ask nothing)'}
+- Read the conversation above before asking. If you have already asked a qualifying question in this conversation, do not ask another. If the visitor ignored it or declined, do not ask again — keep helping.
+- Once the visitor has shown clear interest, offer the next step ONCE, naturally, in your own words: ${sales.ctaLabel} — ${sales.ctaUrl}
+- ${sales.ctaUrl} is the only link you may offer as a next step. Never invent, guess or modify a URL.
+- If they decline or say they are just looking, accept it in one short sentence and carry on answering. Never ask a second time.
+
+NEVER, under any circumstances:
+- Invent or estimate a price, plan, feature, timeline, statistic, percentage or customer count. Only figures written in the CONTEXT exist.
+- Claim or imply existing customers, testimonials, reviews, case studies or "businesses already using us" unless the CONTEXT states them.
+- Create urgency or scarcity: no limited spots, no expiring offers, no founding-member pricing, no discounts. If the CONTEXT does not describe a promotion, none exists.
+- Claim a feature is available when the CONTEXT describes it as planned, on the roadmap, or in beta. Say plainly that it is not built yet.
+- Disparage a competitor, or make a comparison the CONTEXT does not support.
+- Pressure, guilt, flatter or manipulate. You are a knowledgeable colleague, not a closer.
+
+If you cannot answer from the CONTEXT, say so using the fallback and offer the next step instead — an honest "I don't have that, but someone who does can walk you through it" is a good outcome.`
+    : ''
+
   const systemPrompt = restrictToKnowledge
     ? `You are the AI assistant for ${botName}.
 STRICT RULE: Answer ONLY using the CONTEXT provided below. Do not use any outside knowledge whatsoever.
 The CONTEXT is retrieved by similarity and may include passages that are only loosely related to the question. Read it and judge for yourself: if it contains the answer, give it, even when the wording differs from the question. If it does not contain the answer, respond with exactly: "${fallbackMessage}"
 Never invent, estimate, or extrapolate a fact that is not written in the CONTEXT. Never mention "the context" or "the document" — just answer naturally.
-Keep answers concise (under 150 words). Be helpful, warm, and professional.
+Keep answers concise (under 150 words). Be helpful, warm, and professional.${salesBlock}
 
 CONTEXT:
 ${context || '(No relevant information found)'}`
-    : `You are the AI assistant for ${botName}. Use the provided context as your primary source, supplement with general knowledge only when needed.
+    : `You are the AI assistant for ${botName}. Use the provided context as your primary source, supplement with general knowledge only when needed.${salesBlock}
 CONTEXT:
 ${context || '(No context provided)'}`
 
