@@ -15,17 +15,35 @@ export async function embedText(text: string): Promise<number[]> {
   return data.data[0].embedding
 }
 
-export async function searchKnowledge(botId: string, query: string, threshold = 0.30, limit = 8): Promise<{ id: string; content: string; similarity: number }[]> {
+export const KNOWLEDGE_THRESHOLD = 0.30
+
+export type KnowledgeHit = { id: string; content: string; similarity: number }
+
+export async function searchKnowledge(
+  botId: string,
+  query: string,
+  threshold = KNOWLEDGE_THRESHOLD,
+  limit = 8,
+): Promise<{ chunks: KnowledgeHit[]; topSimilarity: number | null }> {
   const supabase = createSupabaseServiceClient()
   const embedding = await embedText(query)
   const { data, error } = await supabase.rpc('match_knowledge_chunks', {
     query_embedding: embedding,
     match_bot_id: botId,
-    match_threshold: threshold,
+    // Fetched unfiltered and filtered below, so a near miss is still visible.
+    // Without this, "nothing matched" and "matched at 0.29" look identical.
+    match_threshold: 0,
     match_count: limit,
   })
-  if (error) { console.error('RAG search error:', error); return [] }
-  return data || []
+  if (error) {
+    console.error('RAG search error:', error)
+    return { chunks: [], topSimilarity: null }
+  }
+  const all = (data || []) as KnowledgeHit[]
+  return {
+    chunks: all.filter((c) => c.similarity > threshold),
+    topSimilarity: all.length > 0 ? all[0].similarity : null,
+  }
 }
 
 export async function generateAnswer(opts: {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServiceClient } from '@/lib/supabase/server'
-import { searchKnowledge, generateAnswer } from '@/lib/rag'
+import { searchKnowledge, generateAnswer, KNOWLEDGE_THRESHOLD } from '@/lib/rag'
 import { sendHandoffEmail } from '@/lib/resend'
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -43,11 +43,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  let chunks: Awaited<ReturnType<typeof searchKnowledge>> = []
+  let chunks: Awaited<ReturnType<typeof searchKnowledge>>['chunks'] = []
+  let topSimilarity: number | null = null
   try {
-    chunks = await searchKnowledge(botId, message)
+    ;({ chunks, topSimilarity } = await searchKnowledge(botId, message))
   } catch (err) {
     console.error('[chat] searchKnowledge error:', err)
+    topSimilarity = null
   }
 
   const knowledgeContext = chunks.map((c, i) => `[Source ${i + 1}]: ${c.content}`).join('\n\n')
@@ -88,6 +90,17 @@ export async function POST(req: NextRequest) {
     (fallbackText.length > 0
       ? answer.trim() === fallbackText
       : chunks.length === 0)
+  // One line per fallback, so "why did it not answer" is a number rather than a
+  // theory. Question is truncated; it is a visitor's words, not payload.
+  if (cannotAnswer) {
+    console.warn('[chat] fallback ' + JSON.stringify({
+      botId,
+      question: message.slice(0, 120),
+      topSimilarity,
+      chunksOverThreshold: chunks.length,
+      threshold: KNOWLEDGE_THRESHOLD,
+    }))
+  }
   const isAnswered = !cannotAnswer
   if (sessionId) await trackMessages(supabase, sessionId, botId, message, answer, isAnswered)
   return NextResponse.json({ answer, isAnswered, cannot_answer: cannotAnswer })
