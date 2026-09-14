@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
@@ -36,7 +36,12 @@ export const metadata: Metadata = {
     shortcut: ['/favicon.png'],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
+  manifest: '/site.webmanifest',
+  appleWebApp: { capable: true, title: 'Questme', statusBarStyle: 'default' },
+  other: { 'mobile-web-app-capable': 'yes' },
 }
+
+export const viewport: Viewport = { themeColor: '#080A0E' }
 
 const orgSchema = {
   '@context': 'https://schema.org',
